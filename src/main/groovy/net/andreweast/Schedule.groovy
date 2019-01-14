@@ -3,11 +3,16 @@ package net.andreweast
 class Schedule implements Runnable {
     static final int GENERATION_LIMIT = 100
 
+    static final boolean DEBUG = false
+
     Population population
 
     static void main(String[] args) {
-        Schedule schedule = new Schedule()
-        schedule.run() // TODO: threaded?
+//        Schedule schedule = new Schedule()
+//        schedule.run() // TODO: threaded?
+
+        Thread t = new Thread(new Schedule())
+        t.start()
     }
 
     Schedule() {
@@ -15,35 +20,43 @@ class Schedule implements Runnable {
     }
 
     void run() {
-        long startTime = System.currentTimeMillis()
+        long startTime = System.nanoTime()
 
         println "************* GEN init *************"
         println population
-        long initTime = System.currentTimeMillis() - startTime
+        long initTime = System.nanoTime() - startTime
 
         double runningAverage = -1
-        def averages = []
         GENERATION_LIMIT.times { i ->
-            startTime = System.currentTimeMillis()
-            println "************* GEN $i *************"
+            startTime = System.nanoTime()
+//            println "************* GEN $i *************"
+
             population.select()
+
+            population.crossover()
+
             population.mutate()
-            println population
+
+//            if (DEBUG) {
+                // println population
+                println population.toFitnessList()
+//            }
+
             if (i == 0) {
-                runningAverage = System.currentTimeMillis() - startTime
+                runningAverage = System.nanoTime() - startTime
             } else {
-                runningAverage = runningAverage + (((System.currentTimeMillis() - startTime) - runningAverage) / (i + 1 as double))
+                runningAverage = runningAverage + (((System.nanoTime()  - startTime) - runningAverage) / (i + 1 as double))
             }
-            averages.add(System.currentTimeMillis() - startTime)
         }
 
+        println()
+        println "Complexity of dataset:"
         println "Courses: ${Course.allCourses.length}"
         println "Venues x TimeSlots: ${Venue.Room.values().length * TimeSlot.DayOfWeek.values().length * TimeSlot.StartTime.values().length}"
 
-        println "Time init: ${initTime} ms"
-        println "Average generation time: ${runningAverage} ms"
-
-        println "Avg from array=${(averages.sum() / (averages.size() as double))}"
-        println averages
+        println()
+        println "Running time stats:"
+        println "Time init: ${initTime * 1.0E-6} ms"
+        println "Average generation time: ${runningAverage * 1E-6} ms"
     }
 }

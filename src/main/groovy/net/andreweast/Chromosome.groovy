@@ -3,7 +3,8 @@ package net.andreweast
 class Chromosome implements Comparable<Chromosome> {
 //class Chromosome {
     ScheduledCourse[] courses
-    int storedFitness
+    int storedFitness = -1
+    boolean isValidSolution
 
     static Random random = new Random()
 
@@ -30,40 +31,57 @@ class Chromosome implements Comparable<Chromosome> {
     }
 
     void crossover(Chromosome toCrossWith) {
-        println "Before cross: " + this.toString()
-        println "Crossing w/:  " + toCrossWith.toString()
         int crossoverPoint = random.nextInt(courses.length)
-        println "CrossoverPoint=${crossoverPoint}"
+        if (Schedule.DEBUG) {
+            println "Before cross: " + this.toString()
+            println "Crossing w/:  " + toCrossWith.toString()
+            println "CrossoverPoint=${crossoverPoint}"
+        }
         for (int i = 0; i <= crossoverPoint; ++i) {
             courses[i] = toCrossWith.courses[i].clone()
         }
         storedFitness = calculateFitness()
-        println "After cross:  " + this.toString()
+        if (Schedule.DEBUG) {
+            println "After cross:  " + this.toString()
+        }
     }
 
     void mutate() {
         // randomise one of the scheduled courses
-        println "Before mutate: " + this.toString()
+        if (Schedule.DEBUG) {
+            println "Before mutate: " + this.toString()
+        }
         int mutateGene = random.nextInt(courses.length)
         courses[mutateGene] = new ScheduledCourse(courses[mutateGene].course)
         storedFitness = calculateFitness()
-        println "@${mutateGene} After mutate:  " + this.toString()
+        if (Schedule.DEBUG) {
+            println "@${mutateGene} After mutate:  " + this.toString()
+        }
     }
 
     int calculateFitness() {
-        int fitness = 0
+        // Weight of any "required" fitness is 100, such as two courses overlapping
+        // Weight of any "preferable" fitness is 1, such as keeping a 2-hour lecture as one block vs. two blocks or lecture not being at 8am
+        // TODO: Tweak these fitness weights
+
+        isValidSolution = true
+
+        int fitnessFromOverlappingClasses = Course.allCourses.size() * 100
         // TODO: O(n^2) iterative search. Needs improvement. Ideas: Hash array, make sure no collisions. "Sort" array and then compare linearly.
         for (int i = 0; i < courses.size(); ++i) {
             for (int j = i + 1; j < courses.size(); ++j) {
                 if (i != j) {
                     if (courses[i].equals(courses[j])) {
-                        fitness -= 1
+                        fitnessFromOverlappingClasses -= 100
+                        isValidSolution = false
                     }
                 }
             }
         }
 
-        fitness
+        int sumFitness = fitnessFromOverlappingClasses
+
+        sumFitness
     }
 
     String toString() {
