@@ -1,9 +1,9 @@
 package net.andreweast
 
 class Schedule implements Runnable {
-    static final int GENERATION_LIMIT = 100
+    static final int GENERATION_LIMIT = 300
 
-    static final boolean DEBUG = false
+    static final boolean DEBUG = true
 
     Population population
 
@@ -27,6 +27,7 @@ class Schedule implements Runnable {
         long initTime = System.nanoTime() - startTime
 
         double runningAverage = -1
+        // TODO: Run with GENERATION_LIMIT as a maxium, but stop if an acceptable solution is found
         GENERATION_LIMIT.times { i ->
             startTime = System.nanoTime()
 //            println "************* GEN $i *************"
@@ -34,6 +35,7 @@ class Schedule implements Runnable {
             population.select()
 
             population.crossover()
+//            population.selectWithSamePopulation()
 
             population.mutate()
 
