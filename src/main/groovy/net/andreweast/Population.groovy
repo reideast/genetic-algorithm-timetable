@@ -37,11 +37,32 @@ class Population {
         individuals[individuals.length - 1] = offspring
     }
 
+    void crossover() {
+        // Crossover with p = 0.6
+        if (random.nextInt(100) < 60) {
+            // TODO: Rather naive method of choosing best: Just sort the population by fitness
+            Arrays.sort(individuals)
+            Chromosome first = individuals[0]
+            Chromosome second = individuals[1]
+
+            // create a new one cloned from highest
+            Chromosome offspring = new Chromosome(first)
+
+            // swap some genes with second highest
+            offspring.crossover(second)
+
+            // replace lowest individual with new offspring
+            individuals[individuals.length - 1] = offspring
+        }
+    }
+
     void mutate() {
-        // roll a d6 to see if should mutate the top two fittest individuals
-        if (random.nextInt(6) < 4) {
-            individuals[0].mutate()
-            individuals[1].mutate()
+        // Mutate a random individual with p = 0.01
+        if (random.nextInt(100) == 0) {
+            if (Schedule.DEBUG) {
+                println "Mutating!"
+            }
+            individuals[random.nextInt(NUM_INDIVIDUALS)].mutate()
         }
     }
 
@@ -51,5 +72,11 @@ class Population {
             s.append(it.toString()).append('\n')
         }
         s.toString()
+    }
+
+    List<Integer> toFitnessList() {
+        individuals.collect {
+            it.getStoredFitness()
+        }
     }
 }
