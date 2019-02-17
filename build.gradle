@@ -29,4 +29,22 @@ dependencies {
 tomcat {
     httpProtocol = 'org.apache.coyote.http11.Http11Nio2Protocol'
     ajpProtocol  = 'org.apache.coyote.ajp.AjpNio2Protocol'
+    contextPath = '/' // Otherwise, would run on localhost:8080/projectName/
+    users {
+        user {
+            username = 'user1'
+            password = '123456'
+            roles = ['developers', 'admin']
+        }
+
+        user {
+            username = 'user2'
+            password = 'abcdef'
+            roles = ['manager']
+        }
+    }
+}
+tomcatRun {
+    daemon = false // TODO: turn to true if using tomcatStop
+    outputFile = file('tomcat-log.log')
 }
