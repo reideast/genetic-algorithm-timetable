@@ -80,3 +80,7 @@ fabric.properties
 
 # Documentation files
 *.url
+
+# Log files
+*.log
+
