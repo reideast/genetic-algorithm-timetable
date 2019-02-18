@@ -26,6 +26,34 @@ dependencies {
         "org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}"
 }
 
+sourceSets {
+    main {
+        java {
+            // https://stackoverflow.com/a/22164339/5271224
+            srcDirs = []
+//            srcDirs += ['src/main/groovy']
+        }
+        groovy {
+            // do a co-compilation of java and groovy, so that they can depend on each other without circular dependencies
+            // https://stackoverflow.com/a/22164339/5271224
+            srcDirs += ['src/main/java']
+//            srcDirs = []
+        }
+    }
+}
+// remove GroovyCompile->JavaCompile task dependencies
+//// https://stackoverflow.com/a/22164339/5271224
+//tasks.withType(GroovyCompile) {
+//    dependsOn = []
+//}
+//// add JavaCompile->GroovyCompile task dependencies
+//// https://stackoverflow.com/a/22164339/5271224
+//tasks.withType(JavaCompile) { task ->
+//    println "Task: ${task}"
+//    println task.name.replace("Java", "Groovy")
+//    dependsOn task.name.replace("Java", "Groovy")
+//}
+
 tomcat {
     httpProtocol = 'org.apache.coyote.http11.Http11Nio2Protocol'
     ajpProtocol  = 'org.apache.coyote.ajp.AjpNio2Protocol'
