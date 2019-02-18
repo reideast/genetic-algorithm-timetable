@@ -2,8 +2,10 @@ branch-defaults:
   aws-config:
     environment: null
     group_suffix: null
+  schedule-api-dumb:
+    environment: genetic-algorithm-dev
 deploy:
-  artifact: build\libs\genetic-algorithm-0.1.0.war
+  artifact: build\libs\genetic-algorithm-0.2.0.war
 global:
   application_name: genetic-algorithm
   branch: null
