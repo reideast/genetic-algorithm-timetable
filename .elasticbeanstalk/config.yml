@@ -3,7 +3,7 @@ branch-defaults:
     environment: null
     group_suffix: null
 deploy:
-  artifact: C:\Users\deskase\Dropbox\NUIG\FYP Final Year Project\genetic-algorithm\build\libs\genetic-algorithm-0.1.0.war
+  artifact: build\libs\genetic-algorithm-0.1.0.war
 global:
   application_name: genetic-algorithm
   branch: null
