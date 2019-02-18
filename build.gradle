@@ -74,5 +74,5 @@ tomcat {
 }
 tomcatRun {
     daemon = false // TODO: turn to true if using tomcatStop
-    outputFile = file('tomcat-log.log')
+    outputFile = file('logs/tomcat-log.log')
 }

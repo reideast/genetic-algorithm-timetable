@@ -3,7 +3,7 @@ branch-defaults:
     environment: null
     group_suffix: null
   schedule-api-dumb:
-    environment: genetic-algorithm-dev
+    environment: null
 deploy:
   artifact: build\libs\genetic-algorithm-0.2.0.war
 global:
