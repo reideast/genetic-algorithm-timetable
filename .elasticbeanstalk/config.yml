@@ -5,7 +5,7 @@ branch-defaults:
   schedule-api-dumb:
     environment: null
 deploy:
-  artifact: build\libs\genetic-algorithm-0.2.0.war
+  artifact: build\libs\genetic-algorithm-0.2.1.war
 global:
   application_name: genetic-algorithm
   branch: null
