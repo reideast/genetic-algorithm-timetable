@@ -8,6 +8,8 @@
 .idea/**/dictionaries
 .idea/**/shelf
 .idea/**/encodings.xml
+.idea/**/dataSources.xml
+.idea/**/sqldialects.xml
 
 .idea/checkstyle-idea.xml
 .idea/misc.xml
@@ -91,3 +93,4 @@ logs/
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+.ebextensions/environmentvariables.config

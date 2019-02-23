@@ -1,3 +1,12 @@
+import org.yaml.snakeyaml.Yaml
+
+buildscript {
+    dependencies {
+        // https://mvnrepository.com/artifact/org.yaml/snakeyaml
+        classpath group: 'org.yaml', name: 'snakeyaml', version: '1.23'
+    }
+}
+
 plugins {
     id 'java'
     id 'groovy'
@@ -34,6 +43,8 @@ dependencies {
 //    // DEBUG: doesn't seem to be needed
 //    // https://mvnrepository.com/artifact/org.glassfish.jersey.media/jersey-media-json-jackson
 //    compile group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '2.28'
+
+    implementation 'org.postgresql:postgresql:42.2.5'
 
     // DEBUG: For tomcat plugin, not needed for gretty:
 //    def tomcatVersion = '8.5.16'
@@ -101,10 +112,24 @@ gretty {
     servletContainer = 'tomcat85' // Match version running on AWS Elastic Beanstalk
 }
 
+// For all of Gretty's appRun-type tasks, load the .ebextensions YAML file as environmental variables first
+tasks.withType(org.akhikhl.gretty.AppStartTask) { Task task ->
+    if (task.name in ['appRun', 'appStart', 'appRunWar', 'appStartWar']) {
+        def yamlFileContents = (".ebextensions/environmentvariables.config" as File).text
+        def envs = new Yaml().load(yamlFileContents)["option_settings"]["aws:elasticbeanstalk:application:environment"] as Map<String, String>
+        envs.each { key, value ->
+            systemProperty key, value // Gradle's idiom for System.setProperty()
+        }
+    }
+}
+
 war {
     // bundle Elastic Beanstalk config files into the WAR
     from('.ebextensions') {
         include 'environmentvariables.config'
+        include 'securitygroup-addexisting.config'
         into('.ebextensions')
     }
+    inputs.files('.ebextensions') // Informs the WAR task that files in this directory should be considered inputs, thus the WAR must be rebuilt if they are modified
 }
+
