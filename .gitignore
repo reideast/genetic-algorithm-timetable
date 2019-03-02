@@ -7,9 +7,13 @@
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+.idea/**/encodings.xml
+.idea/**/dataSources.xml
+.idea/**/sqldialects.xml
 
 .idea/checkstyle-idea.xml
 .idea/misc.xml
+.idea/vcs.xml
 
 # Generated files
 .idea/**/contentModel.xml
@@ -75,3 +79,18 @@ fabric.properties
 
 # Editor-based Rest Client
 .idea/httpRequests
+
+# Documentation files
+*.url
+
+# Log files
+logs/
+*.log
+*.log.[0-9]
+
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+.ebextensions/environmentvariables.config

@@ -1,0 +1,22 @@
+branch-defaults:
+  aws-config:
+    environment: null
+    group_suffix: null
+  schedule-api-dumb:
+    environment: null
+deploy:
+  artifact: build\libs\genetic-algorithm-0.2.1.war
+global:
+  application_name: genetic-algorithm
+  branch: null
+  default_ec2_keyname: aws-eb-key
+  default_platform: Tomcat 8.5 Java 8
+  default_region: eu-west-1
+  include_git_submodules: true
+  instance_profile: null
+  platform_name: null
+  platform_version: null
+  profile: eb-cli
+  repository: null
+  sc: git
+  workspace_type: Application
