@@ -11,8 +11,8 @@ public class LecturerTimeslotPreferencesEntityPK implements Serializable {
     private int lecturerId;
     private int timeslotId;
 
-    @Column(name = "lecturer_id", nullable = false)
     @Id
+    @Column(name = "lecturer_id", nullable = false)
     public int getLecturerId() {
         return lecturerId;
     }
@@ -21,8 +21,8 @@ public class LecturerTimeslotPreferencesEntityPK implements Serializable {
         this.lecturerId = lecturerId;
     }
 
-    @Column(name = "timeslot_id", nullable = false)
     @Id
+    @Column(name = "timeslot_id", nullable = false)
     public int getTimeslotId() {
         return timeslotId;
     }

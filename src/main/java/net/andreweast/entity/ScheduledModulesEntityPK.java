@@ -1,24 +1,22 @@
 package net.andreweast.entity;
 
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class CourseModuleEntityPK implements Serializable {
-    private int courseId;
+public class ScheduledModulesEntityPK implements Serializable {
+    private int scheduleId;
     private int moduleId;
 
     @Id
-    @Column(name = "course_id", nullable = false)
-    public int getCourseId() {
-        return courseId;
+    @Column(name = "schedule_id", nullable = false)
+    public int getScheduleId() {
+        return scheduleId;
     }
 
-    public void setCourseId(int courseId) {
-        this.courseId = courseId;
+    public void setScheduleId(int scheduleId) {
+        this.scheduleId = scheduleId;
     }
 
     @Id
@@ -35,13 +33,13 @@ public class CourseModuleEntityPK implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CourseModuleEntityPK that = (CourseModuleEntityPK) o;
-        return courseId == that.courseId &&
+        ScheduledModulesEntityPK that = (ScheduledModulesEntityPK) o;
+        return scheduleId == that.scheduleId &&
                 moduleId == that.moduleId;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(courseId, moduleId);
+        return Objects.hash(scheduleId, moduleId);
     }
 }

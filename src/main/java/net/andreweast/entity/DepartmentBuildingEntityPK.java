@@ -11,8 +11,8 @@ public class DepartmentBuildingEntityPK implements Serializable {
     private int departmentId;
     private int buildingId;
 
-    @Column(name = "department_id", nullable = false)
     @Id
+    @Column(name = "department_id", nullable = false)
     public int getDepartmentId() {
         return departmentId;
     }
@@ -21,8 +21,8 @@ public class DepartmentBuildingEntityPK implements Serializable {
         this.departmentId = departmentId;
     }
 
-    @Column(name = "building_id", nullable = false)
     @Id
+    @Column(name = "building_id", nullable = false)
     public int getBuildingId() {
         return buildingId;
     }

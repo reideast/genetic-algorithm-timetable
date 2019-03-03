@@ -2,7 +2,7 @@
 <persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
     <persistence-unit name="PostgresPersistenceUnit" transaction-type="RESOURCE_LOCAL"><!-- RESOURCE_LOCAL recommended for Tomcat http://www.netbeans.org/kb/60/websvc/rest-tomcat.html#configure_persistence -->
 
-        <!-- https://www.javaworld.com/article/2072270/netbeans--jersey-and-tomcat.html -->
+        <!-- https://www.javaworld.com/article/2072270/netbeans-jersey-and-tomcat.html -->
        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider><!-- DEBUG: This was a guess for the correct class... -->
         <!--<exclude-unlisted-classes>false</exclude-unlisted-classes>--><!-- DEBUG: can this line replace including all the specific entity classes below? -->
 
@@ -14,16 +14,23 @@
         <class>net.andreweast.entity.LecturerTimeslotPreferencesEntity</class>
         <class>net.andreweast.entity.LecturersEntity</class>
         <class>net.andreweast.entity.ModulesEntity</class>
-        <class>net.andreweast.entity.ScheduledTimeslotsEntity</class>
+        <class>net.andreweast.entity.ScheduledModulesEntity</class>
         <class>net.andreweast.entity.SchedulesEntity</class>
         <class>net.andreweast.entity.TimeslotsEntity</class>
         <class>net.andreweast.entity.UsersEntity</class>
         <class>net.andreweast.entity.VenuesEntity</class>
         <properties>
-            <property name="toplink.jdbc.url" value="jdbc:postgresql://genetic-algorithm-scheduler-db.cu4dpjdnm5d5.eu-west-1.rds.amazonaws.com:5432/ga_dev"/>
-            <property name="toplink.jdbc.driver" value="org.postgresql.Driver"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL9Dialect" />
+
             <property name="hibernate.connection.url" value="jdbc:postgresql://genetic-algorithm-scheduler-db.cu4dpjdnm5d5.eu-west-1.rds.amazonaws.com:5432/ga_dev"/>
             <property name="hibernate.connection.driver_class" value="org.postgresql.Driver"/>
+            <property name="hibernate.connection.username" value="USERNAME"/>
+            <property name="hibernate.connection.password" value="PASSWORD"/>
+
+
+
+            <property name="toplink.jdbc.url" value="jdbc:postgresql://genetic-algorithm-scheduler-db.cu4dpjdnm5d5.eu-west-1.rds.amazonaws.com:5432/ga_dev"/>
+            <property name="toplink.jdbc.driver" value="org.postgresql.Driver"/>
             <property name="openjpa.ConnectionURL" value="jdbc:postgresql://genetic-algorithm-scheduler-db.cu4dpjdnm5d5.eu-west-1.rds.amazonaws.com:5432/ga_dev"/>
             <property name="openjpa.ConnectionDriverName" value="org.postgresql.Driver"/>
             <property name="eclipselink.jdbc.url" value="jdbc:postgresql://genetic-algorithm-scheduler-db.cu4dpjdnm5d5.eu-west-1.rds.amazonaws.com:5432/ga_dev"/>
