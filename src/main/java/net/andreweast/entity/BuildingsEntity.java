@@ -22,7 +22,7 @@ public class BuildingsEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "building_generator")
-    @SequenceGenerator(name="building_generator", sequenceName = "building_id_sequence")
+    @SequenceGenerator(name="building_generator", sequenceName = "building_id_sequence", allocationSize = 1)
     @Column(name = "building_id", updatable = false, nullable = false)
     public int getBuildingId() {
         return buildingId;
@@ -44,6 +44,7 @@ public class BuildingsEntity {
 
     // DEBUG: maybe have to make a custom type for PGpoint? https://stackoverflow.com/a/53754866/5271224
     // @Basic
+    @Basic
     @Column(name = "location", nullable = true)
     public PGpoint getLocation() {
         return (PGpoint) location;

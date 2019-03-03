@@ -19,7 +19,7 @@ public class TimeslotsEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "timeslot_generator")
-    @SequenceGenerator(name="timeslot_generator", sequenceName = "timeslot_id_sequence")
+    @SequenceGenerator(name="timeslot_generator", sequenceName = "timeslot_id_sequence", allocationSize = 1)
     @Column(name = "timeslot_id", updatable = false, nullable = false)
     public int getTimeslotId() {
         return timeslotId;

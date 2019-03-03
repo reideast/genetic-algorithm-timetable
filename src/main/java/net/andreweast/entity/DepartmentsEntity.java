@@ -18,7 +18,7 @@ public class DepartmentsEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "department_generator")
-    @SequenceGenerator(name="department_generator", sequenceName = "department_id_sequence")
+    @SequenceGenerator(name="department_generator", sequenceName = "department_id_sequence", allocationSize = 1)
     @Column(name = "department_id", updatable = false, nullable = false)
     public int getDepartmentId() {
         return departmentId;

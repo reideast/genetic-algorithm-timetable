@@ -12,7 +12,7 @@ public class LecturersEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lecturer_generator")
-    @SequenceGenerator(name="lecturer_generator", sequenceName = "lecturer_id_sequence")
+    @SequenceGenerator(name="lecturer_generator", sequenceName = "lecturer_id_sequence", allocationSize = 1)
     @Column(name = "lecturer_id", updatable = false, nullable = false)
     public int getLecturerId() {
         return lecturerId;

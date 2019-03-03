@@ -12,7 +12,7 @@ public class ModulesEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "module_generator")
-    @SequenceGenerator(name="module_generator", sequenceName = "module_id_sequence")
+    @SequenceGenerator(name="module_generator", sequenceName = "module_id_sequence", allocationSize = 1)
     @Column(name = "module_id", updatable = false, nullable = false)
     public int getModuleId() {
         return moduleId;

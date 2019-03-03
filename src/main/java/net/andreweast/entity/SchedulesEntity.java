@@ -23,7 +23,7 @@ public class SchedulesEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "schedule_generator")
-    @SequenceGenerator(name="schedule_generator", sequenceName = "schedule_id_sequence")
+    @SequenceGenerator(name="schedule_generator", sequenceName = "schedule_id_sequence", allocationSize = 1)
     @Column(name = "schedule_id", updatable = false, nullable = false)
     public int getScheduleId() {
         return scheduleId;

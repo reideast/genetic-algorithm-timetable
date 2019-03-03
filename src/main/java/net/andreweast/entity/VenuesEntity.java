@@ -14,7 +14,7 @@ public class VenuesEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "venue_generator") // DEBUG: Added manually. SEQUENCE for Postgres
-    @SequenceGenerator(name="venue_generator", sequenceName = "venue_id_sequence")
+    @SequenceGenerator(name="venue_generator", sequenceName = "venue_id_sequence", allocationSize = 1)
     @Column(name = "venue_id", updatable = false, nullable = false)
     public int getVenueId() {
         return venueId;
@@ -71,7 +71,6 @@ public class VenuesEntity {
     }
 
     @ManyToOne
-    @JoinColumn(name = "building_id", referencedColumnName = "building_id")
     @JoinColumn(name = "building_id", referencedColumnName = "building_id")
     public BuildingsEntity getBuildingsByBuildingId() {
         return buildingsByBuildingId;
