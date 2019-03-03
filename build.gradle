@@ -44,7 +44,18 @@ dependencies {
 //    // https://mvnrepository.com/artifact/org.glassfish.jersey.media/jersey-media-json-jackson
 //    compile group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '2.28'
 
-    implementation 'org.postgresql:postgresql:42.2.5'
+//    implementation 'org.postgresql:postgresql:42.2.5'
+    compile 'org.postgresql:postgresql:42.2.5'
+
+    // https://mvnrepository.com/artifact/javax.persistence/javax.persistence-api
+    compile group: 'javax.persistence', name: 'javax.persistence-api', version: '2.2'
+    // https://mvnrepository.com/artifact/javax.ejb/javax.ejb-api
+    compile group: 'javax.ejb', name: 'javax.ejb-api', version: '3.2.2'
+
+    // https://mvnrepository.com/artifact/org.hibernate/hibernate-core
+    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.4.1.Final'
+
+
 
     // DEBUG: For tomcat plugin, not needed for gretty:
 //    def tomcatVersion = '8.5.16'
