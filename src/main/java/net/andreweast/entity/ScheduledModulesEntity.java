@@ -77,4 +77,15 @@ public class ScheduledModulesEntity {
     public int hashCode() {
         return Objects.hash(scheduleId, moduleId, timeslotId, venueId);
     }
+
+
+    //    @ManyToOne
+//    @JoinColumn(name = "module_id", referencedColumnName = "module_id", nullable = false)
+//    public ModulesEntity getModulesByModuleId() {
+//        return modulesByModuleId;
+//    }
+//
+//    public void setModulesByModuleId(ModulesEntity modulesByModuleId) {
+//        this.modulesByModuleId = modulesByModuleId;
+//    }
 }

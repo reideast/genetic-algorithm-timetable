@@ -10,7 +10,7 @@ public class DepartmentBuildingEntity {
     private int departmentId;
     private int buildingId;
     private Integer score;
-    private BuildingsEntity buildingsByBuildingId;
+//    private BuildingsEntity buildingsByBuildingId;
 
     @Id
     @Column(name = "department_id", nullable = false)
@@ -57,13 +57,13 @@ public class DepartmentBuildingEntity {
         return Objects.hash(departmentId, buildingId, score);
     }
 
-    @ManyToOne
-    @JoinColumn(name = "building_id", referencedColumnName = "building_id", nullable = false)
-    public BuildingsEntity getBuildingsByBuildingId() {
-        return buildingsByBuildingId;
-    }
-
-    public void setBuildingsByBuildingId(BuildingsEntity buildingsByBuildingId) {
-        this.buildingsByBuildingId = buildingsByBuildingId;
-    }
+//    @ManyToOne
+//    @JoinColumn(name = "building_id", referencedColumnName = "building_id", nullable = false)
+//    public BuildingsEntity getBuildingsByBuildingId() {
+//        return buildingsByBuildingId;
+//    }
+//
+//    public void setBuildingsByBuildingId(BuildingsEntity buildingsByBuildingId) {
+//        this.buildingsByBuildingId = buildingsByBuildingId;
+//    }
 }
