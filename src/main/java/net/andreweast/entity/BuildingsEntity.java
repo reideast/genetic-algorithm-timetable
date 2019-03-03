@@ -1,5 +1,8 @@
 package net.andreweast.entity;
 
+import org.postgresql.PGProperty;
+import org.postgresql.geometric.PGpoint;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -39,13 +42,14 @@ public class BuildingsEntity {
         this.name = name;
     }
 
-    @Basic
+    // DEBUG: maybe have to make a custom type for PGpoint? https://stackoverflow.com/a/53754866/5271224
+    // @Basic
     @Column(name = "location", nullable = true)
-    public Object getLocation() {
-        return location;
+    public PGpoint getLocation() {
+        return (PGpoint) location;
     }
 
-    public void setLocation(Object location) {
+    public void setLocation(PGpoint location) {
         this.location = location;
     }
 
