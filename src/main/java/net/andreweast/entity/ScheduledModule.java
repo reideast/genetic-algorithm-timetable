@@ -5,22 +5,19 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedAttributeNode;
 import javax.persistence.Table;
 import java.util.Objects;
 
 @Entity
 @Table(name = "scheduled_modules", schema = "public", catalog = "ga_dev")
-@IdClass(ScheduledModulesEntityPK.class)
-public class ScheduledModulesEntity {
+@IdClass(ScheduledModulePK.class)
+public class ScheduledModule {
 
     private int scheduleId;
     private int moduleId;
     private int timeslotId;
     private int venueId;
-//    private ModulesEntity modulesByModuleId;
+//    private Module modulesByModuleId;
 
     @Id
     @Column(name = "schedule_id", nullable = false)
@@ -66,7 +63,7 @@ public class ScheduledModulesEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ScheduledModulesEntity that = (ScheduledModulesEntity) o;
+        ScheduledModule that = (ScheduledModule) o;
         return scheduleId == that.scheduleId &&
                 moduleId == that.moduleId &&
                 timeslotId == that.timeslotId &&
@@ -81,11 +78,11 @@ public class ScheduledModulesEntity {
 
     //    @ManyToOne
 //    @JoinColumn(name = "module_id", referencedColumnName = "module_id", nullable = false)
-//    public ModulesEntity getModulesByModuleId() {
+//    public Module getModulesByModuleId() {
 //        return modulesByModuleId;
 //    }
 //
-//    public void setModulesByModuleId(ModulesEntity modulesByModuleId) {
+//    public void setModulesByModuleId(Module modulesByModuleId) {
 //        this.modulesByModuleId = modulesByModuleId;
 //    }
 }

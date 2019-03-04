@@ -12,7 +12,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "timeslots", schema = "public", catalog = "ga_dev")
-public class TimeslotsEntity {
+public class Timeslot {
     private int timeslotId;
     private String day;
     private int time;
@@ -53,7 +53,7 @@ public class TimeslotsEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TimeslotsEntity that = (TimeslotsEntity) o;
+        Timeslot that = (Timeslot) o;
         return timeslotId == that.timeslotId &&
                 time == that.time &&
                 Objects.equals(day, that.day);

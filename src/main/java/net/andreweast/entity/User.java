@@ -5,7 +5,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "users", schema = "public", catalog = "ga_dev")
-public class UsersEntity {
+public class User {
     private int userId;
     private String username;
     private String password;
@@ -14,7 +14,7 @@ public class UsersEntity {
     private Boolean isFacilities;
     private Boolean isAdmin;
     private String email;
-    private DepartmentsEntity departmentsByDepartmentId;
+    private Department departmentByDepartmentId;
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_generator")
@@ -102,7 +102,7 @@ public class UsersEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        UsersEntity that = (UsersEntity) o;
+        User that = (User) o;
         return userId == that.userId &&
                 Objects.equals(username, that.username) &&
                 Objects.equals(password, that.password) &&
@@ -120,11 +120,11 @@ public class UsersEntity {
 
     @ManyToOne
     @JoinColumn(name = "department_id", referencedColumnName = "department_id")
-    public DepartmentsEntity getDepartmentsByDepartmentId() {
-        return departmentsByDepartmentId;
+    public Department getDepartmentByDepartmentId() {
+        return departmentByDepartmentId;
     }
 
-    public void setDepartmentsByDepartmentId(DepartmentsEntity departmentsByDepartmentId) {
-        this.departmentsByDepartmentId = departmentsByDepartmentId;
+    public void setDepartmentByDepartmentId(Department departmentByDepartmentId) {
+        this.departmentByDepartmentId = departmentByDepartmentId;
     }
 }

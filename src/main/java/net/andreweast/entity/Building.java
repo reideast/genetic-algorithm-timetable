@@ -1,6 +1,5 @@
 package net.andreweast.entity;
 
-import org.postgresql.PGProperty;
 import org.postgresql.geometric.PGpoint;
 
 import javax.persistence.Basic;
@@ -15,7 +14,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "buildings", schema = "public", catalog = "ga_dev")
-public class BuildingsEntity {
+public class Building {
     private int buildingId;
     private String name;
     private Object location;
@@ -58,7 +57,7 @@ public class BuildingsEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        BuildingsEntity that = (BuildingsEntity) o;
+        Building that = (Building) o;
         return buildingId == that.buildingId &&
                 Objects.equals(name, that.name) &&
                 Objects.equals(location, that.location);

@@ -13,7 +13,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "schedules", schema = "public", catalog = "ga_dev")
-public class SchedulesEntity {
+public class Schedule {
     private int scheduleId;
     private Timestamp creationDate;
     private Boolean isWip;
@@ -87,7 +87,7 @@ public class SchedulesEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        SchedulesEntity that = (SchedulesEntity) o;
+        Schedule that = (Schedule) o;
         return scheduleId == that.scheduleId &&
                 Objects.equals(creationDate, that.creationDate) &&
                 Objects.equals(isWip, that.isWip) &&

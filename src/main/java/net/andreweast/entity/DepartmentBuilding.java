@@ -5,12 +5,12 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "department_building", schema = "public", catalog = "ga_dev")
-@IdClass(DepartmentBuildingEntityPK.class)
-public class DepartmentBuildingEntity {
+@IdClass(DepartmentBuildingPK.class)
+public class DepartmentBuilding {
     private int departmentId;
     private int buildingId;
     private Integer score;
-//    private BuildingsEntity buildingsByBuildingId;
+//    private Building buildingsByBuildingId;
 
     @Id
     @Column(name = "department_id", nullable = false)
@@ -46,7 +46,7 @@ public class DepartmentBuildingEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        DepartmentBuildingEntity that = (DepartmentBuildingEntity) o;
+        DepartmentBuilding that = (DepartmentBuilding) o;
         return departmentId == that.departmentId &&
                 buildingId == that.buildingId &&
                 Objects.equals(score, that.score);
@@ -59,11 +59,11 @@ public class DepartmentBuildingEntity {
 
 //    @ManyToOne
 //    @JoinColumn(name = "building_id", referencedColumnName = "building_id", nullable = false)
-//    public BuildingsEntity getBuildingsByBuildingId() {
+//    public Building getBuildingByBuildingId() {
 //        return buildingsByBuildingId;
 //    }
 //
-//    public void setBuildingsByBuildingId(BuildingsEntity buildingsByBuildingId) {
+//    public void setBuildingByBuildingId(Building buildingsByBuildingId) {
 //        this.buildingsByBuildingId = buildingsByBuildingId;
 //    }
 }

@@ -10,19 +10,19 @@
         <!--<exclude-unlisted-classes>false</exclude-unlisted-classes>-->
         <!--&lt;!&ndash; DEBUG: can this line replace including all the specific entity classes below? &ndash;&gt;-->
 
-        <class>net.andreweast.entity.BuildingsEntity</class>
-        <class>net.andreweast.entity.CourseModuleEntity</class>
-        <class>net.andreweast.entity.CoursesEntity</class>
-        <class>net.andreweast.entity.DepartmentBuildingEntity</class>
-        <class>net.andreweast.entity.DepartmentsEntity</class>
-        <class>net.andreweast.entity.LecturerTimeslotPreferencesEntity</class>
-        <class>net.andreweast.entity.LecturersEntity</class>
-        <class>net.andreweast.entity.ModulesEntity</class>
-        <class>net.andreweast.entity.ScheduledModulesEntity</class>
-        <class>net.andreweast.entity.SchedulesEntity</class>
-        <class>net.andreweast.entity.TimeslotsEntity</class>
-        <class>net.andreweast.entity.UsersEntity</class>
-        <class>net.andreweast.entity.VenuesEntity</class>
+        <class>net.andreweast.entity.Building</class>
+        <class>net.andreweast.entity.CourseModule</class>
+        <class>net.andreweast.entity.Course</class>
+        <class>net.andreweast.entity.DepartmentBuilding</class>
+        <class>net.andreweast.entity.Department</class>
+        <class>net.andreweast.entity.LecturerTimeslotPreference</class>
+        <class>net.andreweast.entity.Lecturer</class>
+        <class>net.andreweast.entity.Module</class>
+        <class>net.andreweast.entity.ScheduledModule</class>
+        <class>net.andreweast.entity.Schedule</class>
+        <class>net.andreweast.entity.Timeslot</class>
+        <class>net.andreweast.entity.User</class>
+        <class>net.andreweast.entity.Venue</class>
         <properties>
             <!--<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL9Dialect" />-->
 

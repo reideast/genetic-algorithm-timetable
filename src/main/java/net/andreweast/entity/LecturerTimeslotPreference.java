@@ -1,15 +1,20 @@
 package net.andreweast.entity;
 
+import javax.persistence.Basic;
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
+import javax.persistence.Entity;
 import javax.persistence.Id;
-import java.io.Serializable;
+import javax.persistence.IdClass;
+import javax.persistence.Table;
 import java.util.Objects;
 
-public class LecturerTimeslotPreferencesEntityPK implements Serializable {
+@Entity
+@Table(name = "lecturer_timeslot_preferences", schema = "public", catalog = "ga_dev")
+@IdClass(LecturerTimeslotPreferencePK.class)
+public class LecturerTimeslotPreference {
     private int lecturerId;
     private int timeslotId;
+    private Integer rank;
 
     @Id
     @Column(name = "lecturer_id", nullable = false)
@@ -31,17 +36,28 @@ public class LecturerTimeslotPreferencesEntityPK implements Serializable {
         this.timeslotId = timeslotId;
     }
 
+    @Basic
+    @Column(name = "rank", nullable = true)
+    public Integer getRank() {
+        return rank;
+    }
+
+    public void setRank(Integer rank) {
+        this.rank = rank;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        LecturerTimeslotPreferencesEntityPK that = (LecturerTimeslotPreferencesEntityPK) o;
+        LecturerTimeslotPreference that = (LecturerTimeslotPreference) o;
         return lecturerId == that.lecturerId &&
-                timeslotId == that.timeslotId;
+                timeslotId == that.timeslotId &&
+                Objects.equals(rank, that.rank);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(lecturerId, timeslotId);
+        return Objects.hash(lecturerId, timeslotId, rank);
     }
 }

@@ -12,7 +12,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "departments", schema = "public", catalog = "ga_dev")
-public class DepartmentsEntity {
+public class Department {
     private int departmentId;
     private String name;
 
@@ -42,7 +42,7 @@ public class DepartmentsEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        DepartmentsEntity that = (DepartmentsEntity) o;
+        Department that = (Department) o;
         return departmentId == that.departmentId &&
                 Objects.equals(name, that.name);
     }

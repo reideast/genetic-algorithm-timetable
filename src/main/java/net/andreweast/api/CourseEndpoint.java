@@ -1,6 +1,6 @@
 package net.andreweast.api;
 
-import net.andreweast.entity.CoursesEntity;
+import net.andreweast.entity.Course;
 import net.andreweast.listener.LocalEntityManagerFactory;
 
 import javax.naming.Context;
@@ -31,7 +31,7 @@ public class CourseEndpoint {
     @POST
     @Produces(MediaType.TEXT_PLAIN)
     public String testWrite() {
-        CoursesEntity course = new CoursesEntity();
+        Course course = new Course();
         course.setName("4BA");
         course.setDepartmentId(1);
         System.out.println("Made a course object: " + course);
@@ -71,7 +71,7 @@ public class CourseEndpoint {
 //        System.out.println("Got an entity manager from factory");
 //        try {
 //            System.out.println("Finding");
-//            CoursesEntity course = em.find(CoursesEntity.class, id);
+//            Course course = em.find(Course.class, id);
 //            // TODO: Catch not found. Doesn't look like there's an exception, but may just have to check for null
 //            return "Found!: " + course.getName();
 //        } finally {
@@ -129,7 +129,7 @@ public class CourseEndpoint {
 
     /*
 
-        VenuesEntity venue = new VenuesEntity();
+        Venue venue = new Venue();
         venue.setName("FromJava" + System.currentTimeMillis());
         venue.setCapacity(20);
         venue.setLab(false);

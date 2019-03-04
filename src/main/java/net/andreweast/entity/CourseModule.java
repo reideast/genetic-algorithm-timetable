@@ -10,8 +10,8 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "course_module", schema = "public", catalog = "ga_dev")
-@IdClass(CourseModuleEntityPK.class)
-public class CourseModuleEntity {
+@IdClass(CourseModulePK.class)
+public class CourseModule {
     private int courseId;
     private int moduleId;
     private String code;
@@ -50,7 +50,7 @@ public class CourseModuleEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CourseModuleEntity that = (CourseModuleEntity) o;
+        CourseModule that = (CourseModule) o;
         return courseId == that.courseId &&
                 moduleId == that.moduleId &&
                 Objects.equals(code, that.code);

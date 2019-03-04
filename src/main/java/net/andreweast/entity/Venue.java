@@ -5,12 +5,12 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "venues", schema = "public", catalog = "ga_dev")
-public class VenuesEntity {
+public class Venue {
     private int venueId;
     private String name;
     private Boolean isLab;
     private int capacity;
-    private BuildingsEntity buildingsByBuildingId;
+    private Building buildingByBuildingId;
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "venue_generator") // DEBUG: Added manually. SEQUENCE for Postgres
@@ -58,7 +58,7 @@ public class VenuesEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        VenuesEntity that = (VenuesEntity) o;
+        Venue that = (Venue) o;
         return venueId == that.venueId &&
                 capacity == that.capacity &&
                 Objects.equals(name, that.name) &&
@@ -72,11 +72,11 @@ public class VenuesEntity {
 
     @ManyToOne
     @JoinColumn(name = "building_id", referencedColumnName = "building_id")
-    public BuildingsEntity getBuildingsByBuildingId() {
-        return buildingsByBuildingId;
+    public Building getBuildingByBuildingId() {
+        return buildingByBuildingId;
     }
 
-    public void setBuildingsByBuildingId(BuildingsEntity buildingsByBuildingId) {
-        this.buildingsByBuildingId = buildingsByBuildingId;
+    public void setBuildingByBuildingId(Building buildingByBuildingId) {
+        this.buildingByBuildingId = buildingByBuildingId;
     }
 }

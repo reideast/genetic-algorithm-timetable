@@ -5,18 +5,18 @@ import javax.persistence.Id;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class ScheduledModulesEntityPK implements Serializable {
-    private int scheduleId;
+public class CourseModulePK implements Serializable {
+    private int courseId;
     private int moduleId;
 
     @Id
-    @Column(name = "schedule_id", nullable = false)
-    public int getScheduleId() {
-        return scheduleId;
+    @Column(name = "course_id", nullable = false)
+    public int getCourseId() {
+        return courseId;
     }
 
-    public void setScheduleId(int scheduleId) {
-        this.scheduleId = scheduleId;
+    public void setCourseId(int courseId) {
+        this.courseId = courseId;
     }
 
     @Id
@@ -33,13 +33,13 @@ public class ScheduledModulesEntityPK implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ScheduledModulesEntityPK that = (ScheduledModulesEntityPK) o;
-        return scheduleId == that.scheduleId &&
+        CourseModulePK that = (CourseModulePK) o;
+        return courseId == that.courseId &&
                 moduleId == that.moduleId;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(scheduleId, moduleId);
+        return Objects.hash(courseId, moduleId);
     }
 }

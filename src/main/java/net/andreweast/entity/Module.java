@@ -5,10 +5,10 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "modules", schema = "public", catalog = "ga_dev")
-public class ModulesEntity {
+public class Module {
     private int moduleId;
     private String name;
-    private LecturersEntity lecturersByLecturerId;
+    private Lecturer lecturerByLecturerId;
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "module_generator")
@@ -36,7 +36,7 @@ public class ModulesEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ModulesEntity that = (ModulesEntity) o;
+        Module that = (Module) o;
         return moduleId == that.moduleId &&
                 Objects.equals(name, that.name);
     }
@@ -48,11 +48,11 @@ public class ModulesEntity {
 
     @ManyToOne
     @JoinColumn(name = "lecturer_id", referencedColumnName = "lecturer_id")
-    public LecturersEntity getLecturersByLecturerId() {
-        return lecturersByLecturerId;
+    public Lecturer getLecturerByLecturerId() {
+        return lecturerByLecturerId;
     }
 
-    public void setLecturersByLecturerId(LecturersEntity lecturersByLecturerId) {
-        this.lecturersByLecturerId = lecturersByLecturerId;
+    public void setLecturerByLecturerId(Lecturer lecturerByLecturerId) {
+        this.lecturerByLecturerId = lecturerByLecturerId;
     }
 }
