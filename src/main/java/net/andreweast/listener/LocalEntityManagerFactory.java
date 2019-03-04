@@ -8,7 +8,10 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 /**
- * https://blogs.sap.com/2012/12/11/put-jpa-in-your-web-app-tomcat-eclipselink/
+ * Wiki article on how this is done
+ * https://wiki.eclipse.org/EclipseLink/Examples/JPA/Tomcat_Web_Tutorial
+ *
+ * Also, https://blogs.sap.com/2012/12/11/put-jpa-in-your-web-app-tomcat-eclipselink/
  * Also, https://stackoverflow.com/a/7862798/5271224
  */
 

@@ -1,6 +1,7 @@
 package net.andreweast.api;
 
 import net.andreweast.entity.Course;
+import net.andreweast.entity.DAO;
 import net.andreweast.listener.LocalEntityManagerFactory;
 
 import javax.naming.Context;
@@ -22,7 +23,7 @@ import java.sql.Statement;
 @Path("/course")
 public class CourseEndpoint {
 
-// DEBUG: Injection CANNOT be used in Tomcat. Not supported since no full JavaEE, EJB support.
+// DEBUG: Injection CANNOT be used in Tomcat. Not supported since no full JavaEE, EJB support. See: https://stackoverflow.com/a/11261867/5271224
 //    @PersistenceContext(unitName = "java:comp/env/jdbc/postgres")
 //    @PersistenceContext(unitName = "PostgresPersistenceUnit")
 //    private EntityManager em;
@@ -36,27 +37,8 @@ public class CourseEndpoint {
         course.setDepartmentId(1);
         System.out.println("Made a course object: " + course);
 
-        EntityManager em = LocalEntityManagerFactory.createEntityManager();
-//        Transaction tx = null;
-
-        try {
-//            Session session = em.unwrap(Session.class);
-//            tx = session.beginTransaction();
-            em.getTransaction().begin();
-//            em.flush(); // Flush is required for PostgreSQL tables with SEQUENCE primary key types
-            em.persist(course); // DEBUG: Looks like flush is not required when transactions are used
-//            session.save(course); // DEBUG: Is save equivalent to persist?
-//            tx.commit();
-            em.getTransaction().commit();
-        } catch (Exception e) {
-//            if (tx != null) {
-//                tx.rollback();
-//            }
-            em.getTransaction().rollback();
-            throw new RuntimeException(e);
-        } finally {
-            em.close();
-        }
+        DAO<Course> dao = new DAO<>();
+        dao.save(course);
 
         return "Created";
     }
