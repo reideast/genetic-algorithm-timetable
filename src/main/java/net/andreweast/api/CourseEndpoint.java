@@ -1,18 +1,15 @@
 package net.andreweast.api;
 
 import net.andreweast.entity.CoursesEntity;
-import net.andreweast.entity.VenuesEntity;
 import net.andreweast.listener.LocalEntityManagerFactory;
 
-import javax.annotation.Resource;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceUnit;
 import javax.sql.DataSource;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -25,39 +22,44 @@ import java.sql.Statement;
 @Path("/course")
 public class CourseEndpoint {
 
-//    @GET
-//    @Produces(MediaType.TEXT_PLAIN)
-//    public String testWrite() {
-//        CoursesEntity course = new CoursesEntity();
-//        course.setName("1BA");
-//        course.setDepartmentId(1);
-//        System.out.println("Made a course object: " + course);
-//
-//        EntityManager em = LocalEntityManagerFactory.createEntityManager();
-//        System.out.println("Got an EM: " + em);
-//
-//        try {
-////            course.setCourseId(2);
-//            em.persist(course);
-//            // DEBUG: I do not believe this is creating the DB entry
-//            System.out.println("Persist has completed");
-//
-////            System.out.println("Transaction? " + em.getTransaction());
-////            System.out.println("Is joined to transaction? " + em.isJoinedToTransaction());
-////            em.joinTransaction();
-////            System.out.println("Transaction? " + em.getTransaction());
-////            System.out.println("Is joined to transaction? " + em.isJoinedToTransaction());
-////
-////
-////            System.out.println("Flush mode type: " + em.getFlushMode());
-////            em.flush(); // DEBUG
-////            System.out.println("Flush has completed");
-//        } finally {
-//            em.close();
-//        }
-//
-//        return "Created";
-//    }
+// DEBUG: Injection CANNOT be used in Tomcat. Not supported since no full JavaEE, EJB support.
+//    @PersistenceContext(unitName = "java:comp/env/jdbc/postgres")
+//    @PersistenceContext(unitName = "PostgresPersistenceUnit")
+//    private EntityManager em;
+//    private EntityManager injectedEntityManager;
+
+    @POST
+    @Produces(MediaType.TEXT_PLAIN)
+    public String testWrite() {
+        CoursesEntity course = new CoursesEntity();
+        course.setName("4BA");
+        course.setDepartmentId(1);
+        System.out.println("Made a course object: " + course);
+
+        EntityManager em = LocalEntityManagerFactory.createEntityManager();
+//        Transaction tx = null;
+
+        try {
+//            Session session = em.unwrap(Session.class);
+//            tx = session.beginTransaction();
+            em.getTransaction().begin();
+//            em.flush(); // Flush is required for PostgreSQL tables with SEQUENCE primary key types
+            em.persist(course); // DEBUG: Looks like flush is not required when transactions are used
+//            session.save(course); // DEBUG: Is save equivalent to persist?
+//            tx.commit();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+//            if (tx != null) {
+//                tx.rollback();
+//            }
+            em.getTransaction().rollback();
+            throw new RuntimeException(e);
+        } finally {
+            em.close();
+        }
+
+        return "Created";
+    }
 
 //    @GET
 //    @Produces(MediaType.TEXT_PLAIN)

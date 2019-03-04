@@ -2,11 +2,13 @@
 <persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
     <persistence-unit name="PostgresPersistenceUnit" transaction-type="RESOURCE_LOCAL"><!-- RESOURCE_LOCAL recommended for Tomcat http://www.netbeans.org/kb/60/websvc/rest-tomcat.html#configure_persistence -->
 
+        <jta-data-source>java:comp/env/jdbc/postgres</jta-data-source>
+
         <!-- https://www.javaworld.com/article/2072270/netbeans-jersey-and-tomcat.html -->
         <!--<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>&lt;!&ndash; DEBUG: This was a guess for the correct class... &ndash;&gt;-->
-        <!--<exclude-unlisted-classes>false</exclude-unlisted-classes>--><!-- DEBUG: can this line replace including all the specific entity classes below? -->
 
-        <jta-data-source>java:comp/env/jdbc/postgres</jta-data-source>
+        <!--<exclude-unlisted-classes>false</exclude-unlisted-classes>-->
+        <!--&lt;!&ndash; DEBUG: can this line replace including all the specific entity classes below? &ndash;&gt;-->
 
         <class>net.andreweast.entity.BuildingsEntity</class>
         <class>net.andreweast.entity.CourseModuleEntity</class>
