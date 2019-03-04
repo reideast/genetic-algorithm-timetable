@@ -44,7 +44,6 @@ dependencies {
 //    // https://mvnrepository.com/artifact/org.glassfish.jersey.media/jersey-media-json-jackson
 //    compile group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '2.28'
 
-//    implementation 'org.postgresql:postgresql:42.2.5'
     compile 'org.postgresql:postgresql:42.2.5'
 
     // https://mvnrepository.com/artifact/javax.persistence/javax.persistence-api
@@ -54,6 +53,7 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.hibernate/hibernate-core
     compile group: 'org.hibernate', name: 'hibernate-core', version: '5.4.1.Final'
+
 
 
 
@@ -121,6 +121,21 @@ sourceSets {
 gretty {
     contextPath = '/'
     servletContainer = 'tomcat85' // Match version running on AWS Elastic Beanstalk
+    enableNaming = true // Required for JNDI lookups, such as java:comp/env/jdbc/postgresql. https://github.com/akhikhl/gretty/issues/64#issuecomment-57775698
+    dependencies {
+
+//    // https://mvnrepository.com/artifact/org.apache.commons/commons-dbcp2
+//    compile group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.6.0'
+        // https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-dbcp
+//    compile group: 'org.apache.tomcat', name: 'tomcat-dbcp', version: '8.5.30'
+//    runtime group: 'org.apache.tomcat', name: 'tomcat-dbcp', version: '8.5.30'
+        gretty group: 'org.apache.tomcat', name: 'tomcat-dbcp', version: '8.5.30'
+
+
+//    implementation 'org.postgresql:postgresql:42.2.5'
+//        compile 'org.postgresql:postgresql:42.2.5'
+        gretty 'org.postgresql:postgresql:42.2.5'
+    }
 }
 
 // For all of Gretty's appRun-type tasks, load the .ebextensions YAML file as environmental variables first
@@ -143,4 +158,3 @@ war {
     }
     inputs.files('.ebextensions') // Informs the WAR task that files in this directory should be considered inputs, thus the WAR must be rebuilt if they are modified
 }
-

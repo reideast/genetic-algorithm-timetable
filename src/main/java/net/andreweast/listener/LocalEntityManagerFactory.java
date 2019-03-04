@@ -3,12 +3,19 @@ package net.andreweast.listener;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.PersistenceUnit;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
+/**
+ * https://blogs.sap.com/2012/12/11/put-jpa-in-your-web-app-tomcat-eclipselink/
+ */
+
 @WebListener
 public class LocalEntityManagerFactory implements ServletContextListener {
+//public class LocalEntityManagerFactory {
+//    @PersistenceUnit(unitName = "PostgresPersistenceUnit", name = "PostgresPersistenceUnit")
     private static EntityManagerFactory factory;
 
     public static EntityManager createEntityManager() {

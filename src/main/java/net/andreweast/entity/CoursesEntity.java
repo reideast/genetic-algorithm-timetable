@@ -16,6 +16,9 @@ public class CoursesEntity {
     private int courseId;
     private String name;
 
+    // DEBUG: not via any foreign key methods, just a number
+    private int departmentId;
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "course_generator")
     @SequenceGenerator(name="course_generator", sequenceName = "course_id_sequence", allocationSize = 1)
@@ -36,6 +39,16 @@ public class CoursesEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Basic
+    @Column(name = "department_id", nullable = true)
+    public int getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(int departmentId) {
+        this.departmentId = departmentId;
     }
 
     @Override
