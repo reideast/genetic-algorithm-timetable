@@ -8,14 +8,14 @@
 
 
     <!-- General description of your web application -->
-    <display-name>My Web Application</display-name>
-    <description>
-        This is version X.X of an application to perform
-        a wild and wonderful task, based on servlets and
-        JSP pages. It was written by Dave Developer
-        (dave@mycompany.com), who should be contacted for
-        more information.
-    </description>
+    <!--<display-name>My Web Application</display-name>-->
+    <!--<description>-->
+        <!--This is version X.X of an application to perform-->
+        <!--a wild and wonderful task, based on servlets and-->
+        <!--JSP pages. It was written by Dave Developer-->
+        <!--(dave@mycompany.com), who should be contacted for-->
+        <!--more information.-->
+    <!--</description>-->
 
     <!-- Context initialization parameters that define shared
          String constants used within your application, which
@@ -33,10 +33,10 @@
          You can define any number of context initialization
          parameters, including zero.
     -->
-    <context-param>
-        <param-name>webmaster</param-name>
-        <param-value>myaddress@mycompany.com</param-value>
-    </context-param>
+    <!--<context-param>-->
+        <!--<param-name>webmaster</param-name>-->
+        <!--<param-value>myaddress@mycompany.com</param-value>-->
+    <!--</context-param>-->
 
     <resource-ref>
         <description>postgreSQL Datasource example</description>

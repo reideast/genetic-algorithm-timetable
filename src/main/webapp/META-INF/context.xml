@@ -1,69 +1,19 @@
 <?xml version='1.0' encoding='utf-8'?>
-
-<!-- https://tomcat.apache.org/tomcat-8.5-doc/config/context.html -->
-<!-- https://tomcat.apache.org/tomcat-8.5-doc/jndi-datasource-examples-howto.html#PostgreSQL -->
-
 <Context reloadable="true">
+    <!-- https://tomcat.apache.org/tomcat-8.5-doc/config/context.html -->
+    <!-- https://tomcat.apache.org/tomcat-8.5-doc/jndi-datasource-examples-howto.html#PostgreSQL -->
     <Resource name="jdbc/postgres"
               auth="Container"
+              scope="Shareable"
               type="javax.sql.DataSource"
               driverClassName="org.postgresql.Driver"
               url="jdbc:postgresql://genetic-algorithm-scheduler-db.cu4dpjdnm5d5.eu-west-1.rds.amazonaws.com:5432/ga_dev"
               username="mDHfpvkZRIHgFIQaRiNEs"
               password="zwUk1PvrNDFT41PMS3wsNJlGo9Cf19w705qgnCfaM1bRBsz3BpPoZ17X2Nz9LVmc"
               maxTotal="20" maxIdle="10" maxWaitMillis="-1"
+              factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
     />
+    <!-- For AWS, org.apache.tomcat.jdbc.pool.DataSourceFactory is required since tomcat.dbcp is currently broken -->
     <!--factory="org.apache.tomcat.dbcp.dbcp.BasicDataSourceFactory"-->
     <!--factory="org.apache.commons.dbcp.BasicDataSourceFactory"-->
-    <!--scope="Shareable"-->
-
-
-    <!--<parameter>-->
-            <!--<name>maxActive</name>-->
-            <!--<value>4</value>-->
-        <!--</parameter>-->
-        <!--<parameter>-->
-            <!--<name>maxWait</name>-->
-            <!--<value>5000</value>-->
-        <!--</parameter>-->
-        <!--<parameter>-->
-            <!--<name>maxIdle</name>-->
-            <!--<value>2</value>-->
-        <!--</parameter>-->
-
-    <!--<Resource name="jdbc/postgres" scope="Shareable" type="javax.sql.DataSource"/>-->
-    <!--<ResourceParams name="jdbc/postgres">-->
-        <!--<parameter>-->
-            <!--<name>validationQuery</name>-->
-            <!--<value>select version();</value>-->
-        <!--</parameter>-->
-        <!--<parameter>-->
-            <!--<name>url</name>-->
-            <!--<value>jdbc:postgresql://genetic-algorithm-scheduler-db.cu4dpjdnm5d5.eu-west-1.rds.amazonaws.com:5432/ga_dev</value>-->
-        <!--</parameter>-->
-        <!--<parameter>-->
-            <!--<name>password</name>-->
-            <!--<value>zwUk1PvrNDFT41PMS3wsNJlGo9Cf19w705qgnCfaM1bRBsz3BpPoZ17X2Nz9LVmc</value>-->
-        <!--</parameter>-->
-        <!--<parameter>-->
-            <!--<name>maxActive</name>-->
-            <!--<value>4</value>-->
-        <!--</parameter>-->
-        <!--<parameter>-->
-            <!--<name>maxWait</name>-->
-            <!--<value>5000</value>-->
-        <!--</parameter>-->
-        <!--<parameter>-->
-            <!--<name>driverClassName</name>-->
-            <!--<value>org.postgresql.Driver</value>-->
-        <!--</parameter>-->
-        <!--<parameter>-->
-            <!--<name>username</name>-->
-            <!--<value>mDHfpvkZRIHgFIQaRiNEs</value>-->
-        <!--</parameter>-->
-        <!--<parameter>-->
-            <!--<name>maxIdle</name>-->
-            <!--<value>2</value>-->
-        <!--</parameter>-->
-    <!--</ResourceParams>-->
 </Context>
