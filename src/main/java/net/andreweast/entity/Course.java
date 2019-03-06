@@ -1,13 +1,6 @@
 package net.andreweast.entity;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
@@ -15,9 +8,7 @@ import java.util.Objects;
 public class Course {
     private int courseId;
     private String name;
-
-    // DEBUG: not via any foreign key methods, just a number
-    private int departmentId;
+    private Department department;
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "course_generator")
@@ -41,15 +32,17 @@ public class Course {
         this.name = name;
     }
 
-    @Basic
-    @Column(name = "department_id", nullable = true)
-    public int getDepartmentId() {
-        return departmentId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id", nullable = true)
+    public Department getDepartment() {
+        return department;
     }
 
-    public void setDepartmentId(int departmentId) {
-        this.departmentId = departmentId;
+    public void setDepartment(Department department) {
+        this.department = department;
     }
+
+    // TODO: update equals and hashCode with Dept.
 
     @Override
     public boolean equals(Object o) {
