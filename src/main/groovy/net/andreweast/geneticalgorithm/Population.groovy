@@ -1,4 +1,4 @@
-package net.andreweast
+package net.andreweast.geneticalgorithm
 
 class Population {
     static final int NUM_INDIVIDUALS = 20

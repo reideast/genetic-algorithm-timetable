@@ -1,4 +1,4 @@
-package net.andreweast
+package net.andreweast.geneticalgorithm
 
 class ScheduledCourse {
     Course course

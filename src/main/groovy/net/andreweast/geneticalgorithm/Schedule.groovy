@@ -1,4 +1,4 @@
-package net.andreweast
+package net.andreweast.geneticalgorithm
 
 class Schedule {
     static final int GENERATION_LIMIT = 300

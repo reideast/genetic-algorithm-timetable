@@ -1,4 +1,4 @@
-package net.andreweast
+package net.andreweast.geneticalgorithm
 
 class Chromosome implements Comparable<Chromosome> {
 //class Chromosome {
