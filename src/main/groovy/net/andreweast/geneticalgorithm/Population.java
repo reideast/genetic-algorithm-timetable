@@ -37,14 +37,14 @@ public class Population {
 
 
         // Select a whole new population
-        if (Schedule.getDEBUG()) {
+        if (Schedule.DEBUG) {
             System.out.print("Building new population: ");
         }
 
         for (int i = 0; i< NUM_INDIVIDUALS; ++i) {
                 // "Spin the roulette wheel". Based on https://en.wikipedia.org/wiki/Fitness_proportionate_selection
                 int randomSelected = random.nextInt(totalFitness);
-                if (Schedule.getDEBUG()) {
+                if (Schedule.DEBUG) {
                     System.out.print(i + "(" + randomSelected + ":");
                 }
 
@@ -55,7 +55,7 @@ public class Population {
                     randomSelected -= individuals[individual].getStoredFitness();
                     if (randomSelected < 0) {
                         nextPopulation[i] = new Chromosome(individuals[individual]);// deep clone individual
-                        if (Schedule.getDEBUG()) {
+                        if (Schedule.DEBUG) {
                             System.out.print(individual + ")");
                         }
                         break;
@@ -63,7 +63,7 @@ public class Population {
 
                 }
         }
-        if (Schedule.getDEBUG()) {
+        if (Schedule.DEBUG) {
             System.out.println();
         }
 
