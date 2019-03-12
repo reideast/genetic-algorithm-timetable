@@ -1,7 +1,5 @@
 package net.andreweast.geneticalgorithm;
 
-import org.codehaus.groovy.runtime.DefaultGroovyMethods;
-
 import java.util.Random;
 
 public class Chromosome implements Comparable<Chromosome> {
@@ -12,17 +10,17 @@ public class Chromosome implements Comparable<Chromosome> {
     private boolean isValidSolution;
 
     public Chromosome() {
-        courses = new ScheduledCourse[Course.getAllCourses().length];
-        for (int i = 0; i < Course.getAllCourses().length; ++i) {
-            courses[i] = new ScheduledCourse(Course.getAllCourses()[i]);
+        courses = new ScheduledCourse[Course.getAllCoursesSize()];
+        for (int i = 0; i < Course.getAllCoursesSize(); ++i) {
+            courses[i] = new ScheduledCourse(Course.getFromAllCoursesByIndex(i));
         }
 
         storedFitness = calculateFitness(); // Also sets isValidSolution
     }
 
     public Chromosome(Chromosome toClone) {
-        courses = new ScheduledCourse[Course.getAllCourses().length];
-        for (int i = 0; i < Course.getAllCourses().length; ++i) {
+        courses = new ScheduledCourse[Course.getAllCoursesSize()];
+        for (int i = 0; i < Course.getAllCoursesSize(); ++i) {
             courses[i] = toClone.courses[i].clone();
 //            courses[i] = new ScheduledCourse(
 //                    toClone.courses[i].getCourse(),
@@ -73,7 +71,7 @@ public class Chromosome implements Comparable<Chromosome> {
 
         isValidSolution = true;
 
-        int fitnessFromOverlappingClasses = DefaultGroovyMethods.size(Course.getAllCourses()) * 100;
+        int fitnessFromOverlappingClasses = Course.getAllCoursesSize() * 100;
         // TODO: O(n^2) iterative search. Needs improvement. Ideas: Hash array, make sure no collisions. "Sort" array and then compare linearly.
         for (int i = 0; i < courses.length; ++i) {
             for (int j = i + 1; j < courses.length; ++j) {

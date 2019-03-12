@@ -45,7 +45,7 @@ public class Schedule {
         }
 
         s.append("Complexity of dataset:<br>");
-        s.append("Courses: " + Course.getAllCourses().length + "<br>");
+        s.append("Courses: " + Course.getAllCoursesSize() + "<br>");
         s.append("Venues x TimeSlots: " + (Venue.Room.values().length * TimeSlot.DayOfWeek.values().length * TimeSlot.StartTime.values().length) + "<br>");
 
         s.append("\nRunning time stats:<br>");
