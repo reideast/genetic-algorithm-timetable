@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+// TODO: This was made as...an enum??
 public class Course {
     private String courseName;
 
