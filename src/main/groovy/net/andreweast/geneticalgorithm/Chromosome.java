@@ -23,11 +23,12 @@ public class Chromosome implements Comparable<Chromosome> {
     public Chromosome(Chromosome toClone) {
         courses = new ScheduledCourse[Course.getAllCourses().length];
         for (int i = 0; i < Course.getAllCourses().length; ++i) {
-            courses[i] = new ScheduledCourse(
-                    toClone.courses[i].getCourse(),
-                    toClone.courses[i].getVenue(),
-                    toClone.courses[i].getTimeSlot()
-            );
+            courses[i] = toClone.courses[i].clone();
+//            courses[i] = new ScheduledCourse(
+//                    toClone.courses[i].getCourse(),
+//                    toClone.courses[i].getVenue(),
+//                    toClone.courses[i].getTimeSlot()
+//            );
         }
 
         storedFitness = toClone.getStoredFitness();
