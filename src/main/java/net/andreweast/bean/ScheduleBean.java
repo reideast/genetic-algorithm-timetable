@@ -1,6 +1,6 @@
 package net.andreweast.bean;
 
-import net.andreweast.Schedule;
+import net.andreweast.geneticalgorithm.Schedule;
 
 public class ScheduleBean {
     public ScheduleBean() {

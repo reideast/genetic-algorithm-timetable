@@ -1,6 +1,6 @@
 package net.andreweast.api;
 
-import net.andreweast.Schedule;
+import net.andreweast.geneticalgorithm.Schedule;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

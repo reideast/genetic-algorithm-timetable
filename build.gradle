@@ -9,7 +9,6 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'groovy'
     id 'war' // TODO: test this: May not be needed because tomcat plugin uses WAR
     id 'org.gretty' version '2.2.0'
     // DEBUG: For tomcat plugin, not needed for gretty:
@@ -30,8 +29,6 @@ dependencies {
     // "providedCompile and providedRuntime, analogous to compile and runtime in regular Java applications, to represent dependencies that are needed locally but should not be added to the generated webdemo.war file." https://guides.gradle.org/building-java-web-applications/
     providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
 
-
-    compile group: 'org.codehaus.groovy', name: 'groovy', version: '2.4.13'
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
     // https://mvnrepository.com/artifact/org.glassfish.jersey.containers/jersey-container-servlet
@@ -66,35 +63,6 @@ dependencies {
 //        "org.apache.tomcat.embed:tomcat-embed-logging-juli:8.5.2",
 //        "org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}"
 }
-
-sourceSets {
-    main {
-        java {
-            // https://stackoverflow.com/a/22164339/5271224
-            srcDirs = []
-//            srcDirs += ['src/main/groovy']
-        }
-        groovy {
-            // do a co-compilation of java and groovy, so that they can depend on each other without circular dependencies
-            // https://stackoverflow.com/a/22164339/5271224
-            srcDirs += ['src/main/java']
-//            srcDirs = []
-        }
-    }
-}
-
-// remove GroovyCompile->JavaCompile task dependencies
-//// https://stackoverflow.com/a/22164339/5271224
-//tasks.withType(GroovyCompile) {
-//    dependsOn = []
-//}
-//// add JavaCompile->GroovyCompile task dependencies
-//// https://stackoverflow.com/a/22164339/5271224
-//tasks.withType(JavaCompile) { task ->
-//    println "Task: ${task}"
-//    println task.name.replace("Java", "Groovy")
-//    dependsOn task.name.replace("Java", "Groovy")
-//}
 
 // DEBUG: For tomcat plugin, not needed for gretty:
 //tomcat {
