@@ -3,10 +3,21 @@ package net.andreweast.entity;
 import net.andreweast.listener.LocalEntityManagerFactory;
 
 import javax.persistence.EntityManager;
+import java.util.List;
 
 public class DAO<T> {
-    public void save(T dataObject) {
-        EntityManager em = LocalEntityManagerFactory.createEntityManager();
+    Class<T> clazz;
+
+    public DAO(Class<T> clazz) {
+        this.clazz = clazz;
+    }
+
+    public void create(T dataObject) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void update(T dataObject) {
+        EntityManager em = LocalEntityManagerFactory.createEntityManager(); // DEBUG: this is repeated. Move to a class field?
 //        Transaction tx = null;
 
         try {
@@ -15,7 +26,7 @@ public class DAO<T> {
             em.getTransaction().begin();
 //            em.flush(); // Flush is required for PostgreSQL tables with SEQUENCE primary key types
             em.persist(dataObject); // DEBUG: Looks like flush is not required when transactions are used
-//            session.save(course); // DEBUG: Is save equivalent to persist?
+//            session.save(course); // DEBUG: Is update equivalent to persist?
 //            tx.commit();
             em.getTransaction().commit();
         } catch (Exception e) {
@@ -27,5 +38,29 @@ public class DAO<T> {
         } finally {
             em.close();
         }
+    }
+
+    public List<T> fetchAll() {
+        throw new UnsupportedOperationException();
+    }
+
+    public T fetchById(int id) {
+        EntityManager em = LocalEntityManagerFactory.createEntityManager();
+        try {
+            T found = em.find(clazz, id);
+            // TODO: How to catch not found? Doesn't look like there's an exception, but may just have to check for null
+            if (found == null) {
+//                throw new NotFoundException // TODO
+                throw new RuntimeException();
+            } else {
+                return found;
+            }
+        } finally {
+            em.close();
+        }
+    }
+
+    public void delete(int id) {
+        throw new UnsupportedOperationException();
     }
 }

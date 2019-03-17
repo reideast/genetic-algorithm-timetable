@@ -31,7 +31,7 @@ public class DepartmentEndpoint {
 //        System.out.println("Made a course object: " + course);
 //
 //        DAO<Course> dao = new DAO<>();
-//        dao.save(course);
+//        dao.update(course);
 //
 //        return "Created";
 //    }

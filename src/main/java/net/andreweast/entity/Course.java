@@ -57,4 +57,13 @@ public class Course {
     public int hashCode() {
         return Objects.hash(courseId, name);
     }
+
+    @Override
+    public String toString() {
+        return "Course{" +
+                "courseId=" + courseId +
+                ", name='" + name + '\'' +
+                ", department=" + department +
+                '}';
+    }
 }

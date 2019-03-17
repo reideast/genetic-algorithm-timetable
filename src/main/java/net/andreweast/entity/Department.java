@@ -36,17 +36,17 @@ public class Department {
     }
 
     // @JoinColumn(name = "department_id") // Joins are fine, but generate multiple SQL queries vs. a @OneToMany(mappedBy) style. See: https://vladmihalcea.com/the-best-way-to-map-a-onetomany-association-with-jpa-and-hibernate/
+
     @OneToMany(mappedBy = "department") // DEBUG: what is "department"? It's not a table, that would be departmentS
     public List<Course> getCourses() {
         return courses;
     }
-
     // This style of add/remove for the One side of a OneToMany relation is detailed here: https://vladmihalcea.com/the-best-way-to-map-a-onetomany-association-with-jpa-and-hibernate/
+
     public void addCourse(Course course) {
         courses.add(course);
         course.setDepartment(this);
     }
-
     public void removeCourse(Course course) {
         courses.remove(course);
         course.setDepartment(null);
@@ -69,5 +69,14 @@ public class Department {
     @Override
     public int hashCode() {
         return Objects.hash(departmentId, name);
+    }
+
+    @Override
+    public String toString() {
+        return "Department{" +
+                "departmentId=" + departmentId +
+                ", name='" + name + '\'' +
+                ", courses=" + courses +
+                '}';
     }
 }
