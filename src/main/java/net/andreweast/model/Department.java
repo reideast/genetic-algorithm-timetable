@@ -26,6 +26,18 @@ public class Department {
     @OneToMany(mappedBy = "department")
     private List<User> users;
 
+//    // See: https://www.baeldung.com/jpa-many-to-many
+//    // For a basic ManyToMany relation, where the join table has no extra data in it
+//    @ManyToMany
+//    @JoinTable(name = "department_building",
+//            joinColumns = @JoinColumn(name = "department_id", referencedColumnName = "department_id"),
+//            inverseJoinColumns = @JoinColumn(name = "building_id", referencedColumnName = "building_id")
+//    )
+//    private List<Building> buildings;
+
+    @OneToMany(mappedBy = "department")
+    private List<DepartmentBuilding> departmentBuildings;
+
     public Long getDepartmentId() {
         return departmentId;
     }
@@ -66,6 +78,14 @@ public class Department {
         this.users = users;
     }
 
+    public List<DepartmentBuilding> getDepartmentBuildings() {
+        return departmentBuildings;
+    }
+
+    public void setDepartmentBuildings(List<DepartmentBuilding> departmentBuildings) {
+        this.departmentBuildings = departmentBuildings;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -75,11 +95,12 @@ public class Department {
                 name.equals(that.name) &&
                 Objects.equals(courses, that.courses) &&
                 Objects.equals(lecturers, that.lecturers) &&
-                Objects.equals(users, that.users);
+                Objects.equals(users, that.users) &&
+                Objects.equals(departmentBuildings, that.departmentBuildings);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(departmentId, name, courses, lecturers, users);
+        return Objects.hash(departmentId, name, courses, lecturers, users, departmentBuildings);
     }
 }
