@@ -20,6 +20,9 @@ public class Department {
     @OneToMany(mappedBy = "department")
     private List<Course> courses;
 
+    @OneToMany(mappedBy = "department")
+    private List<Lecturer> lecturers;
+
     public Long getDepartmentId() {
         return departmentId;
     }
@@ -44,6 +47,14 @@ public class Department {
         this.courses = courses;
     }
 
+    public List<Lecturer> getLecturers() {
+        return lecturers;
+    }
+
+    public void setLecturers(List<Lecturer> lecturers) {
+        this.lecturers = lecturers;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -56,14 +67,5 @@ public class Department {
     @Override
     public int hashCode() {
         return Objects.hash(departmentId, name);
-    }
-
-    @Override
-    public String toString() {
-        return "Department{" +
-                "departmentId=" + departmentId +
-                ", name='" + name + '\'' +
-                ", courses=" + courses +
-                '}';
     }
 }

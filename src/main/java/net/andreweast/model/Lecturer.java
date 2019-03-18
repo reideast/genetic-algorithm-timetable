@@ -4,13 +4,13 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "courses", schema = "public", catalog = "ga_dev")
-public class Course {
+@Table(name = "lecturers", schema = "public", catalog = "ga_dev")
+public class Lecturer {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "course_generator")
-    @SequenceGenerator(name = "course_generator", sequenceName = "course_id_sequence", allocationSize = 1)
-    @Column(name = "course_id", updatable = false, nullable = false)
-    private Long courseId;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lecturer_generator")
+    @SequenceGenerator(name="lecturer_generator", sequenceName = "lecturer_id_sequence", allocationSize = 1)
+    @Column(name = "lecturer_id", updatable = false, nullable = false)
+    private Long lecturerId;
 
     @Basic
     @Column(name = "name", nullable = false, length = -1)
@@ -20,12 +20,12 @@ public class Course {
     @JoinColumn(name = "department_id")
     private Department department;
 
-    public Long getCourseId() {
-        return courseId;
+    public Long getLecturerId() {
+        return lecturerId;
     }
 
-    public void setCourseId(Long courseId) {
-        this.courseId = courseId;
+    public void setLecturerId(Long lecturerId) {
+        this.lecturerId = lecturerId;
     }
 
     public String getName() {
@@ -48,13 +48,13 @@ public class Course {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Course that = (Course) o;
-        return courseId == that.courseId &&
+        Lecturer that = (Lecturer) o;
+        return lecturerId == that.lecturerId &&
                 Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(courseId, name);
+        return Objects.hash(lecturerId, name);
     }
 }
