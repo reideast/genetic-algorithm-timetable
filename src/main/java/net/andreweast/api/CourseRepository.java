@@ -2,8 +2,8 @@ package net.andreweast.api;
 
 import net.andreweast.model.Course;
 import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import java.util.List;
 
@@ -36,7 +36,13 @@ body: "http://localhost:5000/department/3"
 
 @RepositoryRestResource(collectionResourceRel = "course", path = "course") // I believe the purpose of this is to skip the need for a separate @RestController. Contrast to: https://spring.io/guides/tutorials/bookmarks/
 public interface CourseRepository extends PagingAndSortingRepository<Course, Long> {
-//    List<Course> findByCourseId(@Param("id") int id);
-    List<Course> findByName(@Param("name") String name);
-//    List<Course> findByDepartmentId(@Param("id") long id);
+    // /course/{ID} is created implicitly
+    // All */search/* queries go here:
+
+    // Without @RestResource annotation: List<Course> findByDepartmentId(@Param("id") long id);
+    @RestResource(path = "name", rel="name")
+    List<Course> findByName(String name);
+
+    @RestResource(path="department", rel="department")
+    List<Course> findByDepartment_DepartmentId_OrDepartment_Name(Long id, String name);
 }
