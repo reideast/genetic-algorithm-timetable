@@ -1,0 +1,28 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<!DOCTYPE hibernate-configuration SYSTEM
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+
+        <property name = "hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+
+        <property name = "hibernate.connection.driver_class">org.postgresql.Driver</property>
+
+        <property name = "hibernate.connection.url">jdbc:postgresql://genetic-algorithm-scheduler-db.cu4dpjdnm5d5.eu-west-1.rds.amazonaws.com:5432/ga_dev</property>
+
+        <property name = "hibernate.connection.username">mDHfpvkZRIHgFIQaRiNEs</property>
+
+        <property name = "hibernate.connection.password">zwUk1PvrNDFT41PMS3wsNJlGo9Cf19w705qgnCfaM1bRBsz3BpPoZ17X2Nz9LVmc</property>
+
+        <!-- Echo all executed SQL to stdout -->
+        <property name="show_sql">true</property>
+
+         <!--List of XML mapping files -->
+        <!--<mapping resource = "Employee.hbm.xml"/>-->
+
+        <!-- TODO: can this be package-wise, rather than listing ALL classes -->
+        <mapping class="net.andreweast.entity.Course"/>
+        <mapping class="net.andreweast.entity.Department"/>
+
+    </session-factory>
+</hibernate-configuration>

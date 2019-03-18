@@ -43,7 +43,9 @@ dependencies {
     // For JSON
     // DEBUG: Moxy seems to work with my current configuration (vs. Jackson)
     // https://mvnrepository.com/artifact/org.glassfish.jersey.media/jersey-media-json-jackson
-    compile group: 'org.glassfish.jersey.media', name: 'jersey-media-moxy', version: '2.28'
+//    compile group: 'org.glassfish.jersey.media', name: 'jersey-media-moxy', version: '2.28'
+    compile group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '2.28'
+    compile group: 'org.glassfish.jersey.media', name: 'jersey-media-json-processing', version: '2.28'
 
     compile 'org.postgresql:postgresql:42.2.5'
     // https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-dbcp

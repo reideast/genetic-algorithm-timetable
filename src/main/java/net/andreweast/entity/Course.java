@@ -1,5 +1,7 @@
 package net.andreweast.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Objects;
 
@@ -32,7 +34,9 @@ public class Course {
         this.name = name;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
+//    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
+//    @ManyToOne
     @JoinColumn(name = "department_id", nullable = true)
     public Department getDepartment() {
         return department;
