@@ -71,12 +71,15 @@ public class Department {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Department that = (Department) o;
-        return departmentId == that.departmentId &&
-                Objects.equals(name, that.name);
+        return departmentId.equals(that.departmentId) &&
+                name.equals(that.name) &&
+                Objects.equals(courses, that.courses) &&
+                Objects.equals(lecturers, that.lecturers) &&
+                Objects.equals(users, that.users);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(departmentId, name);
+        return Objects.hash(departmentId, name, courses, lecturers, users);
     }
 }

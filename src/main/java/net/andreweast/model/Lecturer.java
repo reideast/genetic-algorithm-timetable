@@ -48,13 +48,14 @@ public class Lecturer {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Lecturer that = (Lecturer) o;
-        return lecturerId == that.lecturerId &&
-                Objects.equals(name, that.name);
+        Lecturer lecturer = (Lecturer) o;
+        return lecturerId.equals(lecturer.lecturerId) &&
+                name.equals(lecturer.name) &&
+                Objects.equals(department, lecturer.department);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(lecturerId, name);
+        return Objects.hash(lecturerId, name, department);
     }
 }
