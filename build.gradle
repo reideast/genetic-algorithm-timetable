@@ -34,6 +34,7 @@ version appVersion
 //version '${appVersion}'
 
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 bootJar {
     baseName = 'ga-rest-api'
@@ -49,27 +50,53 @@ repositories {
 dependencies {
 //    testCompile group: 'junit', name: 'junit', version: '4.12'
 //
-//    implementation 'org.postgresql:postgresql:42.2.5'
 
     compile("org.springframework.boot:spring-boot-starter-web")
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('com.jayway.jsonpath:json-path')
 
+    compile("org.springframework.boot:spring-boot-starter-data-rest")
+    compile("org.springframework.boot:spring-boot-starter-data-jpa")
+//    compile("com.h2database:h2")
+    // https://mvnrepository.com/artifact/org.postgresql/postgresql
+    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.5'
+    implementation 'org.postgresql:postgresql:42.2.5'
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+
     // "providedCompile and providedRuntime, analogous to compile and runtime in regular Java applications, to represent dependencies that are needed locally but should not be added to the generated webdemo.war file." https://guides.gradle.org/building-java-web-applications/
 }
 
-//// For all of Gretty's appRun-type tasks, load the .ebextensions YAML file as environmental variables first
-//tasks.withType(org.akhikhl.gretty.AppStartTask) { Task task ->
-//    if (task.name in ['appRun', 'appStart', 'appRunWar', 'appStartWar']) {
-//        def yamlFileContents = (".ebextensions/environmentvariables.config" as File).text
-//        def envs = new Yaml().load(yamlFileContents)["option_settings"]["aws:elasticbeanstalk:application:environment"] as Map<String, String>
-//        envs.each { key, value ->
-//            systemProperty key, value // Gradle's idiom for System.setProperty()
-//        }
+// For SpringBoot's bootRun that starts a server, load the .ebextensions YAML file as environmental variables first
+bootRun {
+    doFirst {
+        def yamlFileContents = (".ebextensions/environmentvariables.config" as File).text
+        def envs = new Yaml().load(yamlFileContents)["option_settings"]["aws:elasticbeanstalk:application:environment"] as Map<String, String>
+        envs.each { key, value ->
+            systemProperty key, value // Gradle's idiom for System.setProperty()
+        }
+    }
+}
+
+//war {
+//    // bundle Elastic Beanstalk config files into the WAR
+//    from('.ebextensions') {
+//        include 'environmentvariables.config'
+//        include 'securitygroup-addexisting.config'
+//        into('.ebextensions')
 //    }
+//    inputs.files('.ebextensions') // Informs the WAR task that files in this directory should be considered inputs, thus the WAR must be rebuilt if they are modified
 //}
 
-war {
+bootJar {
+    // bundle Elastic Beanstalk config files into the WAR
+    from('.ebextensions') {
+        include 'environmentvariables.config'
+        include 'securitygroup-addexisting.config'
+        into('.ebextensions')
+    }
+    inputs.files('.ebextensions') // Informs the WAR task that files in this directory should be considered inputs, thus the WAR must be rebuilt if they are modified
+}
+bootWar {
     // bundle Elastic Beanstalk config files into the WAR
     from('.ebextensions') {
         include 'environmentvariables.config'

@@ -1,16 +1,13 @@
 branch-defaults:
-  aws-config:
-    environment: null
-    group_suffix: null
-  schedule-api-dumb:
+  spring:
     environment: null
 deploy:
-  artifact: build\libs\genetic-algorithm-0.2.1.war
+  artifact: build\libs\ga-rest-api-0.3.0.jar
 global:
   application_name: genetic-algorithm
   branch: null
   default_ec2_keyname: aws-eb-key
-  default_platform: Tomcat 8.5 Java 8
+  default_platform: Java 8
   default_region: eu-west-1
   include_git_submodules: true
   instance_profile: null
