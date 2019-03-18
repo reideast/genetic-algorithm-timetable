@@ -1,7 +1,12 @@
 import org.yaml.snakeyaml.Yaml
 
 buildscript {
+    repositories {
+        mavenCentral()
+    }
     dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.5.RELEASE")
+
         // https://mvnrepository.com/artifact/org.yaml/snakeyaml
         classpath group: 'org.yaml', name: 'snakeyaml', version: '1.23'
     }
@@ -10,23 +15,46 @@ buildscript {
 plugins {
     id 'java'
     id 'war' // TODO: test this: May not be needed because tomcat plugin uses WAR
+    id 'idea'
+    id "org.springframework.boot" version "2.1.3.RELEASE"
+    /*
+    The Spring Boot gradle plugin provides many convenient features:
+        https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/html
+        It collects all the jars on the classpath and builds a single, runnable "über-jar", which makes it more convenient to execute and transport your service.
+        It searches for the public static void main() method to flag as a runnable class.
+        It provides a built-in dependency resolver that sets the version number to match Spring Boot dependencies. You can override any version you wish, but it will default to Boot’s chosen set of versions.
+     */
+    id "io.spring.dependency-management" version "1.0.7.RELEASE"
 }
 
+String appVersion = '0.3.0'
+
 group 'net.andreweast'
-version '0.2.1'
+version appVersion
+//version '${appVersion}'
 
 sourceCompatibility = 1.8
 
+bootJar {
+    baseName = 'ga-rest-api'
+    version = appVersion
+//    version = '${appVersion}'
+}
+
 repositories {
-    jcenter()
+//    jcenter()
     mavenCentral()
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+//    testCompile group: 'junit', name: 'junit', version: '4.12'
+//
+//    implementation 'org.postgresql:postgresql:42.2.5'
 
-    implementation 'org.postgresql:postgresql:42.2.5'
-    
+    compile("org.springframework.boot:spring-boot-starter-web")
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile('com.jayway.jsonpath:json-path')
+
     // "providedCompile and providedRuntime, analogous to compile and runtime in regular Java applications, to represent dependencies that are needed locally but should not be added to the generated webdemo.war file." https://guides.gradle.org/building-java-web-applications/
 }
 
