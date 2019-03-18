@@ -7,15 +7,24 @@ import java.util.Objects;
 @Entity
 @Table(name = "courses", schema = "public", catalog = "ga_dev")
 public class Course {
-    private Long courseId;
-    private String name;
-//    private Department department;
-    private Long departmentId;
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "course_generator")
     @SequenceGenerator(name="course_generator", sequenceName = "course_id_sequence", allocationSize = 1)
     @Column(name = "course_id", updatable = false, nullable = false)
+    private Long courseId;
+
+    @Basic
+    @Column(name = "name", nullable = false, length = -1)
+    private String name;
+
+//    @Basic
+//    @Column(name = "department_id", nullable = true)
+//    private Long departmentId;
+
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
+
     public Long getCourseId() {
         return courseId;
     }
@@ -24,8 +33,6 @@ public class Course {
         this.courseId = courseId;
     }
 
-    @Basic
-    @Column(name = "name", nullable = false, length = -1)
     public String getName() {
         return name;
     }
@@ -34,14 +41,20 @@ public class Course {
         this.name = name;
     }
 
-    @Basic
-    @Column(name = "department_id", nullable = true)
-    public Long getDepartmentId() {
-        return departmentId;
+//    public Long getDepartmentId() {
+//        return departmentId;
+//    }
+//
+//    public void setDepartmentId(Long departmentId) {
+//        this.departmentId = departmentId;
+//    }
+
+    public Department getDepartment() {
+        return department;
     }
 
-    public void setDepartmentId(Long departmentId) {
-        this.departmentId = departmentId;
+    public void setDepartment(Department department) {
+        this.department = department;
     }
 
 ////    @ManyToOne(fetch = FetchType.LAZY)
@@ -77,8 +90,8 @@ public class Course {
         return "Course{" +
                 "courseId=" + courseId +
                 ", name='" + name + '\'' +
-//                ", department=" + department +
-                ", department=" + departmentId +
+                ", department=" + department +
+//                ", department=" + departmentId +
                 '}';
     }
 }

@@ -12,9 +12,30 @@ import java.util.List;
 // /course/{ID_NUM} gets one by id
 // /course/search/findByName?name={NAME} will find one, by name
 
+/*
+ManyToOne relationship
+See: https://www.baeldung.com/spring-data-rest-relationships
+Add a new course with department link already set up:
+POST /course, body JSON:
+{
+    "name": "4LAW",
+    "department": "http://localhost:5000/department/3"
+}
+
+Add a new course with NULL department
+POST /course, body JSON:
+{
+    "name": "4LAW"
+}
+Add the department link after-the-fact:
+PUT /course/{COURSE_ID}/department
+Content-Type:text/uri-list
+body: "http://localhost:5000/department/3"
+*/
+
 @RepositoryRestResource(collectionResourceRel = "course", path = "course") // I believe the purpose of this is to skip the need for a separate @RestController. Contrast to: https://spring.io/guides/tutorials/bookmarks/
 public interface CourseRepository extends PagingAndSortingRepository<Course, Long> {
 //    List<Course> findByCourseId(@Param("id") int id);
     List<Course> findByName(@Param("name") String name);
-    List<Course> findByDepartmentId(@Param("id") long id);
+//    List<Course> findByDepartmentId(@Param("id") long id);
 }
