@@ -1,7 +1,6 @@
-package net.andreweast.hello;
+package net.andreweast.model;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,7 +17,7 @@ public class Department {
     @Column(name = "name", nullable = false, length = -1)
     private String name;
 
-    @OneToMany(mappedBy = "department") // DEBUG: "course" (the Java entity class) or "courses" (the table name)?
+    @OneToMany(mappedBy = "department")
     private List<Course> courses;
 
     public Long getDepartmentId() {
@@ -44,27 +43,6 @@ public class Department {
     public void setCourses(List<Course> courses) {
         this.courses = courses;
     }
-
-//    // @JoinColumn(name = "department_id") // Joins are fine, but generate multiple SQL queries vs. a @OneToMany(mappedBy) style. See: https://vladmihalcea.com/the-best-way-to-map-a-onetomany-association-with-jpa-and-hibernate/
-//
-//    @OneToMany(mappedBy = "department") // DEBUG: what is "department"? It's not a table, that would be departmentS
-//    public List<Course> getCourses() {
-//        return courses;
-//    }
-//    // This style of add/remove for the One side of a OneToMany relation is detailed here: https://vladmihalcea.com/the-best-way-to-map-a-onetomany-association-with-jpa-and-hibernate/
-//
-//    public void addCourse(Course course) {
-//        courses.add(course);
-//        course.setDepartment(this);
-//    }
-//    public void removeCourse(Course course) {
-//        courses.remove(course);
-//        course.setDepartment(null);
-//    }
-//
-//    public void setCourses(List<Course> courses) {
-//        this.courses = courses;
-//    }
 
     @Override
     public boolean equals(Object o) {

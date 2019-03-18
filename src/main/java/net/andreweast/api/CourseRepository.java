@@ -1,5 +1,6 @@
-package net.andreweast.hello;
+package net.andreweast.api;
 
+import net.andreweast.model.Course;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;

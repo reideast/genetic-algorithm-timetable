@@ -1,4 +1,4 @@
-package net.andreweast.hello;
+package net.andreweast;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

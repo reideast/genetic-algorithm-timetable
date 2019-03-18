@@ -1,5 +1,4 @@
-package net.andreweast.hello;
-
+package net.andreweast.model;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -9,17 +8,13 @@ import java.util.Objects;
 public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "course_generator")
-    @SequenceGenerator(name="course_generator", sequenceName = "course_id_sequence", allocationSize = 1)
+    @SequenceGenerator(name = "course_generator", sequenceName = "course_id_sequence", allocationSize = 1)
     @Column(name = "course_id", updatable = false, nullable = false)
     private Long courseId;
 
     @Basic
     @Column(name = "name", nullable = false, length = -1)
     private String name;
-
-//    @Basic
-//    @Column(name = "department_id", nullable = true)
-//    private Long departmentId;
 
     @ManyToOne
     @JoinColumn(name = "department_id")
@@ -41,14 +36,6 @@ public class Course {
         this.name = name;
     }
 
-//    public Long getDepartmentId() {
-//        return departmentId;
-//    }
-//
-//    public void setDepartmentId(Long departmentId) {
-//        this.departmentId = departmentId;
-//    }
-
     public Department getDepartment() {
         return department;
     }
@@ -56,20 +43,6 @@ public class Course {
     public void setDepartment(Department department) {
         this.department = department;
     }
-
-////    @ManyToOne(fetch = FetchType.LAZY)
-//    @ManyToOne(fetch = FetchType.EAGER)
-////    @ManyToOne
-//    @JoinColumn(name = "department_id", nullable = true)
-//    public Department getDepartment() {
-//        return department;
-//    }
-//
-//    public void setDepartment(Department department) {
-//        this.department = department;
-//    }
-//
-//    // TODO: update equals and hashCode with Dept.
 
     @Override
     public boolean equals(Object o) {
