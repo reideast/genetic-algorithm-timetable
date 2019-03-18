@@ -23,6 +23,9 @@ public class Department {
     @OneToMany(mappedBy = "department")
     private List<Lecturer> lecturers;
 
+    @OneToMany(mappedBy = "department")
+    private List<User> users;
+
     public Long getDepartmentId() {
         return departmentId;
     }
@@ -53,6 +56,14 @@ public class Department {
 
     public void setLecturers(List<Lecturer> lecturers) {
         this.lecturers = lecturers;
+    }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
     }
 
     @Override
