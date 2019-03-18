@@ -45,6 +45,9 @@ public class User {
     @JoinColumn(name = "department_id")
     private Department department;
 
+    @OneToMany(mappedBy = "creator")
+    private List<Schedule> schedules;
+
     public Long getUserId() {
         return userId;
     }
@@ -117,23 +120,33 @@ public class User {
         this.department = department;
     }
 
+    public List<Schedule> getSchedules() {
+        return schedules;
+    }
+
+    public void setSchedules(List<Schedule> schedules) {
+        this.schedules = schedules;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        User that = (User) o;
-        return userId == that.userId &&
-                Objects.equals(username, that.username) &&
-                Objects.equals(password, that.password) &&
-                Objects.equals(passwordSalt, that.passwordSalt) &&
-                Objects.equals(displayName, that.displayName) &&
-                Objects.equals(isFacilities, that.isFacilities) &&
-                Objects.equals(isAdmin, that.isAdmin) &&
-                Objects.equals(email, that.email);
+        User user = (User) o;
+        return userId.equals(user.userId) &&
+                username.equals(user.username) &&
+                password.equals(user.password) &&
+                passwordSalt.equals(user.passwordSalt) &&
+                displayName.equals(user.displayName) &&
+                Objects.equals(isFacilities, user.isFacilities) &&
+                Objects.equals(isAdmin, user.isAdmin) &&
+                Objects.equals(email, user.email) &&
+                Objects.equals(department, user.department) &&
+                Objects.equals(schedules, user.schedules);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, username, password, passwordSalt, displayName, isFacilities, isAdmin, email);
+        return Objects.hash(userId, username, password, passwordSalt, displayName, isFacilities, isAdmin, email, department, schedules);
     }
 }
