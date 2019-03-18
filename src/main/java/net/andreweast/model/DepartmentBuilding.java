@@ -5,7 +5,6 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "department_building", schema = "public", catalog = "ga_dev")
-//@IdClass(DepartmentBuildingPK.class)
 public class DepartmentBuilding {
     @EmbeddedId
     DepartmentBuildingPK id;

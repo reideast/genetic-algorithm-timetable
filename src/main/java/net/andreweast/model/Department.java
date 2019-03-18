@@ -26,15 +26,9 @@ public class Department {
     @OneToMany(mappedBy = "department")
     private List<User> users;
 
-//    // See: https://www.baeldung.com/jpa-many-to-many
-//    // For a basic ManyToMany relation, where the join table has no extra data in it
-//    @ManyToMany
-//    @JoinTable(name = "department_building",
-//            joinColumns = @JoinColumn(name = "department_id", referencedColumnName = "department_id"),
-//            inverseJoinColumns = @JoinColumn(name = "building_id", referencedColumnName = "building_id")
-//    )
-//    private List<Building> buildings;
-
+    // This expresses a Many-To-Many relationship, but the case where the JoinTable has data fields that are important
+    // See: https://www.baeldung.com/jpa-many-to-many
+    // For a basic @ManyToMany relation, where the join table has no extra data in it, see: https://www.baeldung.com/jpa-many-to-many
     @OneToMany(mappedBy = "department")
     private List<DepartmentBuilding> departmentBuildings;
 

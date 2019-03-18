@@ -16,8 +16,8 @@ import javax.persistence.Table;
 import java.util.List;
 import java.util.Objects;
 
-@TypeDef(name = "type", typeClass = PGPointType.class)
 @Entity
+@TypeDef(name = "CustomPGPoint", typeClass = PGPointType.class)
 @Table(name = "buildings", schema = "public", catalog = "ga_dev")
 public class Building {
     @Id
@@ -30,20 +30,12 @@ public class Building {
     @Column(name = "name", nullable = false, length = -1)
     private String name;
 
-    // TODO: maybe have to make a custom type for PGpoint? https://stackoverflow.com/a/53754866/5271224
-    // @Basic
-//    @Basic
-//    @Column(name = "location", nullable = true)
-//    private PGpoint location;
-
-    @Type(type = "type")
+    @Type(type = "CustomPGPoint") // Custom PGPointType class, see: https://stackoverflow.com/a/53754866/5271224
     private PGpoint location;
 
-//    // See: https://www.baeldung.com/jpa-many-to-many
-//    // For a basic ManyToMany relation, where the join table has no extra data in it
-//    @ManyToMany(mappedBy = "buildings")
-//    private List<Department> departments;
-
+    // This expresses a Many-To-Many relationship, but the case where the JoinTable has data fields that are important
+    // See: https://www.baeldung.com/jpa-many-to-many
+    // For a basic @ManyToMany relation, where the join table has no extra data in it, see: https://www.baeldung.com/jpa-many-to-many
     @OneToMany(mappedBy = "building")
     private List<DepartmentBuilding> departmentBuildings;
 
@@ -71,14 +63,6 @@ public class Building {
         this.location = location;
     }
 
-    //    public PGpoint getLocation() {
-//        return location;
-//    }
-//
-//    public void setLocation(PGpoint location) {
-//        this.location = location;
-//    }
-
     public List<DepartmentBuilding> getDepartmentBuildings() {
         return departmentBuildings;
     }
@@ -94,26 +78,12 @@ public class Building {
         Building building = (Building) o;
         return buildingId.equals(building.buildingId) &&
                 name.equals(building.name) &&
+                Objects.equals(location, building.location) &&
                 Objects.equals(departmentBuildings, building.departmentBuildings);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(buildingId, name, departmentBuildings);
+        return Objects.hash(buildingId, name, location, departmentBuildings);
     }
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (o == null || getClass() != o.getClass()) return false;
-//        Building building = (Building) o;
-//        return buildingId.equals(building.buildingId) &&
-//                name.equals(building.name) &&
-//                Objects.equals(location, building.location) &&
-//                Objects.equals(departmentBuildings, building.departmentBuildings);
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(buildingId, name, location, departmentBuildings);
-//    }
 }
