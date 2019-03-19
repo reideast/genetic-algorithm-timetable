@@ -16,5 +16,5 @@ public interface ScheduleRepository extends PagingAndSortingRepository<Schedule,
     List<Schedule> findByCreator_UserId_OrCreator_Username(Long id, String username);
 
     @RestResource(path="creatorLatest", rel="creatorLatest")
-    List<Schedule> findByCreator_UserIdOrderByCreationDateDesc(Long id);
+    List<Schedule> findTopByCreator_UserIdOrderByCreationDateDesc(Long id);
 }
