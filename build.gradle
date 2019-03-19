@@ -27,7 +27,7 @@ plugins {
     id "io.spring.dependency-management" version "1.0.7.RELEASE"
 }
 
-String appVersion = '0.3.0'
+String appVersion = '0.4.0'
 
 group 'net.andreweast'
 version appVersion
