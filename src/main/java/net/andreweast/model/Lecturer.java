@@ -24,6 +24,9 @@ public class Lecturer {
     @OneToMany(mappedBy = "lecturer")
     private List<Module> modules;
 
+    @OneToMany(mappedBy = "lecturer")
+    private List<LecturerTimeslotPreference> lecturerTimeslotPreferences;
+
     public Long getLecturerId() {
         return lecturerId;
     }
@@ -56,6 +59,14 @@ public class Lecturer {
         this.modules = modules;
     }
 
+    public List<LecturerTimeslotPreference> getLecturerTimeslotPreferences() {
+        return lecturerTimeslotPreferences;
+    }
+
+    public void setLecturerTimeslotPreferences(List<LecturerTimeslotPreference> lecturerTimeslotPreferences) {
+        this.lecturerTimeslotPreferences = lecturerTimeslotPreferences;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -64,11 +75,12 @@ public class Lecturer {
         return lecturerId.equals(lecturer.lecturerId) &&
                 name.equals(lecturer.name) &&
                 Objects.equals(department, lecturer.department) &&
-                Objects.equals(modules, lecturer.modules);
+                Objects.equals(modules, lecturer.modules) &&
+                Objects.equals(lecturerTimeslotPreferences, lecturer.lecturerTimeslotPreferences);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(lecturerId, name, department, modules);
+        return Objects.hash(lecturerId, name, department, modules, lecturerTimeslotPreferences);
     }
 }
