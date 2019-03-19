@@ -19,18 +19,18 @@ N.b. Can't just set x or y, have to set both at once
 
 @RepositoryRestResource(collectionResourceRel = "building", path = "building")
 public interface BuildingRepository extends PagingAndSortingRepository<Building, Long> {
-    @RestResource(path = "name", rel="name")
+    @RestResource(path = "name", rel = "name")
     List<Building> findByName(String name);
 
-    @RestResource(path="venue", rel="venue")
+    @RestResource(path = "venue", rel = "venue")
     List<Building> findByVenues_VenueId(Long id);
-    @RestResource(path="venueName", rel="venueName")
+    @RestResource(path = "venueName", rel = "venueName")
     List<Building> findByVenues_Name(String name);
 
-    @RestResource(path="department", rel="department")
+    @RestResource(path = "department", rel = "department")
     List<Building> findByDepartmentBuildings_DepartmentDepartmentId(Long id);
     // Note: the OR notation-style here does NOT work, returns TOO MANY results for ?name= queries: List<Building> findByDepartmentBuildings_DepartmentDepartmentId_OrDepartmentBuildings_DepartmentName(Long id, String name);
     // Thus, the separate departmentName API path is provided below
-    @RestResource(path="departmentName", rel="departmentName")
+    @RestResource(path = "departmentName", rel = "departmentName")
     List<Building> findByDepartmentBuildings_DepartmentName(String name);
 }

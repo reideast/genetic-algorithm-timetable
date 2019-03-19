@@ -10,12 +10,13 @@ import java.util.List;
 
 @RepositoryRestResource(collectionResourceRel = "venue", path = "venue")
 public interface VenueRepository extends PagingAndSortingRepository<Venue, Long> {
-    @RestResource(path = "name", rel="name")
+    @RestResource(path = "name", rel = "name")
     List<Venue> findByName(String name);
 
-    @RestResource(path="building", rel="building")
+    @RestResource(path = "building", rel = "building")
     List<Venue> findByBuilding_BuildingId(Long id);
-    @RestResource(path="buildingName", rel="buildingName")
+
+    @RestResource(path = "buildingName", rel = "buildingName")
     List<Venue> findByBuilding_Name(String name);
 
     List<Venue> findByCapacityGreaterThanEqual(@Param("capacityLowerBound") Integer capacity);
@@ -23,8 +24,9 @@ public interface VenueRepository extends PagingAndSortingRepository<Venue, Long>
     List<Venue> findByCapacityBetween(@Param("capacityLowerBound") Integer lowerBound,
                                       @Param("capacityUpperBound") Integer upperBound);
 
-    @RestResource(path="labs", rel="labs")
+    @RestResource(path = "labs", rel = "labs")
     List<Venue> findByIsLabTrue();
-    @RestResource(path="classrooms", rel="classrooms")
+
+    @RestResource(path = "classrooms", rel = "classrooms")
     List<Venue> findByIsLabFalse();
 }

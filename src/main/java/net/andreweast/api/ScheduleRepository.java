@@ -9,14 +9,14 @@ import java.util.List;
 
 @RepositoryRestResource(collectionResourceRel = "schedule", path = "schedule")
 public interface ScheduleRepository extends PagingAndSortingRepository<Schedule, Long> {
-    @RestResource(path = "masterSchedule", rel="masterSchedule")
+    @RestResource(path = "masterSchedule", rel = "masterSchedule")
     List<Schedule> findByIsMasterIsTrue();
 
-    @RestResource(path="creator", rel="creator")
+    @RestResource(path = "creator", rel = "creator")
     List<Schedule> findByCreator_UserId(Long id);
-    @RestResource(path="creatorUsername", rel="creatorUsername")
+    @RestResource(path = "creatorUsername", rel = "creatorUsername")
     List<Schedule> findByCreator_Username(String username);
 
-    @RestResource(path="creatorLatest", rel="creatorLatest")
+    @RestResource(path = "creatorLatest", rel = "creatorLatest")
     List<Schedule> findTopByCreator_UserIdOrderByCreationDateDesc(Long id);
 }

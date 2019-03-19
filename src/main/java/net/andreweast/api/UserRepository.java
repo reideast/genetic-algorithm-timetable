@@ -9,17 +9,17 @@ import java.util.List;
 
 @RepositoryRestResource(collectionResourceRel = "user", path = "user")
 public interface UserRepository extends PagingAndSortingRepository<User, Long> {
-    @RestResource(path = "username", rel="username")
+    @RestResource(path = "username", rel = "username")
     List<User> findByUsername(String username);
 
-    @RestResource(path = "email", rel="email")
+    @RestResource(path = "email", rel = "email")
     List<User> findByEmail(String email);
 
-    @RestResource(path="department", rel="department")
+    @RestResource(path = "department", rel = "department")
     List<User> findByDepartment_DepartmentId(Long id);
-    @RestResource(path="departmentName", rel="departmentName")
+    @RestResource(path = "departmentName", rel = "departmentName")
     List<User> findByDepartment_Name(String name);
 
-    @RestResource(path="schedule", rel="schedule")
+    @RestResource(path = "schedule", rel = "schedule")
     List<User> findBySchedules_ScheduleId(Long id);
 }

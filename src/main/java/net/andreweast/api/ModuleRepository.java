@@ -9,17 +9,17 @@ import java.util.List;
 
 @RepositoryRestResource(collectionResourceRel = "module", path = "module")
 public interface ModuleRepository extends PagingAndSortingRepository<Module, Long> {
-    @RestResource(path = "name", rel="name")
+    @RestResource(path = "name", rel = "name")
     List<Module> findByName(String name);
 
-    @RestResource(path="lecturer", rel="lecturer")
+    @RestResource(path = "lecturer", rel = "lecturer")
     List<Module> findByLecturer_LecturerId(Long id);
-    @RestResource(path="lecturerName", rel="lecturerName")
+    @RestResource(path = "lecturerName", rel = "lecturerName")
     List<Module> findByLecturer_Name(String name);
 
-    @RestResource(path="course", rel="course")
+    @RestResource(path = "course", rel = "course")
     List<Module> findByCourseModules_CourseCourseId(Long id);
-    @RestResource(path="courseName", rel="courseName")
+    @RestResource(path = "courseName", rel = "courseName")
     List<Module> findByCourseModules_CourseName(String name);
 
     /*
@@ -29,6 +29,6 @@ public interface ModuleRepository extends PagingAndSortingRepository<Module, Lon
      * TODO: make one custom SQL query: input schedule ID; output: module name + ID, timeslots, venue name
      * TODO: other related query: same, but limited to one Course's timetable
      */
-    @RestResource(path="scheduledModule", rel="scheduledModule")
+    @RestResource(path = "scheduledModule", rel = "scheduledModule")
     List<Module> findByScheduledModules_Schedule_ScheduleId(Long id);
 }

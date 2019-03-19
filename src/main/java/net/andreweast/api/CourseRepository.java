@@ -34,23 +34,24 @@ Content-Type:text/uri-list
 body: "http://localhost:5000/department/3"
 */
 
-@RepositoryRestResource(collectionResourceRel = "course", path = "course") // I believe the purpose of this is to skip the need for a separate @RestController. Contrast to: https://spring.io/guides/tutorials/bookmarks/
+@RepositoryRestResource(collectionResourceRel = "course", path = "course")
+// I believe the purpose of this is to skip the need for a separate @RestController. Contrast to: https://spring.io/guides/tutorials/bookmarks/
 public interface CourseRepository extends PagingAndSortingRepository<Course, Long> {
     // /course/{ID} is created implicitly
     // All */search/* queries go here:
 
     // Without @RestResource annotation: List<Course> findByDepartmentId(@Param("id") long id);
-    @RestResource(path = "name", rel="name")
+    @RestResource(path = "name", rel = "name")
     List<Course> findByName(String name);
 
-    @RestResource(path="department", rel="department")
+    @RestResource(path = "department", rel = "department")
     List<Course> findByDepartment_DepartmentId(Long id);
-    @RestResource(path="departmentName", rel="departmentName")
+    @RestResource(path = "departmentName", rel = "departmentName")
     List<Course> findByDepartment_Name(String name);
 
-    @RestResource(path="module", rel="module")
+    @RestResource(path = "module", rel = "module")
     List<Course> findByCourseModules_Module_ModuleId(Long id);
-    @RestResource(path="moduleName", rel="moduleName")
+    @RestResource(path = "moduleName", rel = "moduleName")
     List<Course> findByCourseModules_Module_Name(String name);
     // This seems to work, too:
     // @RestResource(path="module", rel="module")
