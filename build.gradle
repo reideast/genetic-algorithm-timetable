@@ -54,7 +54,8 @@ dependencies {
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('com.jayway.jsonpath:json-path')
 
-    compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+    // See: https://www.baeldung.com/spring-boot-start
+//    compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 
 //    compile("org.springframework.boot:spring-boot-starter-security")
 //    testCompile("org.springframework.security:spring-security-test")
