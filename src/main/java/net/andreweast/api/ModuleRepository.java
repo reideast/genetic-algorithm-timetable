@@ -1,6 +1,5 @@
 package net.andreweast.api;
 
-import net.andreweast.model.Lecturer;
 import net.andreweast.model.Module;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -15,4 +14,10 @@ public interface ModuleRepository extends PagingAndSortingRepository<Module, Lon
 
     @RestResource(path="lecturer", rel="lecturer")
     List<Module> findByLecturer_LecturerIdOrLecturerName(Long id, String name);
+
+    @RestResource(path="course", rel="course")
+    List<Module> findByCourseModules_CourseCourseId(Long id);
+
+    @RestResource(path="courseName", rel="courseName")
+    List<Module> findByCourseModules_CourseName(String name);
 }

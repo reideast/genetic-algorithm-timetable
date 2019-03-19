@@ -45,4 +45,10 @@ public interface CourseRepository extends PagingAndSortingRepository<Course, Lon
 
     @RestResource(path="department", rel="department")
     List<Course> findByDepartment_DepartmentId_OrDepartment_Name(Long id, String name);
+
+    @RestResource(path="module", rel="module")
+    List<Course> findByCourseModules_ModuleModuleId(Long id);
+
+    @RestResource(path="moduleName", rel="moduleName")
+    List<Course> findByCourseModules_ModuleName(String name);
 }

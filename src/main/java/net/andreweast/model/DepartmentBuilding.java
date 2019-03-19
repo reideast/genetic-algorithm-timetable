@@ -7,17 +7,17 @@ import java.util.Objects;
 @Table(name = "department_building", schema = "public", catalog = "ga_dev")
 public class DepartmentBuilding {
     @EmbeddedId
-    DepartmentBuildingPK id;
+    private DepartmentBuildingPK id;
 
     @ManyToOne
     @MapsId("department_id")
     @JoinColumn(name = "department_id")
-    Department department;
+    private Department department;
 
     @ManyToOne
     @MapsId("building_id")
     @JoinColumn(name = "building_id")
-    Building building;
+    private Building building;
 
     @Basic
     @Column(name = "score", nullable = true)

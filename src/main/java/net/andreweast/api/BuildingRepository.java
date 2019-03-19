@@ -24,7 +24,8 @@ public interface BuildingRepository extends PagingAndSortingRepository<Building,
 
     @RestResource(path="department", rel="department")
     List<Building> findByDepartmentBuildings_DepartmentDepartmentId(Long id);
-//    List<Building> findByDepartmentBuildings_DepartmentDepartmentId_OrDepartmentBuildings_DepartmentName(Long id, String name);
+    // Note: the OR notation-style here does NOT work, returns TOO MANY results for ?name= queries: List<Building> findByDepartmentBuildings_DepartmentDepartmentId_OrDepartmentBuildings_DepartmentName(Long id, String name);
+    // Thus, the separate departmentName API path is provided below
 
     @RestResource(path="departmentName", rel="departmentName")
     List<Building> findByDepartmentBuildings_DepartmentName(String name);
