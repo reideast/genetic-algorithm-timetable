@@ -1,7 +1,12 @@
 import org.yaml.snakeyaml.Yaml
 
 buildscript {
+    repositories {
+        mavenCentral()
+    }
     dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.5.RELEASE")
+
         // https://mvnrepository.com/artifact/org.yaml/snakeyaml
         classpath group: 'org.yaml', name: 'snakeyaml', version: '1.23'
     }
@@ -10,79 +15,75 @@ buildscript {
 plugins {
     id 'java'
     id 'war' // TODO: test this: May not be needed because tomcat plugin uses WAR
-    id 'org.gretty' version '2.2.0'
-    // DEBUG: For tomcat plugin, not needed for gretty:
-//    id "com.bmuschko.tomcat" version "2.5"
+    id 'idea'
+    id "org.springframework.boot" version "2.1.3.RELEASE"
+    /*
+    The Spring Boot gradle plugin provides many convenient features:
+        https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/html
+        It collects all the jars on the classpath and builds a single, runnable "über-jar", which makes it more convenient to execute and transport your service.
+        It searches for the public static void main() method to flag as a runnable class.
+        It provides a built-in dependency resolver that sets the version number to match Spring Boot dependencies. You can override any version you wish, but it will default to Boot’s chosen set of versions.
+     */
+    id "io.spring.dependency-management" version "1.0.7.RELEASE"
 }
 
+String appVersion = '0.3.0'
+
 group 'net.andreweast'
-version '0.2.1'
+version appVersion
+//version '${appVersion}'
 
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+bootJar {
+    baseName = 'ga-rest-api'
+    version = appVersion
+//    version = '${appVersion}'
+}
 
 repositories {
-    jcenter()
-//    mavenCentral()
+//    jcenter()
+    mavenCentral()
 }
 
 dependencies {
-    // "providedCompile and providedRuntime, analogous to compile and runtime in regular Java applications, to represent dependencies that are needed locally but should not be added to the generated webdemo.war file." https://guides.gradle.org/building-java-web-applications/
-    providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
-
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
-    // https://mvnrepository.com/artifact/org.glassfish.jersey.containers/jersey-container-servlet
-    compile group: 'org.glassfish.jersey.containers', name: 'jersey-container-servlet', version: '2.28'
-    // https://mvnrepository.com/artifact/org.glassfish.jersey.inject/jersey-hk2
-    compile group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '2.28'
+    compile("org.springframework.boot:spring-boot-starter-web")
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile('com.jayway.jsonpath:json-path')
 
-//    // For JSON
-//    // DEBUG: doesn't seem to be needed
-//    // https://mvnrepository.com/artifact/org.glassfish.jersey.media/jersey-media-json-jackson
-//    compile group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '2.28'
+    compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 
-    implementation 'org.postgresql:postgresql:42.2.5'
+//    compile("org.springframework.boot:spring-boot-starter-security")
+//    testCompile("org.springframework.security:spring-security-test")
+    /*
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+            <version>${spring-security.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+            <version>${spring-security.version}</version>
+        </dependency>
+     */
 
-    // DEBUG: For tomcat plugin, not needed for gretty:
-//    def tomcatVersion = '8.5.16'
-//    tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
-//        "org.apache.tomcat.embed:tomcat-embed-logging-juli:8.5.2",
-//        "org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}"
+    compile("org.springframework.boot:spring-boot-starter-data-rest")
+    compile("org.springframework.boot:spring-boot-starter-data-jpa")
+//    compile("com.h2database:h2")
+    // https://mvnrepository.com/artifact/org.postgresql/postgresql
+    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.5'
+    implementation 'org.postgresql:postgresql:42.2.5' // DEBUG: Probably unnecessary now with Spring
+
+    // "providedCompile and providedRuntime, analogous to compile and runtime in regular Java applications, to represent dependencies that are needed locally but should not be added to the generated webdemo.war file." https://guides.gradle.org/building-java-web-applications/
 }
 
-// DEBUG: For tomcat plugin, not needed for gretty:
-//tomcat {
-//    httpProtocol = 'org.apache.coyote.http11.Http11Nio2Protocol'
-//    ajpProtocol  = 'org.apache.coyote.ajp.AjpNio2Protocol'
-//    contextPath = '/' // Otherwise, would run on localhost:8080/projectName/
-//    users {
-//        user {
-//            username = 'user1'
-//            password = '123456'
-//            roles = ['developers', 'admin']
-//        }
-//
-//        user {
-//            username = 'user2'
-//            password = 'abcdef'
-//            roles = ['manager']
-//        }
-//    }
-//}
-// DEBUG: For tomcat plugin, not needed for gretty:
-//tomcatRun {
-//    daemon = false // TODO: turn to true if using tomcatStop
-//    outputFile = file('logs/tomcat-log.log')
-//}
-
-gretty {
-    contextPath = '/'
-    servletContainer = 'tomcat85' // Match version running on AWS Elastic Beanstalk
-}
-
-// For all of Gretty's appRun-type tasks, load the .ebextensions YAML file as environmental variables first
-tasks.withType(org.akhikhl.gretty.AppStartTask) { Task task ->
-    if (task.name in ['appRun', 'appStart', 'appRunWar', 'appStartWar']) {
+// For SpringBoot's bootRun that starts a server, load the .ebextensions YAML file as environmental variables first
+bootRun {
+    doFirst {
         def yamlFileContents = (".ebextensions/environmentvariables.config" as File).text
         def envs = new Yaml().load(yamlFileContents)["option_settings"]["aws:elasticbeanstalk:application:environment"] as Map<String, String>
         envs.each { key, value ->
@@ -91,7 +92,17 @@ tasks.withType(org.akhikhl.gretty.AppStartTask) { Task task ->
     }
 }
 
-war {
+//war {
+//    // bundle Elastic Beanstalk config files into the WAR
+//    from('.ebextensions') {
+//        include 'environmentvariables.config'
+//        include 'securitygroup-addexisting.config'
+//        into('.ebextensions')
+//    }
+//    inputs.files('.ebextensions') // Informs the WAR task that files in this directory should be considered inputs, thus the WAR must be rebuilt if they are modified
+//}
+
+bootJar {
     // bundle Elastic Beanstalk config files into the WAR
     from('.ebextensions') {
         include 'environmentvariables.config'
@@ -100,4 +111,12 @@ war {
     }
     inputs.files('.ebextensions') // Informs the WAR task that files in this directory should be considered inputs, thus the WAR must be rebuilt if they are modified
 }
-
+bootWar {
+    // bundle Elastic Beanstalk config files into the WAR
+    from('.ebextensions') {
+        include 'environmentvariables.config'
+        include 'securitygroup-addexisting.config'
+        into('.ebextensions')
+    }
+    inputs.files('.ebextensions') // Informs the WAR task that files in this directory should be considered inputs, thus the WAR must be rebuilt if they are modified
+}
