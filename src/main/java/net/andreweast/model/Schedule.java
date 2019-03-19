@@ -3,6 +3,7 @@ package net.andreweast.model;
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -48,6 +49,9 @@ public class Schedule {
     @ManyToOne
     @JoinColumn(name = "creator_id")
     private User creator;
+
+    @OneToMany(mappedBy = "schedule")
+    private List<ScheduledModule> scheduledModules;
 
     public Long getScheduleId() {
         return scheduleId;
@@ -105,6 +109,14 @@ public class Schedule {
         this.creator = creator;
     }
 
+    public List<ScheduledModule> getScheduledModules() {
+        return scheduledModules;
+    }
+
+    public void setScheduledModules(List<ScheduledModule> scheduledModules) {
+        this.scheduledModules = scheduledModules;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -116,11 +128,12 @@ public class Schedule {
                 Objects.equals(isAccepted, schedule.isAccepted) &&
                 Objects.equals(isGeneticAlgorithmRunning, schedule.isGeneticAlgorithmRunning) &&
                 Objects.equals(isMaster, schedule.isMaster) &&
-                Objects.equals(creator, schedule.creator);
+                Objects.equals(creator, schedule.creator) &&
+                Objects.equals(scheduledModules, schedule.scheduledModules);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(scheduleId, creationDate, isWip, isAccepted, isGeneticAlgorithmRunning, isMaster, creator);
+        return Objects.hash(scheduleId, creationDate, isWip, isAccepted, isGeneticAlgorithmRunning, isMaster, creator, scheduledModules);
     }
 }

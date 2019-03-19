@@ -24,6 +24,9 @@ public class Module {
     @OneToMany(mappedBy = "module")
     private List<CourseModule> courseModules;
 
+    @OneToMany(mappedBy = "module")
+    private List<ScheduledModule> scheduledModules;
+
     public Long getModuleId() {
         return moduleId;
     }
@@ -56,6 +59,14 @@ public class Module {
         this.courseModules = courseModules;
     }
 
+    public List<ScheduledModule> getScheduledModules() {
+        return scheduledModules;
+    }
+
+    public void setScheduledModules(List<ScheduledModule> scheduledModules) {
+        this.scheduledModules = scheduledModules;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -64,11 +75,12 @@ public class Module {
         return moduleId.equals(module.moduleId) &&
                 name.equals(module.name) &&
                 Objects.equals(lecturer, module.lecturer) &&
-                Objects.equals(courseModules, module.courseModules);
+                Objects.equals(courseModules, module.courseModules) &&
+                Objects.equals(scheduledModules, module.scheduledModules);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(moduleId, name, lecturer, courseModules);
+        return Objects.hash(moduleId, name, lecturer, courseModules, scheduledModules);
     }
 }

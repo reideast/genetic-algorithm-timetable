@@ -39,6 +39,9 @@ public class Timeslot {
     private Integer time;
 
     @OneToMany(mappedBy = "timeslot")
+    private List<ScheduledModule> scheduledModules;
+
+    @OneToMany(mappedBy = "timeslot")
     private List<LecturerTimeslotPreference> lecturerTimeslotPreferences;
 
     public Long getTimeslotId() {
@@ -65,6 +68,14 @@ public class Timeslot {
         this.time = time;
     }
 
+    public List<ScheduledModule> getScheduledModules() {
+        return scheduledModules;
+    }
+
+    public void setScheduledModules(List<ScheduledModule> scheduledModules) {
+        this.scheduledModules = scheduledModules;
+    }
+
     public List<LecturerTimeslotPreference> getLecturerTimeslotPreferences() {
         return lecturerTimeslotPreferences;
     }
@@ -81,11 +92,12 @@ public class Timeslot {
         return timeslotId.equals(timeslot.timeslotId) &&
                 day.equals(timeslot.day) &&
                 time.equals(timeslot.time) &&
+                Objects.equals(scheduledModules, timeslot.scheduledModules) &&
                 Objects.equals(lecturerTimeslotPreferences, timeslot.lecturerTimeslotPreferences);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(timeslotId, day, time, lecturerTimeslotPreferences);
+        return Objects.hash(timeslotId, day, time, scheduledModules, lecturerTimeslotPreferences);
     }
 }

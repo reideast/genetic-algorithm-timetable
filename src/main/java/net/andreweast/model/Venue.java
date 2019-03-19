@@ -1,6 +1,7 @@
 package net.andreweast.model;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -27,6 +28,9 @@ public class Venue {
     @ManyToOne
     @JoinColumn(name = "building_id")
     private Building building;
+
+    @OneToMany(mappedBy = "venue")
+    private List<ScheduledModule> scheduledModules;
 
     public Long getVenueId() {
         return venueId;
@@ -68,6 +72,14 @@ public class Venue {
         this.building = building;
     }
 
+    public List<ScheduledModule> getScheduledModules() {
+        return scheduledModules;
+    }
+
+    public void setScheduledModules(List<ScheduledModule> scheduledModules) {
+        this.scheduledModules = scheduledModules;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -77,11 +89,12 @@ public class Venue {
                 name.equals(venue.name) &&
                 Objects.equals(isLab, venue.isLab) &&
                 capacity.equals(venue.capacity) &&
-                Objects.equals(building, venue.building);
+                Objects.equals(building, venue.building) &&
+                Objects.equals(scheduledModules, venue.scheduledModules);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(venueId, name, isLab, capacity, building);
+        return Objects.hash(venueId, name, isLab, capacity, building, scheduledModules);
     }
 }
