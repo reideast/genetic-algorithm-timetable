@@ -17,6 +17,10 @@ public class Course {
     @Column(name = "name", nullable = false, length = -1)
     private String name;
 
+    @Basic
+    @Column(name= "numenrolled", nullable = false)
+    private Integer numEnrolled;
+
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
@@ -38,6 +42,14 @@ public class Course {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Integer getNumEnrolled() {
+        return numEnrolled;
+    }
+
+    public void setNumEnrolled(Integer numEnrolled) {
+        this.numEnrolled = numEnrolled;
     }
 
     public Department getDepartment() {
@@ -63,12 +75,13 @@ public class Course {
         Course course = (Course) o;
         return courseId.equals(course.courseId) &&
                 name.equals(course.name) &&
+                numEnrolled.equals(course.numEnrolled) &&
                 Objects.equals(department, course.department) &&
                 Objects.equals(courseModules, course.courseModules);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(courseId, name, department, courseModules);
+        return Objects.hash(courseId, name, numEnrolled, department, courseModules);
     }
 }

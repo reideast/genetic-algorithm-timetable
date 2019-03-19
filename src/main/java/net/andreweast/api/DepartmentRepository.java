@@ -12,9 +12,23 @@ public interface DepartmentRepository extends PagingAndSortingRepository<Departm
     @RestResource(path = "name", rel="name")
     List<Department> findByName(String name);
 
+    @RestResource(path="user", rel="user")
+    List<Department> findByUsers_UserId(Long id);
+    @RestResource(path="userUsername", rel="userUsername")
+    List<Department> findByUsers_Username(String username);
+
+    @RestResource(path="course", rel="course")
+    List<Department> findByCourses_CourseId(Long id);
+    @RestResource(path="courseName", rel="courseName")
+    List<Department> findByCourses_Name(String name);
+
+    @RestResource(path="lecturer", rel="lecturer")
+    List<Department> findByLecturers_LecturerId(Long id);
+    @RestResource(path="lecturerName", rel="lecturerName")
+    List<Department> findByLecturers_Name(String name);
+
     @RestResource(path="building", rel="building")
     List<Department> findByDepartmentBuildings_BuildingBuildingId(Long id);
-
     @RestResource(path="buildingName", rel="buildingName")
     List<Department> findByDepartmentBuildings_BuildingName(String name);
 }

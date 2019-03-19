@@ -16,5 +16,10 @@ public interface UserRepository extends PagingAndSortingRepository<User, Long> {
     List<User> findByEmail(String email);
 
     @RestResource(path="department", rel="department")
-    List<User> findByDepartment_DepartmentId_OrDepartment_Name(Long id, String name);
+    List<User> findByDepartment_DepartmentId(Long id);
+    @RestResource(path="departmentName", rel="departmentName")
+    List<User> findByDepartment_Name(String name);
+
+    @RestResource(path="schedule", rel="schedule")
+    List<User> findBySchedules_ScheduleId(Long id);
 }

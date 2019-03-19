@@ -14,7 +14,9 @@ public interface VenueRepository extends PagingAndSortingRepository<Venue, Long>
     List<Venue> findByName(String name);
 
     @RestResource(path="building", rel="building")
-    List<Venue> findByBuilding_BuildingId_OrBuilding_Name(Long id, String name);
+    List<Venue> findByBuilding_BuildingId(Long id);
+    @RestResource(path="buildingName", rel="buildingName")
+    List<Venue> findByBuilding_Name(String name);
 
     List<Venue> findByCapacityGreaterThanEqual(@Param("capacityLowerBound") Integer capacity);
     List<Venue> findByCapacityLessThanEqual(@Param("capacityUpperBound") Integer capacity);

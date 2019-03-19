@@ -13,11 +13,12 @@ public interface ModuleRepository extends PagingAndSortingRepository<Module, Lon
     List<Module> findByName(String name);
 
     @RestResource(path="lecturer", rel="lecturer")
-    List<Module> findByLecturer_LecturerIdOrLecturerName(Long id, String name);
+    List<Module> findByLecturer_LecturerId(Long id);
+    @RestResource(path="lecturerName", rel="lecturerName")
+    List<Module> findByLecturer_Name(String name);
 
     @RestResource(path="course", rel="course")
     List<Module> findByCourseModules_CourseCourseId(Long id);
-
     @RestResource(path="courseName", rel="courseName")
     List<Module> findByCourseModules_CourseName(String name);
 }

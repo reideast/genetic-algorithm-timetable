@@ -13,5 +13,10 @@ public interface LecturerRepository extends PagingAndSortingRepository<Lecturer,
     List<Lecturer> findByName(String name);
 
     @RestResource(path="department", rel="department")
-    List<Lecturer> findByDepartment_DepartmentId_OrDepartment_Name(Long id, String name);
+    List<Lecturer> findByDepartment_DepartmentId(Long id);
+    @RestResource(path="departmentName", rel="departmentName")
+    List<Lecturer> findByDepartment_Name(String name);
+
+    @RestResource(path="module", rel="module")
+    List<Lecturer> findByModules_ModuleId_OrModules_Name(Long id, String name);
 }
