@@ -39,6 +39,9 @@ public class Building {
     @OneToMany(mappedBy = "building")
     private List<DepartmentBuilding> departmentBuildings;
 
+    @OneToMany(mappedBy = "building")
+    private List<Venue> venues;
+
     public Long getBuildingId() {
         return buildingId;
     }
@@ -69,6 +72,14 @@ public class Building {
 
     public void setDepartmentBuildings(List<DepartmentBuilding> departmentBuildings) {
         this.departmentBuildings = departmentBuildings;
+    }
+
+    public List<Venue> getVenues() {
+        return venues;
+    }
+
+    public void setVenues(List<Venue> venues) {
+        this.venues = venues;
     }
 
     @Override
