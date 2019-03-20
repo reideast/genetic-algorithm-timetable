@@ -1,10 +1,14 @@
 package net.andreweast.geneticalgorithm.api;
 
+import net.andreweast.api.JobRepository;
 import net.andreweast.api.ScheduleRepository;
 import net.andreweast.exception.DataNotFoundException;
 import net.andreweast.geneticalgorithm.Population;
 import net.andreweast.geneticalgorithm.Scheduler;
+import net.andreweast.model.Job;
+import net.andreweast.model.JobDto;
 import net.andreweast.model.Schedule;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +25,9 @@ import org.springframework.web.server.ResponseStatusException;
 public class SchedulerRestController {
     @Autowired
     private ScheduleRepository scheduleRepository;
-//    private JobRepository jobRepository;
+
+    @Autowired
+    ModelMapper modelMapper;
 
     /**
      * Start a genetic algorithm job running, using an existing Schedule
@@ -30,8 +36,8 @@ public class SchedulerRestController {
      */
     @PutMapping("/start-job/{scheduleId}")
     @ResponseStatus(HttpStatus.ACCEPTED) // Why ACCEPTED? Processing isn't complete, but this HTTP transaction is closed. Perfect! See: https://httpstatuses.com/202
-    public JobJson createScheduleBatchJob(@PathVariable Long scheduleId) {
-        System.out.println("Hey, let's start a scheduling job! Job ID: " + scheduleId); // DEBUG
+    public JobDto createScheduleBatchJob(@PathVariable Long scheduleId) {
+        System.out.println("Hey, let's start a scheduling job! Created from schedule with ID: " + scheduleId); // DEBUG
 
         // Find Schedule in database
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(DataNotFoundException::new);
@@ -60,9 +66,7 @@ public class SchedulerRestController {
             }
         }).start();
 
-        Long jobId = schedule.getScheduleId(); // TODO: Get from Job table
-        // TODO: replace with Job @Entity?
-        return new JobJson(jobId);
+        return modelMapper.map(job, JobDto.class);
     }
 
     @GetMapping("/dummy")
@@ -71,18 +75,5 @@ public class SchedulerRestController {
         System.out.println("Hey, let's run a simple scheduling job!");
 
         return new Scheduler().schedule();
-    }
-}
-
-// simple POJO, read only: can be marshaled into JSON
-class JobJson {
-    private final Long jobId;
-
-    JobJson(long jobId) {
-        this.jobId = jobId;
-    }
-
-    public Long getJobId() {
-        return jobId;
     }
 }

@@ -62,6 +62,14 @@ public class Job {
         this.currentGeneration = currentGeneration;
     }
 
+    public Schedule getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(Schedule schedule) {
+        this.schedule = schedule;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -70,11 +78,12 @@ public class Job {
         return jobId.equals(job.jobId) &&
                 Objects.equals(startDate, job.startDate) &&
                 Objects.equals(totalGenerations, job.totalGenerations) &&
-                Objects.equals(currentGeneration, job.currentGeneration);
+                Objects.equals(currentGeneration, job.currentGeneration) &&
+                Objects.equals(schedule, job.schedule);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(jobId, startDate, totalGenerations, currentGeneration);
+        return Objects.hash(jobId, startDate, totalGenerations, currentGeneration, schedule);
     }
 }

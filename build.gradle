@@ -53,6 +53,7 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('com.jayway.jsonpath:json-path')
+    compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.2'
 
     // See: https://www.baeldung.com/spring-boot-start
 //    compile("org.springframework.boot:spring-boot-starter-thymeleaf")

@@ -149,20 +149,4 @@ public class Schedule {
     public int hashCode() {
         return Objects.hash(scheduleId, creationDate, isWip, isAccepted, isGeneticAlgorithmRunning, isMaster, creator, scheduledModules, job);
     }
-
-    // DEBUG
-    @Override
-    public String toString() {
-        return "Schedule{" +
-                "scheduleId=" + scheduleId +
-                ", creationDate=" + creationDate +
-                ", isWip=" + isWip +
-                ", isAccepted=" + isAccepted +
-                ", isGeneticAlgorithmRunning=" + isGeneticAlgorithmRunning +
-                ", isMaster=" + isMaster +
-                ", creator=" + creator +
-                ", scheduledModules=" + scheduledModules +
-                ", job=" + job +
-                '}';
-    }
 }
