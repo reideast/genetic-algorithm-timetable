@@ -19,12 +19,19 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 @RestController
 @RequestMapping("/genetic-algorithm-api")
-// This Controller isn't grouped with the rest of the REST Repositories, which use application.properties config: spring.data.rest.base-path=/api
+// Does not run from /api/genetic-algorithm-api, but rather just from /genetic-algorithm-api
+// Because this Controller isn't included with the data REST Repositories, which use application.properties config: spring.data.rest.base-path=/api
 public class SchedulerRestController {
     @Autowired
     private ScheduleRepository scheduleRepository;
+
+    @Autowired
+    private JobRepository jobRepository;
 
     @Autowired
     ModelMapper modelMapper;
@@ -33,6 +40,7 @@ public class SchedulerRestController {
      * Start a genetic algorithm job running, using an existing Schedule
      *
      * @param scheduleId Primary key of an existing record in the Schedules Table
+     * @return Data on the new job, and an HTTP 202 Accepted (which comes from the @ResponseStatus annotation)
      */
     @PutMapping("/start-job/{scheduleId}")
     @ResponseStatus(HttpStatus.ACCEPTED) // Why ACCEPTED? Processing isn't complete, but this HTTP transaction is closed. Perfect! See: https://httpstatuses.com/202
@@ -42,13 +50,21 @@ public class SchedulerRestController {
         // Find Schedule in database
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(DataNotFoundException::new);
 
-        // Make sure this schedule doens't have a currently dispatched job
-        if (schedule.getGeneticAlgorithmRunning()) {
+//        System.out.println(schedule);
+
+        // Make sure this schedule doesn't have a currently dispatched job
+        if (schedule.getJob() != null) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Job has already been started"); // See: https://www.baeldung.com/exception-handling-for-rest-with-spring
         }
 
+        // Create job
+        Job job = new Job();
+        job.setStartDate(new Timestamp(new Date().getTime())); // Timestamp to now
+        job.setSchedule(schedule);
+        jobRepository.save(job);
+
         // Notify database that schedule has been started
-        schedule.setGeneticAlgorithmRunning(true);
+        schedule.setJob(job);
         scheduleRepository.save(schedule);
 
         // Kick off the job in its own thread (so that this method (and API call) can return)
@@ -61,7 +77,7 @@ public class SchedulerRestController {
                 scheduleRepository.save(schedule);
                 System.out.println("Job's done, m'lord!"); // DEBUG
             } catch (InterruptedException e) {
-                // There's not way to deal this anymore...the REST call has already returned!
+                // There's no way to deal this anymore...the REST call has already returned!
                 e.printStackTrace();
             }
         }).start();
