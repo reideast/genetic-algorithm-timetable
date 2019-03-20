@@ -1,6 +1,9 @@
 package net.andreweast.api;
 
+import net.andreweast.geneticalgorithm.Population;
+import net.andreweast.geneticalgorithm.Schedule;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -16,6 +19,14 @@ public class SchedulerRestController {
         System.out.println("Hey, let's start a scheduling job! It's for user: " + creator.getCreatorId());
         int jobId = 1234;
         return new JobIdJson(jobId);
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK) // Processing isn't complete, but this HTTP transaction is closed. Perfect! See: https://httpstatuses.com/202
+    public Population createScheduleDEBUG() {
+        System.out.println("Hey, let's run a simple scheduling job!");
+
+        return new Schedule().schedule();
     }
 }
 

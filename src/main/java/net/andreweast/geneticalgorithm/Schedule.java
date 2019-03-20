@@ -11,8 +11,8 @@ public class Schedule {
         population = new Population();
     }
 
-    public String schedule() {
-        StringBuilder s = new StringBuilder();
+    public Population schedule() {
+//        StringBuilder s = new StringBuilder();
         long startTime = System.nanoTime();
 
         System.out.println("************* GEN init *************");
@@ -33,7 +33,7 @@ public class Schedule {
             population.mutate();
 
             if (DEBUG) {
-                s.append(population.toFitnessList()).append("<br>");
+                System.out.println(population.toFitnessList());
             }
 
             if (i == 0) {
@@ -44,14 +44,15 @@ public class Schedule {
 
         }
 
-        s.append("Complexity of dataset:<br>");
-        s.append("Courses: " + Course.getAllCoursesSize() + "<br>");
-        s.append("Venues x TimeSlots: " + (Venue.Room.values().length * TimeSlot.DayOfWeek.values().length * TimeSlot.StartTime.values().length) + "<br>");
+        System.out.println("Complexity of dataset:");
+        System.out.println("Courses: " + Course.getAllCoursesSize());
+        System.out.println("Venues x TimeSlots: " + (Venue.Room.values().length * TimeSlot.DayOfWeek.values().length * TimeSlot.StartTime.values().length));
 
-        s.append("\nRunning time stats:<br>");
-        s.append("Time init: " + (initTime * 1.0E-6) + " ms<br>");
-        s.append("Average generation time: " + (runningAverage * 1E-6) + " ms<br>");
+        System.out.println("\nRunning time stats:");
+        System.out.println("Time init: " + (initTime * 1.0E-6) + " ms");
+        System.out.println("Average generation time: " + (runningAverage * 1E-6) + " ms");
 
-        return s.toString();
+//        return s.toString();
+        return population;
     }
 }

@@ -1,16 +1,20 @@
 package net.andreweast.geneticalgorithm;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class Population {
+public class Population implements Serializable {
     private static final int NUM_INDIVIDUALS = 20;
     private static final Random random = new Random();
 
     private Chromosome[] individuals;
 
+    public Chromosome[] getIndividuals() {
+        return individuals;
+    }
 
     public Population() {
         individuals = new Chromosome[NUM_INDIVIDUALS];

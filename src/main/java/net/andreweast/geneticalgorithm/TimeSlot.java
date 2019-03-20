@@ -1,8 +1,9 @@
 package net.andreweast.geneticalgorithm;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class TimeSlot {
+public class TimeSlot implements Serializable {
     public static TimeSlot getRandomTimeSlot() {
         TimeSlot slot = new TimeSlot();
         slot.setDayOfWeek(DayOfWeek.getRandomDayOfWeek());

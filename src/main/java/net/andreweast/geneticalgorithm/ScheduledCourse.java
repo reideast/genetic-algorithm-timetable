@@ -1,6 +1,8 @@
 package net.andreweast.geneticalgorithm;
 
-public class ScheduledCourse implements Cloneable {
+import java.io.Serializable;
+
+public class ScheduledCourse implements Cloneable, Serializable {
     private Course course;
     private Venue venue;
     private TimeSlot timeSlot;

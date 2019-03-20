@@ -1,8 +1,9 @@
 package net.andreweast.geneticalgorithm;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class Venue {
+public class Venue implements Serializable {
 //    Building building // TODO: Restructure this so building and room numbers are related
 //    RoomNumber roomNumber
 
@@ -14,6 +15,10 @@ public class Venue {
         Venue venue = new Venue();
         venue.room = Room.getRandomRoom();
         return venue;
+    }
+
+    public Room getRoom() {
+        return room;
     }
 
     public String toString() {

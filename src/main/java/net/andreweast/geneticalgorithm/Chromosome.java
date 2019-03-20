@@ -1,13 +1,18 @@
 package net.andreweast.geneticalgorithm;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class Chromosome implements Comparable<Chromosome> {
+public class Chromosome implements Comparable<Chromosome>, Serializable {
     private static Random random = new Random();
 
     private ScheduledCourse[] courses;
     private int storedFitness;
     private boolean isValidSolution;
+
+    public ScheduledCourse[] getCourses() {
+        return courses;
+    }
 
     public Chromosome() {
         courses = new ScheduledCourse[Course.getAllCoursesSize()];

@@ -1,11 +1,12 @@
 package net.andreweast.geneticalgorithm;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 // TODO: This was made as...an enum??
-public class Course {
+public class Course implements Serializable {
     private String courseName;
 
     public Course(String courseName) {
