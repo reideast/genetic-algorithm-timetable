@@ -1,6 +1,7 @@
-package net.andreweast.api;
+package net.andreweast.geneticalgorithm.api;
 
-import net.andreweast.api.exception.DataNotFoundException;
+import net.andreweast.api.ScheduleRepository;
+import net.andreweast.exception.DataNotFoundException;
 import net.andreweast.geneticalgorithm.Population;
 import net.andreweast.geneticalgorithm.Scheduler;
 import net.andreweast.model.Schedule;
