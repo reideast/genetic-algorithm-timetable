@@ -53,6 +53,10 @@ public class Schedule {
     @OneToMany(mappedBy = "schedule")
     private List<ScheduledModule> scheduledModules;
 
+    @OneToOne
+    @JoinColumn(name = "job_id")
+    private Job job;
+
     public Long getScheduleId() {
         return scheduleId;
     }
@@ -117,6 +121,14 @@ public class Schedule {
         this.scheduledModules = scheduledModules;
     }
 
+    public Job getJob() {
+        return job;
+    }
+
+    public void setJob(Job job) {
+        this.job = job;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -129,14 +141,16 @@ public class Schedule {
                 Objects.equals(isGeneticAlgorithmRunning, schedule.isGeneticAlgorithmRunning) &&
                 Objects.equals(isMaster, schedule.isMaster) &&
                 Objects.equals(creator, schedule.creator) &&
-                Objects.equals(scheduledModules, schedule.scheduledModules);
+                Objects.equals(scheduledModules, schedule.scheduledModules) &&
+                Objects.equals(job, schedule.job);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(scheduleId, creationDate, isWip, isAccepted, isGeneticAlgorithmRunning, isMaster, creator, scheduledModules);
+        return Objects.hash(scheduleId, creationDate, isWip, isAccepted, isGeneticAlgorithmRunning, isMaster, creator, scheduledModules, job);
     }
 
+    // DEBUG
     @Override
     public String toString() {
         return "Schedule{" +
@@ -148,6 +162,7 @@ public class Schedule {
                 ", isMaster=" + isMaster +
                 ", creator=" + creator +
                 ", scheduledModules=" + scheduledModules +
+                ", job=" + job +
                 '}';
     }
 }

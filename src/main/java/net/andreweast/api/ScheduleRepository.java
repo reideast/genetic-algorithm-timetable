@@ -19,4 +19,7 @@ public interface ScheduleRepository extends PagingAndSortingRepository<Schedule,
 
     @RestResource(path = "creatorLatest", rel = "creatorLatest")
     List<Schedule> findTopByCreator_UserIdOrderByCreationDateDesc(Long id);
+
+    @RestResource(path = "job", rel = "job")
+    List<Schedule> findByJob_JobId(Long id);
 }
