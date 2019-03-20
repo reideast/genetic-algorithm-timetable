@@ -1,13 +1,13 @@
 package net.andreweast.geneticalgorithm;
 
-public class Schedule {
+public class Scheduler {
     private static final int GENERATION_LIMIT = 300;
 
     static final boolean DEBUG = true;
 
     private Population population;
 
-    public Schedule() {
+    public Scheduler() {
         population = new Population();
     }
 

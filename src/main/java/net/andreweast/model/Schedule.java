@@ -136,4 +136,18 @@ public class Schedule {
     public int hashCode() {
         return Objects.hash(scheduleId, creationDate, isWip, isAccepted, isGeneticAlgorithmRunning, isMaster, creator, scheduledModules);
     }
+
+    @Override
+    public String toString() {
+        return "Schedule{" +
+                "scheduleId=" + scheduleId +
+                ", creationDate=" + creationDate +
+                ", isWip=" + isWip +
+                ", isAccepted=" + isAccepted +
+                ", isGeneticAlgorithmRunning=" + isGeneticAlgorithmRunning +
+                ", isMaster=" + isMaster +
+                ", creator=" + creator +
+                ", scheduledModules=" + scheduledModules +
+                '}';
+    }
 }
