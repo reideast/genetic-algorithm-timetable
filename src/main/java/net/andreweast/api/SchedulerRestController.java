@@ -7,61 +7,64 @@ import net.andreweast.model.Schedule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-//@RequestMapping("/scheduler") // TODO: this RestController doesn't get configured to /api/* with the application.properties config: spring.data.rest.base-path=/api
-@RequestMapping("/api/scheduler")
+@RequestMapping("/genetic-algorithm-api")
+// This Controller isn't grouped with the rest of the REST Repositories, which use application.properties config: spring.data.rest.base-path=/api
 public class SchedulerRestController {
     @Autowired
     private ScheduleRepository scheduleRepository;
+//    private JobRepository jobRepository;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.ACCEPTED) // Processing isn't complete, but this HTTP transaction is closed. Perfect! See: https://httpstatuses.com/202
-    public JobIdJson createScheduleBatchJob(UserJson creator) {
-        System.out.println("Hey, let's start a scheduling job! It's for user: " + creator.getCreatorId());
-        System.out.println(creator); // DEBUG: object is created, but creator.creatorId is null, even when body of request is:
-        /* DEBUG: This was copied/pasted from output of a REST request returning a UserJson obj
-            {
-                "creatorId": 3
-            }
-         */
+    /**
+     * Start a genetic algorithm job running, using an existing Schedule
+     *
+     * @param scheduleId Primary key of an existing record in the Schedules Table
+     */
+    @PutMapping("/start-job/{scheduleId}")
+    @ResponseStatus(HttpStatus.ACCEPTED) // Why ACCEPTED? Processing isn't complete, but this HTTP transaction is closed. Perfect! See: https://httpstatuses.com/202
+    public JobJson createScheduleBatchJob(@PathVariable Long scheduleId) {
+        System.out.println("Hey, let's start a scheduling job! Job ID: " + scheduleId); // DEBUG
 
-        StringBuilder out = new StringBuilder();
-        Iterable<Schedule> all = scheduleRepository.findAll();
-        for (Schedule s : all) {
-            out.append(s).append("************************************");
-        }
+        // Find Schedule in database
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(DataNotFoundException::new);
 
-        Schedule schedule = scheduleRepository.findById(3L).orElseThrow(DataNotFoundException::new);
+        // Make sure this schedule doens't have a currently dispatched job
         if (schedule.getGeneticAlgorithmRunning()) {
-            // See: https://www.baeldung.com/exception-handling-for-rest-with-spring
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Job has already been started");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Job has already been started"); // See: https://www.baeldung.com/exception-handling-for-rest-with-spring
         }
+
+        // Notify database that schedule has been started
         schedule.setGeneticAlgorithmRunning(true);
         scheduleRepository.save(schedule);
 
+        // Kick off the job in its own thread (so that this method (and API call) can return)
         new Thread(() -> {
             try {
+                // TODO: actually run a scheduler...
                 Thread.sleep(10 * 1000);
+
                 schedule.setGeneticAlgorithmRunning(false);
                 scheduleRepository.save(schedule);
-                System.out.println("Job's done, m'lord!");
+                System.out.println("Job's done, m'lord!"); // DEBUG
             } catch (InterruptedException e) {
-                // There's not way to deal this now...the REST call has already returned!
+                // There's not way to deal this anymore...the REST call has already returned!
                 e.printStackTrace();
             }
         }).start();
 
-        Long jobId = schedule.getScheduleId();
-        return new JobIdJson(jobId, out.toString());
+        Long jobId = schedule.getScheduleId(); // TODO: Get from Job table
+        // TODO: replace with Job @Entity?
+        return new JobJson(jobId);
     }
 
-    @GetMapping
+    @GetMapping("/dummy")
     @ResponseStatus(HttpStatus.OK) // Processing isn't complete, but this HTTP transaction is closed. Perfect! See: https://httpstatuses.com/202
     public Population createScheduleDEBUG() {
         System.out.println("Hey, let's run a simple scheduling job!");
@@ -70,46 +73,15 @@ public class SchedulerRestController {
     }
 }
 
-// Will be marshalled by Jackson into JSON format: https://github.com/FasterXML/jackson
-class JobIdJson {
-    private final Long scheduleJobId;
-    private final String comment;
+// simple POJO, read only: can be marshaled into JSON
+class JobJson {
+    private final Long jobId;
 
-    JobIdJson(long scheduleJobId, String comment) {
-        this.scheduleJobId = scheduleJobId;
-        this.comment = comment;
+    JobJson(long jobId) {
+        this.jobId = jobId;
     }
 
-    public Long getScheduleJobId() {
-        return scheduleJobId;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-}
-
-// Will be marshalled by Jackson into JSON format: https://github.com/FasterXML/jackson
-class UserJson {
-    private final Long creatorId;
-
-    public UserJson() {
-        // DEBUG: This should not be able to be created without a creatorId, it should create and HTTP rather than silently creating a UserJson object. Happens when calling the rest endpoint w/o any BODY
-        this.creatorId = null;
-    }
-
-    UserJson(long creatorId) {
-        this.creatorId = creatorId;
-    }
-
-    public Long getCreatorId() {
-        return creatorId;
-    }
-
-    @Override
-    public String toString() {
-        return "UserJson{" +
-                "creatorId=" + creatorId +
-                '}';
+    public Long getJobId() {
+        return jobId;
     }
 }
