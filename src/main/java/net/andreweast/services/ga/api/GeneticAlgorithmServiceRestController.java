@@ -3,6 +3,7 @@ package net.andreweast.services.ga.api;
 import net.andreweast.services.data.model.Job;
 import net.andreweast.services.data.model.JobDto;
 import net.andreweast.services.ga.service.Dispatcher;
+import net.andreweast.services.ga.service.GeneticAlgorithmSerializer;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,13 @@ public class GeneticAlgorithmServiceRestController {
     @Autowired
     ModelMapper modelMapper;
 
+    @Autowired
+    Dispatcher dispatcher;
+
+    // DEBUG: Used for my temporary cleanup method
+    @Autowired
+    GeneticAlgorithmSerializer geneticAlgorithmSerializer;
+
     /**
      * Start a genetic algorithm batch job running, using an existing Schedule (which may or may not be a work-in-progress)
      *
@@ -35,21 +43,28 @@ public class GeneticAlgorithmServiceRestController {
 
         // Dispatch the job. After getting data from database, and creating a new record in the Job table,
         // the dispatcher will spawn its own thread (so that this method (and API call) can return)
-        Job job = Dispatcher.dispatchNewJobForSchedule(scheduleId);
+        Job job = dispatcher.dispatchNewJobForSchedule(scheduleId);
 
         return modelMapper.map(job, JobDto.class);
+    }
+
+    // DEBUG: A temporary method to clean up the database faster
+    @DeleteMapping("/failed-job/{scheduleId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void cleanUpDatabaseAfterJobFailed(@PathVariable Long scheduleId) {
+        geneticAlgorithmSerializer.deleteJobForSchedule(scheduleId);
     }
 
     @GetMapping("/job/{jobId}")
     @ResponseStatus(HttpStatus.OK)
     public JobDto checkStatusOfJob(@PathVariable Long jobId) {
-        Job job = Dispatcher.getStatusForJob(jobId);
+        Job job = dispatcher.getStatusForJob(jobId);
         return modelMapper.map(job, JobDto.class);
     }
 
     @DeleteMapping("/job/{jobId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void stopJob(@PathVariable Long jobId) {
-        Dispatcher.stopJobForSchedule(jobId);
+        dispatcher.stopJobForSchedule(jobId);
     }
 }

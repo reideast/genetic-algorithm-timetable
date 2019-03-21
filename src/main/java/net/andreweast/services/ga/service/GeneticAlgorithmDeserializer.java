@@ -8,6 +8,7 @@ import net.andreweast.services.data.model.Schedule;
 import net.andreweast.services.ga.dataaccess.JobDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.Timestamp;
@@ -18,6 +19,7 @@ import java.util.Date;
  * If this is a new scheduling job, also create the ScheduledModules objects for the job
  * Returns a single object that encapsulates all data for the GA
  */
+@Service
 public class GeneticAlgorithmDeserializer {
     @Autowired
     private ScheduleRepository scheduleRepository;
