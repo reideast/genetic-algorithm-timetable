@@ -1,16 +1,15 @@
 package net.andreweast.services.ga.api;
 
+import net.andreweast.exception.DataNotFoundException;
 import net.andreweast.services.data.api.JobRepository;
 import net.andreweast.services.data.api.ScheduleRepository;
-import net.andreweast.exception.DataNotFoundException;
-import net.andreweast.services.ga.geneticalgorithm.Population;
-import net.andreweast.services.ga.geneticalgorithm.Scheduler;
 import net.andreweast.services.data.model.Job;
 import net.andreweast.services.data.model.JobDto;
 import net.andreweast.services.data.model.Schedule;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -42,7 +41,7 @@ public class GeneticAlgorithmServiceRestController {
      * @param scheduleId Primary key of an existing record in the Schedules Table
      * @return Data on the new job, and an HTTP 202 Accepted (which comes from the @ResponseStatus annotation)
      */
-    @PutMapping("/start-job/{scheduleId}")
+    @PutMapping("/job/{scheduleId}")
     @ResponseStatus(HttpStatus.ACCEPTED) // Why ACCEPTED? Processing isn't complete, but this HTTP transaction is closed. Perfect! See: https://httpstatuses.com/202
     public JobDto createScheduleBatchJob(@PathVariable Long scheduleId) {
         System.out.println("Hey, let's start a scheduling job! Created from schedule with ID: " + scheduleId); // DEBUG
@@ -85,11 +84,15 @@ public class GeneticAlgorithmServiceRestController {
         return modelMapper.map(job, JobDto.class);
     }
 
-    @GetMapping("/dummy")
-    @ResponseStatus(HttpStatus.OK) // Processing isn't complete, but this HTTP transaction is closed. Perfect! See: https://httpstatuses.com/202
-    public Population createScheduleDEBUG() {
-        System.out.println("Hey, let's run a simple scheduling job!");
+    @GetMapping("/job/{jobId}")
+    @ResponseStatus(HttpStatus.OK)
+    public JobDto checkStatusOfJob(@PathVariable Long jobId) {
+        throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "Checking for job status not implemented", new UnsupportedOperationException());
+    }
 
-        return new Scheduler().schedule();
+    @DeleteMapping("/job/{jobId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public JobDto stopJob(@PathVariable Long jobId) {
+        throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "Deleting in-progress job not implemented", new UnsupportedOperationException());
     }
 }
