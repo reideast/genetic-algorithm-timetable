@@ -19,8 +19,13 @@ public class GeneticAlgorithmSerializer {
     private static JobRepository jobRepository;
 
     public static void writeScheduleData(JobDao gaData, Long scheduleId) {
-        // TODO: use each DTO to save its own data to database
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(DataNotFoundException::new);
 
+        // TODO: use each DTO to save its own data to database
+        JobDao.saveJobDaoToDatabase(gaData, schedule);
+    }
+
+    public static void deleteJobForSchedule(Long scheduleId) {
         // Finally, mark this Job as being done by deleting the Job record, setting the Schedule's job foreign key to null
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(DataNotFoundException::new);
 

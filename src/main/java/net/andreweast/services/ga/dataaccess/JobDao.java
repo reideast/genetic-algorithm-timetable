@@ -1,6 +1,5 @@
 package net.andreweast.services.ga.dataaccess;
 
-import net.andreweast.exception.DataNotFoundException;
 import net.andreweast.services.data.api.ScheduleRepository;
 import net.andreweast.services.data.model.Schedule;
 import net.andreweast.services.ga.geneticalgorithm.Module;
@@ -20,9 +19,6 @@ import java.util.List;
  * Essentially, a very complex POJO
  */
 public class JobDao implements Serializable {
-    @Autowired
-    private static ScheduleRepository scheduleRepository;
-
     private List<TimeSlot> timeslots;
     private List<Module> modules;
     private List<Venue> venues;
@@ -57,6 +53,10 @@ public class JobDao implements Serializable {
         return data;
     }
 
+    public static void saveJobDaoToDatabase(JobDao data, Schedule schedule) {
+        throw new UnsupportedOperationException();
+    }
+
     public List<TimeSlot> getTimeslots() {
         return timeslots;
     }
@@ -79,5 +79,13 @@ public class JobDao implements Serializable {
 
     public void setVenues(List<Venue> venues) {
         this.venues = venues;
+    }
+
+    public List<ScheduledModule> getScheduledModules() {
+        return scheduledModules;
+    }
+
+    public void setScheduledModules(List<ScheduledModule> scheduledModules) {
+        this.scheduledModules = scheduledModules;
     }
 }
