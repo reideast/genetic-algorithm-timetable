@@ -1,5 +1,6 @@
 package net.andreweast.services.ga.service;
 
+import net.andreweast.services.data.model.Schedule;
 import net.andreweast.services.ga.dataaccess.JobDao;
 
 /**
@@ -8,7 +9,7 @@ import net.andreweast.services.ga.dataaccess.JobDao;
  * Returns a single object that encapsulates all data for the GA
  */
 public class GeneticAlgorithmDeserializer {
-    public static JobDao getScheduleData(Long scheduleId) {
-        return JobDao.GenerateJobDaoFromDatabase(scheduleId);
+    public static JobDao getScheduleData(Schedule schedule) {
+        return JobDao.generateJobDaoFromDatabase(schedule);
     }
 }

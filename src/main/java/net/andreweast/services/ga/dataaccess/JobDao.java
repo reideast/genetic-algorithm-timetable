@@ -34,9 +34,9 @@ public class JobDao implements Serializable {
 
     /**
      * Build up all GA-runner data structures by getting them from the database
-     * @param scheduleId The schedule ID from the database to fetch
+     * @param schedule The schedule entity from the database
      */
-    public static JobDao GenerateJobDaoFromDatabase(Long scheduleId) {
+    public static JobDao generateJobDaoFromDatabase(Schedule schedule) {
         JobDao data = new JobDao();
 
         // Get all timeslots, venues, and modules from database
@@ -45,16 +45,13 @@ public class JobDao implements Serializable {
         data.modules = ModulesDto.generateModulesFromDatabase();
         data.venues = VenuesDto.generateVenuesFromDatabase();
 
-        // Find Schedule in database
-        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(DataNotFoundException::new);
-
         // Find or make the ScheduledModules objects, which are the genes that make up each chromosomes in the GA
         if (schedule.getWip()) {
             // This job is a "work in progress", therefore scheduled_modules already exist
-            data.scheduledModules = ScheduledModuleDao.generateScheduledModulesFromDatabase(scheduleId);
+            data.scheduledModules = ScheduledModuleDao.generateScheduledModulesFromDatabase(schedule.getScheduleId());
         } else {
             // This job is a new job, therefore need to create all the scheduled_modules
-            data.scheduledModules = ScheduledModuleDao.createSetOfScheduledModulesInDatabase(scheduleId);
+            data.scheduledModules = ScheduledModuleDao.createSetOfScheduledModulesInDatabase(schedule.getScheduleId());
         }
 
         return data;
