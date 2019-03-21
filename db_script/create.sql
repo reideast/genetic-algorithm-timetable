@@ -5,7 +5,28 @@
 -- Dumped from database version 9.6.11
 -- Dumped by pg_dump version 11.1
 
--- Started on 2019-03-20 22:42:20
+-- Started on 2019-03-21 17:46:03
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+DROP DATABASE ga_dev;
+--
+-- TOC entry 3204 (class 1262 OID 16391)
+-- Name: ga_dev; Type: DATABASE; Schema: -; Owner: -
+--
+
+CREATE DATABASE ga_dev WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8';
+
+
+\connect ga_dev
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -34,7 +55,7 @@ CREATE TABLE public.buildings (
 
 
 --
--- TOC entry 3204 (class 0 OID 0)
+-- TOC entry 3205 (class 0 OID 0)
 -- Dependencies: 189
 -- Name: COLUMN buildings.location; Type: COMMENT; Schema: public; Owner: -
 --
@@ -56,7 +77,7 @@ CREATE SEQUENCE public.building_id_sequence
 
 
 --
--- TOC entry 3205 (class 0 OID 0)
+-- TOC entry 3206 (class 0 OID 0)
 -- Dependencies: 197
 -- Name: building_id_sequence; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -78,7 +99,7 @@ CREATE TABLE public.courses (
 
 
 --
--- TOC entry 3206 (class 0 OID 0)
+-- TOC entry 3207 (class 0 OID 0)
 -- Dependencies: 195
 -- Name: COLUMN courses.name; Type: COMMENT; Schema: public; Owner: -
 --
@@ -87,7 +108,7 @@ COMMENT ON COLUMN public.courses.name IS 'Course name and year, e.g. 3BCT or 2BA
 
 
 --
--- TOC entry 3207 (class 0 OID 0)
+-- TOC entry 3208 (class 0 OID 0)
 -- Dependencies: 195
 -- Name: COLUMN courses.numenrolled; Type: COMMENT; Schema: public; Owner: -
 --
@@ -109,7 +130,7 @@ CREATE SEQUENCE public.course_id_sequence
 
 
 --
--- TOC entry 3208 (class 0 OID 0)
+-- TOC entry 3209 (class 0 OID 0)
 -- Dependencies: 198
 -- Name: course_id_sequence; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -130,7 +151,7 @@ CREATE TABLE public.course_module (
 
 
 --
--- TOC entry 3209 (class 0 OID 0)
+-- TOC entry 3210 (class 0 OID 0)
 -- Dependencies: 196
 -- Name: COLUMN course_module.code; Type: COMMENT; Schema: public; Owner: -
 --
@@ -151,7 +172,7 @@ CREATE TABLE public.department_building (
 
 
 --
--- TOC entry 3210 (class 0 OID 0)
+-- TOC entry 3211 (class 0 OID 0)
 -- Dependencies: 192
 -- Name: COLUMN department_building.score; Type: COMMENT; Schema: public; Owner: -
 --
@@ -184,7 +205,7 @@ CREATE SEQUENCE public.department_id_sequence
 
 
 --
--- TOC entry 3211 (class 0 OID 0)
+-- TOC entry 3212 (class 0 OID 0)
 -- Dependencies: 199
 -- Name: department_id_sequence; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -219,7 +240,7 @@ CREATE SEQUENCE public.job_id_seq
 
 
 --
--- TOC entry 3212 (class 0 OID 0)
+-- TOC entry 3213 (class 0 OID 0)
 -- Dependencies: 207
 -- Name: job_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -253,7 +274,7 @@ CREATE SEQUENCE public.lecturer_id_sequence
 
 
 --
--- TOC entry 3213 (class 0 OID 0)
+-- TOC entry 3214 (class 0 OID 0)
 -- Dependencies: 200
 -- Name: lecturer_id_sequence; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -299,7 +320,7 @@ CREATE SEQUENCE public.module_id_sequence
 
 
 --
--- TOC entry 3214 (class 0 OID 0)
+-- TOC entry 3215 (class 0 OID 0)
 -- Dependencies: 201
 -- Name: module_id_sequence; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -325,7 +346,7 @@ CREATE TABLE public.schedules (
 
 
 --
--- TOC entry 3215 (class 0 OID 0)
+-- TOC entry 3216 (class 0 OID 0)
 -- Dependencies: 191
 -- Name: COLUMN schedules.is_wip; Type: COMMENT; Schema: public; Owner: -
 --
@@ -334,7 +355,7 @@ COMMENT ON COLUMN public.schedules.is_wip IS 'User''s schedule which they are cu
 
 
 --
--- TOC entry 3216 (class 0 OID 0)
+-- TOC entry 3217 (class 0 OID 0)
 -- Dependencies: 191
 -- Name: COLUMN schedules.is_accepted; Type: COMMENT; Schema: public; Owner: -
 --
@@ -343,7 +364,7 @@ COMMENT ON COLUMN public.schedules.is_accepted IS 'User''s schedule which is the
 
 
 --
--- TOC entry 3217 (class 0 OID 0)
+-- TOC entry 3218 (class 0 OID 0)
 -- Dependencies: 191
 -- Name: COLUMN schedules.is_genetic_algorithm_running; Type: COMMENT; Schema: public; Owner: -
 --
@@ -352,7 +373,7 @@ COMMENT ON COLUMN public.schedules.is_genetic_algorithm_running IS 'Currently is
 
 
 --
--- TOC entry 3218 (class 0 OID 0)
+-- TOC entry 3219 (class 0 OID 0)
 -- Dependencies: 191
 -- Name: COLUMN schedules.is_master; Type: COMMENT; Schema: public; Owner: -
 --
@@ -374,7 +395,7 @@ CREATE SEQUENCE public.schedule_id_sequence
 
 
 --
--- TOC entry 3219 (class 0 OID 0)
+-- TOC entry 3220 (class 0 OID 0)
 -- Dependencies: 202
 -- Name: schedule_id_sequence; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -408,7 +429,7 @@ CREATE TABLE public.timeslots (
 
 
 --
--- TOC entry 3220 (class 0 OID 0)
+-- TOC entry 3221 (class 0 OID 0)
 -- Dependencies: 193
 -- Name: COLUMN timeslots.day; Type: COMMENT; Schema: public; Owner: -
 --
@@ -417,7 +438,7 @@ COMMENT ON COLUMN public.timeslots.day IS '0,1,2,3,4,5,6';
 
 
 --
--- TOC entry 3221 (class 0 OID 0)
+-- TOC entry 3222 (class 0 OID 0)
 -- Dependencies: 193
 -- Name: COLUMN timeslots."time"; Type: COMMENT; Schema: public; Owner: -
 --
@@ -439,7 +460,7 @@ CREATE SEQUENCE public.timeslot_id_sequence
 
 
 --
--- TOC entry 3222 (class 0 OID 0)
+-- TOC entry 3223 (class 0 OID 0)
 -- Dependencies: 203
 -- Name: timeslot_id_sequence; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -479,7 +500,7 @@ CREATE SEQUENCE public.user_id_sequence
 
 
 --
--- TOC entry 3223 (class 0 OID 0)
+-- TOC entry 3224 (class 0 OID 0)
 -- Dependencies: 204
 -- Name: user_id_sequence; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -515,7 +536,7 @@ CREATE SEQUENCE public.venue_id_sequence
 
 
 --
--- TOC entry 3224 (class 0 OID 0)
+-- TOC entry 3225 (class 0 OID 0)
 -- Dependencies: 205
 -- Name: venue_id_sequence; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -696,6 +717,7 @@ INSERT INTO public.departments VALUES (3, 'Law');
 --
 
 INSERT INTO public.jobs VALUES (1, '2019-03-20 22:30:25', 500, 100);
+INSERT INTO public.jobs VALUES (25, '2019-03-21 17:27:06.946', NULL, NULL);
 
 
 --
@@ -746,10 +768,11 @@ INSERT INTO public.scheduled_modules VALUES (1, 1, 3, 1);
 -- Data for Name: schedules; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.schedules VALUES (1, '2019-03-18 19:50:52.812', 3, false, false, false, true, 1);
-INSERT INTO public.schedules VALUES (3, '2019-03-18 19:50:54.738', 3, false, false, false, false, NULL);
+INSERT INTO public.schedules VALUES (1, '2019-03-18 19:50:52.812', 3, false, false, false, true, NULL);
 INSERT INTO public.schedules VALUES (4, '2019-03-18 20:30:50', 12287, false, false, false, false, NULL);
 INSERT INTO public.schedules VALUES (2, '2019-03-18 19:49:58.55', 3, false, false, false, false, NULL);
+INSERT INTO public.schedules VALUES (5, '2019-03-20 23:50:09.723', 3, false, false, false, false, NULL);
+INSERT INTO public.schedules VALUES (3, '2019-03-20 23:47:53.236', 3, false, false, false, false, 25);
 
 
 --
@@ -838,7 +861,7 @@ INSERT INTO public.venues VALUES (4, 'AC201', 2, false, 100);
 
 
 --
--- TOC entry 3225 (class 0 OID 0)
+-- TOC entry 3226 (class 0 OID 0)
 -- Dependencies: 197
 -- Name: building_id_sequence; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -847,7 +870,7 @@ SELECT pg_catalog.setval('public.building_id_sequence', 7, true);
 
 
 --
--- TOC entry 3226 (class 0 OID 0)
+-- TOC entry 3227 (class 0 OID 0)
 -- Dependencies: 198
 -- Name: course_id_sequence; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -856,7 +879,7 @@ SELECT pg_catalog.setval('public.course_id_sequence', 51, true);
 
 
 --
--- TOC entry 3227 (class 0 OID 0)
+-- TOC entry 3228 (class 0 OID 0)
 -- Dependencies: 199
 -- Name: department_id_sequence; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -865,16 +888,16 @@ SELECT pg_catalog.setval('public.department_id_sequence', 3, true);
 
 
 --
--- TOC entry 3228 (class 0 OID 0)
+-- TOC entry 3229 (class 0 OID 0)
 -- Dependencies: 207
 -- Name: job_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.job_id_seq', 11, true);
+SELECT pg_catalog.setval('public.job_id_seq', 25, true);
 
 
 --
--- TOC entry 3229 (class 0 OID 0)
+-- TOC entry 3230 (class 0 OID 0)
 -- Dependencies: 200
 -- Name: lecturer_id_sequence; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -883,7 +906,7 @@ SELECT pg_catalog.setval('public.lecturer_id_sequence', 3, true);
 
 
 --
--- TOC entry 3230 (class 0 OID 0)
+-- TOC entry 3231 (class 0 OID 0)
 -- Dependencies: 201
 -- Name: module_id_sequence; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -892,16 +915,16 @@ SELECT pg_catalog.setval('public.module_id_sequence', 6, true);
 
 
 --
--- TOC entry 3231 (class 0 OID 0)
+-- TOC entry 3232 (class 0 OID 0)
 -- Dependencies: 202
 -- Name: schedule_id_sequence; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.schedule_id_sequence', 6, true);
+SELECT pg_catalog.setval('public.schedule_id_sequence', 8, true);
 
 
 --
--- TOC entry 3232 (class 0 OID 0)
+-- TOC entry 3233 (class 0 OID 0)
 -- Dependencies: 203
 -- Name: timeslot_id_sequence; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -910,7 +933,7 @@ SELECT pg_catalog.setval('public.timeslot_id_sequence', 55, true);
 
 
 --
--- TOC entry 3233 (class 0 OID 0)
+-- TOC entry 3234 (class 0 OID 0)
 -- Dependencies: 204
 -- Name: user_id_sequence; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -919,7 +942,7 @@ SELECT pg_catalog.setval('public.user_id_sequence', 5, true);
 
 
 --
--- TOC entry 3234 (class 0 OID 0)
+-- TOC entry 3235 (class 0 OID 0)
 -- Dependencies: 205
 -- Name: venue_id_sequence; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -1215,7 +1238,7 @@ ALTER TABLE ONLY public.venues
     ADD CONSTRAINT venues_building_id_fkey FOREIGN KEY (building_id) REFERENCES public.buildings(building_id);
 
 
--- Completed on 2019-03-20 22:42:25
+-- Completed on 2019-03-21 17:46:11
 
 --
 -- PostgreSQL database dump complete
