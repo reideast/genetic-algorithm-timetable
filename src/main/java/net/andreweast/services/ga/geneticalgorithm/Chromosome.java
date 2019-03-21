@@ -6,29 +6,29 @@ import java.util.Random;
 public class Chromosome implements Comparable<Chromosome>, Serializable {
     private static Random random = new Random();
 
-    private ScheduledCourse[] courses;
+    private ScheduledModule[] courses;
     private int storedFitness;
     private boolean isValidSolution;
 
-    public ScheduledCourse[] getCourses() {
+    public ScheduledModule[] getCourses() {
         return courses;
     }
 
     public Chromosome() {
-        courses = new ScheduledCourse[Course.getAllCoursesSize()];
-        for (int i = 0; i < Course.getAllCoursesSize(); ++i) {
-            courses[i] = new ScheduledCourse(Course.getFromAllCoursesByIndex(i));
+        courses = new ScheduledModule[Module.getAllModulesSize()];
+        for (int i = 0; i < Module.getAllModulesSize(); ++i) {
+            courses[i] = new ScheduledModule(Module.getFromAllModulesByIndex(i));
         }
 
         storedFitness = calculateFitness(); // Also sets isValidSolution
     }
 
     public Chromosome(Chromosome toClone) {
-        courses = new ScheduledCourse[Course.getAllCoursesSize()];
-        for (int i = 0; i < Course.getAllCoursesSize(); ++i) {
+        courses = new ScheduledModule[Module.getAllModulesSize()];
+        for (int i = 0; i < Module.getAllModulesSize(); ++i) {
             courses[i] = toClone.courses[i].clone();
-//            courses[i] = new ScheduledCourse(
-//                    toClone.courses[i].getCourse(),
+//            courses[i] = new ScheduledModule(
+//                    toClone.courses[i].getModule(),
 //                    toClone.courses[i].getVenue(),
 //                    toClone.courses[i].getTimeSlot()
 //            );
@@ -62,7 +62,7 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
 //        }
 
         final int mutateGene = random.nextInt(courses.length);
-        courses[mutateGene] = new ScheduledCourse(courses[mutateGene].getCourse());
+        courses[mutateGene] = new ScheduledModule(courses[mutateGene].getModule());
         storedFitness = calculateFitness();
         if (Scheduler.DEBUG) {
             System.out.println("@" + mutateGene + " After mutate:  " + this.toString());
@@ -76,7 +76,7 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
 
         isValidSolution = true;
 
-        int fitnessFromOverlappingClasses = Course.getAllCoursesSize() * 100;
+        int fitnessFromOverlappingClasses = Module.getAllModulesSize() * 100;
         // TODO: O(n^2) iterative search. Needs improvement. Ideas: Hash array, make sure no collisions. "Sort" array and then compare linearly.
         for (int i = 0; i < courses.length; ++i) {
             for (int j = i + 1; j < courses.length; ++j) {
@@ -97,7 +97,7 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
     public String toString() {
         StringBuilder s = new StringBuilder();
         s.append(storedFitness).append(": ");
-        for (ScheduledCourse course : courses) {
+        for (ScheduledModule course : courses) {
             s.append(course.toString()).append(", ");
         }
 

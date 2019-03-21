@@ -6,6 +6,7 @@ import net.andreweast.services.data.api.ScheduleRepository;
 import net.andreweast.services.data.model.Job;
 import net.andreweast.services.data.model.JobDto;
 import net.andreweast.services.data.model.Schedule;
+import net.andreweast.services.ga.service.Dispatcher;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -46,10 +47,12 @@ public class GeneticAlgorithmServiceRestController {
     public JobDto createScheduleBatchJob(@PathVariable Long scheduleId) {
         System.out.println("Hey, let's start a scheduling job! Created from schedule with ID: " + scheduleId); // DEBUG
 
+        // TODO: Perhaps Dispatcher should be doing this work! (That way, GADeserializer can correctly have responsibility for creating a new job)
+        // TODO: ...that would require Dispatcher to run in THIS thread, therefore it could throw HTTP errors to disrupt this REST call
+        // TODO: And that's OK, that's a more logical separation of concerns
+
         // Find Schedule in database
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(DataNotFoundException::new);
-
-//        System.out.println(schedule);
 
         // Make sure this schedule doesn't have a currently dispatched job
         if (schedule.getJob() != null) {
@@ -67,19 +70,8 @@ public class GeneticAlgorithmServiceRestController {
         scheduleRepository.save(schedule);
 
         // Kick off the job in its own thread (so that this method (and API call) can return)
-        new Thread(() -> {
-            try {
-                // TODO: actually run a scheduler...
-                Thread.sleep(10 * 1000);
-
-                schedule.setGeneticAlgorithmRunning(false);
-                scheduleRepository.save(schedule);
-                System.out.println("Job's done, m'lord!"); // DEBUG
-            } catch (InterruptedException e) {
-                // There's no way to deal this anymore...the REST call has already returned!
-                e.printStackTrace();
-            }
-        }).start();
+        new Thread(new Dispatcher(schedule.getScheduleId(), job.getJobId())).start();
+        // TODO: save a handle to this thread to database (Job entity) s.t. the thread can be cancelled later
 
         return modelMapper.map(job, JobDto.class);
     }
