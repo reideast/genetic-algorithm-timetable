@@ -20,18 +20,20 @@ import java.util.Date;
  */
 public class GeneticAlgorithmDeserializer {
     @Autowired
-    private static ScheduleRepository scheduleRepository;
+    private ScheduleRepository scheduleRepository;
 
     @Autowired
-    private static JobRepository jobRepository;
+    private JobRepository jobRepository;
 
-    public static JobDao getScheduleData(Long scheduleId) throws DataNotFoundException {
+    public JobDao getScheduleData(Long scheduleId) throws DataNotFoundException {
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(DataNotFoundException::new);
 
         return JobDao.generateJobDaoFromDatabase(schedule);
     }
 
-    public static Job createJobForSchedule(Long scheduleId) throws DataNotFoundException, ResponseStatusException {
+    public Job createJobForSchedule(Long scheduleId) throws DataNotFoundException, ResponseStatusException {
+        System.out.println("Deserializer#createJobForSchedule, scheduleId=" + scheduleId + ", scheduleRepository=" + scheduleRepository);
+
         // Find Schedule in database
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(DataNotFoundException::new);
 
