@@ -40,7 +40,7 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
 
     public void crossover(Chromosome toCrossWith) {
         final int crossoverPoint = random.nextInt(courses.length);
-//        if (Scheduler.DEBUG) {
+//        if (GeneticAlgorithmJob.DEBUG) {
 //            System.out.println("Before cross: " + this.toString());
 //            System.out.println("Crossing w/:  " + toCrossWith.toString());
 //            System.out.println("CrossoverPoint=" + crossoverPoint);
@@ -50,21 +50,21 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
             courses[i] = toCrossWith.courses[i].clone();
         }
         storedFitness = calculateFitness();
-//        if (Scheduler.DEBUG) {
+//        if (GeneticAlgorithmJob.DEBUG) {
 //            System.out.println("After cross:  " + this.toString());
 //        }
     }
 
     public void mutate() {
         // randomise one of the scheduled courses
-//        if (Scheduler.DEBUG) {
+//        if (GeneticAlgorithmJob.DEBUG) {
 //            System.out.println("Before mutate: " + this.toString());
 //        }
 
         final int mutateGene = random.nextInt(courses.length);
         courses[mutateGene] = new ScheduledModule(courses[mutateGene].getModule());
         storedFitness = calculateFitness();
-        if (Scheduler.DEBUG) {
+        if (GeneticAlgorithmJob.DEBUG) {
             System.out.println("@" + mutateGene + " After mutate:  " + this.toString());
         }
     }
