@@ -46,7 +46,7 @@ public class Scheduler {
 
         System.out.println("Complexity of dataset:");
         System.out.println("Courses: " + Module.getAllModulesSize());
-        System.out.println("Venues x TimeSlots: " + (Venue.Room.values().length * TimeSlot.DayOfWeek.values().length * TimeSlot.StartTime.values().length));
+        System.out.println("Venues x TimeSlots: " + (Venue.Room.values().length * Timeslot.DayOfWeek.values().length * Timeslot.StartTime.values().length));
 
         System.out.println("\nRunning time stats:");
         System.out.println("Time init: " + (initTime * 1.0E-6) + " ms");

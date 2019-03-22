@@ -7,15 +7,49 @@ import java.util.List;
 
 // TODO: This was made as...an enum??
 public class Module implements Serializable {
+    long id;
+
+    String name;
+
+    int numEnrolled;
+
+    // TODO: Any departments which are offering this module for one of their courses. Used to find department preferences for buildings
+//    List<Long> departmentIds;
+
+    // TODO: to be used to find lecturer preferences for timeslots
+//    long lecturerId;
+
+    public Module(long id, String name, int numEnrolled) {
+        this.id = id;
+        this.name = name;
+        this.numEnrolled = numEnrolled;
+    }
+
+    @Override
+    public String toString() {
+        return "Module{" +
+                "name='" + name + '\'' +
+                ", numEnrolled=" + numEnrolled +
+                '}';
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
     private String moduleName;
 
     public Module(String moduleName) {
         this.moduleName = moduleName;
     }
 
-    public String toString() {
-        return moduleName;
-    }
+//    public String toString() {
+//        return moduleName;
+//    }
 
     public String getModuleName() {
         return moduleName;
