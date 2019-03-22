@@ -3,37 +3,41 @@ package net.andreweast.services.ga.geneticalgorithm;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class Venue implements Serializable {
 //    Building building // TODO: Restructure this so building and room numbers are related
 //    RoomNumber roomNumber
 
+    // Database ID
     long id;
 
+    // DEBUG: Name is just for debugging
     String name;
+
+    // Is a computer lab. If false, this is a lecture venue
     boolean isLab;
+
+    // Seats for students
     int capacity;
 
+    // Location of the building which this venue is in
     double locationX;
     double locationY;
 
-    // TODO: the score the department running the job has given this venue
-    HashMap<Long, Integer> departmentsScore;
-    /* Logic of scores for venue:
-        each venue needs to have a HashMap: department -> score
-        when a module has been tentatively scheduled in that venue
-        the module has an associated department(s)
-        then can used that associated department to look up the score that department has given the venue
-            (if a module has more than one department (i.e. cross-listed IT and Maths), then average their scores for that venue)
-     */
+    // The score the all departments have given this venue
+    // When a module has been tentatively scheduled in this venue, can look up all departments teaching that module here
+    // and then average the scores for fitness
+    HashMap<Long, Integer> departmentsScores;
 
-    public Venue(long id, String name, boolean isLab, int capacity, double locationX, double locationY) {
+    public Venue(long id, String name, boolean isLab, int capacity, double locationX, double locationY, HashMap<Long, Integer> departmentsScores) {
         this.id = id;
         this.name = name;
         this.isLab = isLab;
         this.capacity = capacity;
         this.locationX = locationX;
         this.locationY = locationY;
+        this.departmentsScores = departmentsScores;
     }
 
     @Override
@@ -44,7 +48,8 @@ public class Venue implements Serializable {
                 ", capacity=" + capacity +
                 ", locationX=" + locationX +
                 ", locationY=" + locationY +
-                '}';
+                ", departmentsScore=[" + departmentsScores.keySet().stream().map(key -> key + "=" + departmentsScores.get(key)).collect(Collectors.joining(",")) +
+                "]}";
     }
 
     private Room room;
@@ -73,6 +78,54 @@ public class Venue implements Serializable {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isLab() {
+        return isLab;
+    }
+
+    public void setLab(boolean lab) {
+        isLab = lab;
+    }
+
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
+    public double getLocationX() {
+        return locationX;
+    }
+
+    public void setLocationX(double locationX) {
+        this.locationX = locationX;
+    }
+
+    public double getLocationY() {
+        return locationY;
+    }
+
+    public void setLocationY(double locationY) {
+        this.locationY = locationY;
+    }
+
+    public HashMap<Long, Integer> getDepartmentsScores() {
+        return departmentsScores;
+    }
+
+    public void setDepartmentsScore(HashMap<Long, Integer> departmentsScores) {
+        this.departmentsScores = departmentsScores;
     }
 
     enum Room {

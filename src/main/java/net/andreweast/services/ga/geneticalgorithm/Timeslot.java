@@ -5,9 +5,12 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class Timeslot implements Serializable {
+    // Database ID
     long id;
 
+    // M-Su, 0-6
     int day;
+    // Time slots, integer by the hour. Usually 8-18 (8:00 AM - 6:00 PM)
     int time;
 
     // TODO: store set of preferences for each lecturer for this timeslot. Fitness can then look up the score for a module's lecturer to teach in this timeslot

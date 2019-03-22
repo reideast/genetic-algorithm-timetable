@@ -9,6 +9,7 @@ import net.andreweast.services.data.api.ScheduledModuleRepository;
 import net.andreweast.services.data.api.TimeslotRepository;
 import net.andreweast.services.data.api.VenueRepository;
 import net.andreweast.services.data.model.CourseModule;
+import net.andreweast.services.data.model.DepartmentBuilding;
 import net.andreweast.services.data.model.Job;
 import net.andreweast.services.data.model.LecturerTimeslotPreference;
 import net.andreweast.services.data.model.Schedule;
@@ -118,24 +119,19 @@ public class DbToGaDeserializer {
     }
 
     private List<Venue> generateVenuesFromDatabase() {
-        // TODO: this needs a custom query, with proper joins, in order to get all data in one go
         Iterable<net.andreweast.services.data.model.Venue> entities = venueRepository.findAll();
 
         List<Venue> venues = new ArrayList<>();
         for (net.andreweast.services.data.model.Venue entity : entities) {
-            // TODO: Need:
-//            HashMap<Long, Integer> departmentsScore;
-            /* Logic of scores for venue:
-                each venue needs to have a HashMap: department -> score
-                when a module has been tentatively scheduled in that venue
-                the module has an associated department(s)
-                then can used that associated department to look up the score that department has given the venue
-                    (if a module has more than one department (i.e. cross-listed IT and Maths), then average their scores for that venue)
-             */
+            // Any departments which have provided a score to the building this venue is in, find all those scores
+            HashMap<Long, Integer> departmentsScores = new HashMap<>();
+            for (DepartmentBuilding deptScoreForBuilding : entity.getBuilding().getDepartmentBuildings()) {
+                departmentsScores.put(deptScoreForBuilding.getDepartment().getDepartmentId(),
+                        deptScoreForBuilding.getScore());
+            }
 
-            venues.add(new Venue(entity.getVenueId(), entity.getName(), entity.getLab(), entity.getCapacity(), entity.getBuilding().getLocation().x, entity.getBuilding().getLocation().y));
-            // TODO: departmentScore is just -1. Need custom query
-            // TODO: and even more detailed: need to get department_building.score's for ALL departments for that venue, and save them in a HashMap(dept_id -> score) in that venue
+            venues.add(new Venue(entity.getVenueId(), entity.getName(), entity.getLab(), entity.getCapacity(),
+                    entity.getBuilding().getLocation().x, entity.getBuilding().getLocation().y, departmentsScores));
         }
 
         // DEBUG:
@@ -155,11 +151,11 @@ public class DbToGaDeserializer {
             Set<Long> departmentIdsOfferingModule = new HashSet<>();
             int totalEnrolled = 0;
             for (CourseModule course : entity.getCourseModules()) {
-                totalEnrolled += course.getCourse().getNumEnrolled();
+                totalEnrolled += course.getCourse().getNumEnrolled(); // TODO: This could be a COMPOSITE query in SQL
                 departmentIdsOfferingModule.add(course.getCourse().getDepartment().getDepartmentId());
             }
 
-            modules.add(new Module(entity.getModuleId(), entity.getName(), totalEnrolled,
+            modules.add(new Module(entity.getModuleId(), entity.getName(), entity.getLab(), totalEnrolled,
                     entity.getLecturer().getLecturerId(), departmentIdsOfferingModule));
         }
 

@@ -37,11 +37,4 @@ public interface ModuleRepository extends PagingAndSortingRepository<Module, Lon
      */
     @RestResource(path = "scheduledModule", rel = "scheduledModule")
     List<Module> findByScheduledModules_Schedule_ScheduleId(Long id);
-
-
-//    @Query(value = "INSERT INTO scheduled_modules (schedule_id, module_id, timeslot_id, venue_id) " +
-//            "VALUES (:scheduleId, :moduleId, :timeslotId, :venueId) " +
-//            "ON CONFLICT (schedule_id, module_id) DO UPDATE SET timeslot_id = :timeslotId, venue_id = :venueId",
-//            nativeQuery = true)
-//    List<Module> (@Param("scheduleId") Long scheduleId, @Param("moduleId") Long moduleId, @Param("timeslotId") Long timeslotId, @Param("venueId") Long venueId);
 }

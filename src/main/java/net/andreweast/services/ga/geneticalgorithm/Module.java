@@ -18,15 +18,19 @@ public class Module implements Serializable {
     // To determine how big of a classroom is needed for this module
     int numEnrolled;
 
+    // This is the computer lab component of a module
+    boolean isLab;
+
     // Used to find this module's lecturer's preferences for timeslots
     long lecturerId;
 
     // Any departments which are offering this module for one of their courses. Used to find department preferences for buildings
     Set<Long> departmentIds;
 
-    public Module(long id, String name, int numEnrolled, long lecturerId, Set<Long> departmentIds) {
+    public Module(long id, String name, boolean isLab, int numEnrolled, long lecturerId, Set<Long> departmentIds) {
         this.id = id;
         this.name = name;
+        this.isLab = isLab;
         this.numEnrolled = numEnrolled;
         this.lecturerId = lecturerId;
         this.departmentIds = departmentIds;
@@ -71,6 +75,14 @@ public class Module implements Serializable {
 
     public void setNumEnrolled(int numEnrolled) {
         this.numEnrolled = numEnrolled;
+    }
+
+    public boolean isLab() {
+        return isLab;
+    }
+
+    public void setLab(boolean lab) {
+        isLab = lab;
     }
 
     public long getLecturerId() {
