@@ -94,3 +94,5 @@ logs/
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
 .ebextensions/environmentvariables.config
+.ebextensions/aws.environmentvariables.config
+.ebextensions/local.environmentvariables.config

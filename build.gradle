@@ -53,8 +53,10 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('com.jayway.jsonpath:json-path')
+    compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.2'
 
-    compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+    // See: https://www.baeldung.com/spring-boot-start
+//    compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 
 //    compile("org.springframework.boot:spring-boot-starter-security")
 //    testCompile("org.springframework.security:spring-security-test")
@@ -88,6 +90,10 @@ bootRun {
         def envs = new Yaml().load(yamlFileContents)["option_settings"]["aws:elasticbeanstalk:application:environment"] as Map<String, String>
         envs.each { key, value ->
             systemProperty key, value // Gradle's idiom for System.setProperty()
+
+            if (key == "RDS_HOSTNAME") {
+                println "POSTGRESQL HOSTNAME: Will be connecting to database: ${value}"
+            }
         }
     }
 }
