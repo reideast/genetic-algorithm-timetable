@@ -5,23 +5,55 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class Timeslot implements Serializable {
+    // Database ID
     long id;
 
+    // M-Su, 0-6
     int day;
+    // Time slots, integer by the hour. Usually 8-18 (8:00 AM - 6:00 PM)
     int time;
 
-    // TODO: store set of preferences for each lecturer for this timeslot. Fitness can then look up the score for a module's lecturer to teach in this timeslot
-//    HashMap<Long, Integer> lecturerPreferences;
+    // Stores set of preferences for each lecturer for this timeslot
+    // Fitness can then look up the score for a module's lecturer to teach in this timeslot
+    HashMap<Long, Integer> lecturerPreferences;
 
-    public Timeslot(long id, int day, int time) {
+    public Timeslot(long id, int day, int time, HashMap<Long, Integer> lecturerPreferences) {
         this.id = id;
         this.day = day;
         this.time = time;
+        this.lecturerPreferences = lecturerPreferences;
     }
 
     @Override
     public String toString() {
-        return day + ":" + time + ",";
+        return "Timeslot{" +
+                day + ":" + time + "," +
+                "prefs=" + lecturerPreferences.size() +
+                '}';
+    }
+
+    public int getDay() {
+        return day;
+    }
+
+    public void setDay(int day) {
+        this.day = day;
+    }
+
+    public int getTime() {
+        return time;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
+    }
+
+    public HashMap<Long, Integer> getLecturerPreferences() {
+        return lecturerPreferences;
+    }
+
+    public void setLecturerPreferences(HashMap<Long, Integer> lecturerPreferences) {
+        this.lecturerPreferences = lecturerPreferences;
     }
 
     public static Timeslot getRandomTimeSlot() {
@@ -30,6 +62,7 @@ public class Timeslot implements Serializable {
         slot.setStartTime(StartTime.getRandomStartTime());
         return slot;
     }
+
     public Timeslot() {
     }
 

@@ -17,6 +17,10 @@ public class Module {
     @Column(name = "name", nullable = false, length = -1)
     private String name;
 
+    @Basic
+    @Column(name = "is_lab", nullable = true)
+    private Boolean isLab = false;
+
     @ManyToOne
     @JoinColumn(name = "lecturer_id")
     private Lecturer lecturer;
@@ -41,6 +45,14 @@ public class Module {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Boolean getLab() {
+        return isLab;
+    }
+
+    public void setLab(Boolean lab) {
+        isLab = lab;
     }
 
     public Lecturer getLecturer() {
@@ -74,6 +86,7 @@ public class Module {
         Module module = (Module) o;
         return moduleId.equals(module.moduleId) &&
                 name.equals(module.name) &&
+                Objects.equals(isLab, module.isLab) &&
                 Objects.equals(lecturer, module.lecturer) &&
                 Objects.equals(courseModules, module.courseModules) &&
                 Objects.equals(scheduledModules, module.scheduledModules);
@@ -81,6 +94,6 @@ public class Module {
 
     @Override
     public int hashCode() {
-        return Objects.hash(moduleId, name, lecturer, courseModules, scheduledModules);
+        return Objects.hash(moduleId, name, isLab, lecturer, courseModules, scheduledModules);
     }
 }

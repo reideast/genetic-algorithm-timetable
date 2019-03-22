@@ -22,4 +22,7 @@ public interface ScheduleRepository extends PagingAndSortingRepository<Schedule,
 
     @RestResource(path = "job", rel = "job")
     List<Schedule> findByJob_JobId(Long id);
+
+    @RestResource(path = "hasRunningJob", rel = "hasRunningJob")
+    List<Schedule> findByJobIsNotNull();
 }

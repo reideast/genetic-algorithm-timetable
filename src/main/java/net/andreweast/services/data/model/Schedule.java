@@ -15,7 +15,7 @@ public class Schedule {
     @Column(name = "schedule_id", updatable = false, nullable = false)
     private Long scheduleId;
 
-    // TODO: See: https://www.baeldung.com/hibernate-date-time
+    // FUTURE: Does SQL Timestamp type need any other work? See: https://www.baeldung.com/hibernate-date-time
     @Basic
     @Column(name = "creation_date", nullable = true)
     private Timestamp creationDate = new Timestamp(new Date().getTime()); // Default to timestamp of Now
@@ -34,10 +34,6 @@ public class Schedule {
     @Basic
     @Column(name = "is_accepted", nullable = true)
     private Boolean isAccepted = false;
-
-    @Basic
-    @Column(name = "is_genetic_algorithm_running", nullable = true)
-    private Boolean isGeneticAlgorithmRunning = false;
 
     /**
      * isMaster: The current master schedule, accepted and published by the Facilities Department, from which all other schedules should be based.
@@ -89,14 +85,6 @@ public class Schedule {
         isAccepted = accepted;
     }
 
-    public Boolean getGeneticAlgorithmRunning() {
-        return isGeneticAlgorithmRunning;
-    }
-
-    public void setGeneticAlgorithmRunning(Boolean geneticAlgorithmRunning) {
-        isGeneticAlgorithmRunning = geneticAlgorithmRunning;
-    }
-
     public Boolean getMaster() {
         return isMaster;
     }
@@ -138,7 +126,6 @@ public class Schedule {
                 Objects.equals(creationDate, schedule.creationDate) &&
                 Objects.equals(isWip, schedule.isWip) &&
                 Objects.equals(isAccepted, schedule.isAccepted) &&
-                Objects.equals(isGeneticAlgorithmRunning, schedule.isGeneticAlgorithmRunning) &&
                 Objects.equals(isMaster, schedule.isMaster) &&
                 Objects.equals(creator, schedule.creator) &&
                 Objects.equals(scheduledModules, schedule.scheduledModules) &&
@@ -147,6 +134,6 @@ public class Schedule {
 
     @Override
     public int hashCode() {
-        return Objects.hash(scheduleId, creationDate, isWip, isAccepted, isGeneticAlgorithmRunning, isMaster, creator, scheduledModules, job);
+        return Objects.hash(scheduleId, creationDate, isWip, isAccepted, isMaster, creator, scheduledModules, job);
     }
 }

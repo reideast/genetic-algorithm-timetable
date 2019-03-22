@@ -14,7 +14,7 @@ public class Job {
     @Column(name = "job_id", updatable = false, nullable = false)
     private Long jobId;
 
-    // TODO: See: https://www.baeldung.com/hibernate-date-time
+    // FUTURE: Does SQL Timestamp type need any other work? See: https://www.baeldung.com/hibernate-date-time
     @Basic
     @Column(name = "start_date", nullable = true)
     private Timestamp startDate = new Timestamp(new Date().getTime()); // Default to timestamp of Now
@@ -26,6 +26,10 @@ public class Job {
     @Basic
     @Column(name = "current_generation", nullable = true)
     private Integer currentGeneration;
+
+    @Basic
+    @Column(name = "last_status_update_time", nullable = true)
+    private Timestamp lastStatusUpdateTime;
 
     @OneToOne(mappedBy = "job")
     private Schedule schedule;
@@ -62,6 +66,14 @@ public class Job {
         this.currentGeneration = currentGeneration;
     }
 
+    public Timestamp getLastStatusUpdateTime() {
+        return lastStatusUpdateTime;
+    }
+
+    public void setLastStatusUpdateTime(Timestamp lastStatusUpdateTime) {
+        this.lastStatusUpdateTime = lastStatusUpdateTime;
+    }
+
     public Schedule getSchedule() {
         return schedule;
     }
@@ -79,11 +91,12 @@ public class Job {
                 Objects.equals(startDate, job.startDate) &&
                 Objects.equals(totalGenerations, job.totalGenerations) &&
                 Objects.equals(currentGeneration, job.currentGeneration) &&
+                Objects.equals(lastStatusUpdateTime, job.lastStatusUpdateTime) &&
                 Objects.equals(schedule, job.schedule);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(jobId, startDate, totalGenerations, currentGeneration, schedule);
+        return Objects.hash(jobId, startDate, totalGenerations, currentGeneration, lastStatusUpdateTime, schedule);
     }
 }

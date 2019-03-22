@@ -3,7 +3,7 @@ package net.andreweast.services.ga.api;
 import net.andreweast.services.data.model.Job;
 import net.andreweast.services.data.model.JobDto;
 import net.andreweast.services.ga.service.Dispatcher;
-import net.andreweast.services.ga.service.GeneticAlgorithmSerializer;
+import net.andreweast.services.ga.service.GaToDbSerializer;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,9 +27,9 @@ public class GeneticAlgorithmServiceRestController {
     @Autowired
     Dispatcher dispatcher;
 
-    // DEBUG: Used for my temporary cleanup method
-    @Autowired
-    GeneticAlgorithmSerializer geneticAlgorithmSerializer;
+    // TODO: Where should this be determined? Some sort of public static constant in the GA controller?
+    // TODO: How many generations to run?
+    private static final String NUM_GENERATIONS = "2000"; // DEBUG!!
 
     /**
      * Start a genetic algorithm batch job running, using an existing Schedule (which may or may not be a work-in-progress)
@@ -38,21 +39,25 @@ public class GeneticAlgorithmServiceRestController {
      */
     @PutMapping("/job/{scheduleId}")
     @ResponseStatus(HttpStatus.ACCEPTED) // Why ACCEPTED? Processing isn't complete, but this HTTP transaction is closed. Perfect! See: https://httpstatuses.com/202
-    public JobDto createJob(@PathVariable Long scheduleId) {
-        System.out.println("Hey, let's start a scheduling job! Created from schedule with ID: " + scheduleId); // DEBUG
+    public JobDto createJob(@PathVariable Long scheduleId,
+                            @RequestParam(required = false, defaultValue = NUM_GENERATIONS) Integer numGenerations) {
+        System.out.println("Creating a GA job from schedule, id=" + scheduleId); // FUTURE: Logger info
 
         // Dispatch the job. After getting data from database, and creating a new record in the Job table,
         // the dispatcher will spawn its own thread (so that this method (and API call) can return)
-        Job job = dispatcher.dispatchNewJobForSchedule(scheduleId);
+        Job job = dispatcher.dispatchNewJobForSchedule(scheduleId, numGenerations);
 
         return modelMapper.map(job, JobDto.class);
     }
 
+    // DEBUG: Used for my temporary cleanup method
+    @Autowired
+    GaToDbSerializer gaToDbSerializer;
     // DEBUG: A temporary method to clean up the database faster
     @DeleteMapping("/failed-job/{scheduleId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void cleanUpDatabaseAfterJobFailed(@PathVariable Long scheduleId) {
-        geneticAlgorithmSerializer.deleteJobForSchedule(scheduleId);
+        gaToDbSerializer.deleteJobForSchedule(scheduleId);
     }
 
     @GetMapping("/job/{jobId}")
@@ -65,6 +70,6 @@ public class GeneticAlgorithmServiceRestController {
     @DeleteMapping("/job/{jobId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void stopJob(@PathVariable Long jobId) {
-        dispatcher.stopJobForSchedule(jobId);
+        dispatcher.stopJob(jobId);
     }
 }

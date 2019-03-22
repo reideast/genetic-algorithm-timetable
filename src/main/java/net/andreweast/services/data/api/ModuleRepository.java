@@ -22,6 +22,12 @@ public interface ModuleRepository extends PagingAndSortingRepository<Module, Lon
     @RestResource(path = "courseName", rel = "courseName")
     List<Module> findByCourseModules_CourseName(String name);
 
+    @RestResource(path = "labs", rel = "labs")
+    List<Module> findByIsLabTrue();
+
+    @RestResource(path = "classrooms", rel = "classrooms")
+    List<Module> findByIsLabFalse();
+
     /*
      * This is the key REST call for getting the details of a schedule
      * Gets ALL the modules for a certain schedule (by schedule_id)

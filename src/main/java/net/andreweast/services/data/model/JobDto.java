@@ -8,6 +8,7 @@ public class JobDto {
     private Timestamp startDate;
     private Integer totalGenerations;
     private Integer currentGeneration;
+    private Timestamp lastStatusUpdateTime;
 
     public Long getJobId() {
         return jobId;
@@ -39,5 +40,13 @@ public class JobDto {
 
     public void setCurrentGeneration(Integer currentGeneration) {
         this.currentGeneration = currentGeneration;
+    }
+
+    public Timestamp getLastStatusUpdateTime() {
+        return lastStatusUpdateTime;
+    }
+
+    public void setLastStatusUpdateTime(Timestamp lastStatusUpdateTime) {
+        this.lastStatusUpdateTime = lastStatusUpdateTime;
     }
 }
