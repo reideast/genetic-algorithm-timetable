@@ -56,17 +56,11 @@ public class DbToGaDeserializer {
      *
      * @param scheduleId The schedule_id to record to get from the database
      */
-    public GeneticAlgorithmJobData generateGAJobDataFromDatabase(Long scheduleId, Long jobId) throws DataNotFoundException {
+    public GeneticAlgorithmJobData generateGADataFromDatabase(Long scheduleId) throws DataNotFoundException {
         // Find Schedule in database
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(DataNotFoundException::new);
 
         GeneticAlgorithmJobData data = new GeneticAlgorithmJobData();
-
-        data.setScheduleId(scheduleId);
-        data.setJobId(jobId);
-
-        // TODO: How many generations to run?
-        data.setNumGenerations(20000); // DEBUG!!
 
         // Get all timeslots, venues, and modules from database
         // They are not specific to this job (i.e. do not depend on database table "schedules")
@@ -185,22 +179,24 @@ public class DbToGaDeserializer {
         return scheduledModules;
     }
 
-    public Job createJobForSchedule(Long scheduleId) throws DataNotFoundException, ResponseStatusException {
+    public Job createJobForSchedule(Long scheduleId, int numGenerations) throws DataNotFoundException, ResponseStatusException {
         // Find Schedule in database
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(DataNotFoundException::new);
 
         // Make sure this schedule doesn't have a currently dispatched job
         if (schedule.getJob() != null) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Job has already been started"); // See: https://www.baeldung.com/exception-handling-for-rest-with-spring
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A Job for that Schedule has already been started"); // See: https://www.baeldung.com/exception-handling-for-rest-with-spring
         }
 
-        // Create job
-        net.andreweast.services.data.model.Job job = new net.andreweast.services.data.model.Job();
+        // Create Job entity
+        Job job = new Job();
         job.setStartDate(new Timestamp(new Date().getTime())); // Timestamp to now
+        job.setTotalGenerations(numGenerations);
+        // current_generation is being left as NULL (until the job has already been running)
         job.setSchedule(schedule);
         jobRepository.save(job);
 
-        // Notify database that schedule has been started
+        // Notify database that this Schedule has a Job running
         schedule.setJob(job);
         scheduleRepository.save(schedule);
 

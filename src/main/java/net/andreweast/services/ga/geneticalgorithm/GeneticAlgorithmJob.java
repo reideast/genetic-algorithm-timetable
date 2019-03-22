@@ -42,10 +42,9 @@ public class GeneticAlgorithmJob implements Runnable {
 
     private void runAllGenerations() {
         // TODO: Figure out how to have this be interruptable (requires serializing a handle to this thread into the database, maybe?)
-        numGenerations.set(20 * 100);
         currentGeneration.set(0);
-        isRunning.set(true); // Use of AtomicBoolean see: https://www.baeldung.com/java-thread-stop
-        while (isRunning.get()) {
+        isRunning.set(true);
+        while (isRunning.get()) { // Use of AtomicBoolean to control a Thread see: https://www.baeldung.com/java-thread-stop
             // TODO: Actually run the job!
             try {
                 Thread.sleep(10);

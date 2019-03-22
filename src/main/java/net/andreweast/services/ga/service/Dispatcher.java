@@ -1,6 +1,7 @@
 package net.andreweast.services.ga.service;
 
 import net.andreweast.exception.DataNotFoundException;
+import net.andreweast.services.data.api.JobRepository;
 import net.andreweast.services.data.model.Job;
 import net.andreweast.services.ga.geneticalgorithm.GeneticAlgorithmJobData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -19,6 +22,9 @@ public class Dispatcher {
     @Autowired
     private DbToGaDeserializer dbToGaDeserializer;
 
+    @Autowired
+    private JobRepository jobRepository;
+
     // An in-memory datastore of current jobs, saved such that they can be queried or stopped later
     // Why is in-memory is acceptable, don't need to go to database? If the server crashes, the job is lost anyway!
     private static final HashMap<Long, GeneticAlgorithmRunner> runningJobHandles = new HashMap<>();
@@ -29,12 +35,15 @@ public class Dispatcher {
      * @param scheduleId Database record to fetch
      * @return The created Job's data
      */
-    public Job dispatchNewJobForSchedule(Long scheduleId) throws DataNotFoundException, ResponseStatusException {
+    public Job dispatchNewJobForSchedule(Long scheduleId, int numGenerations) throws DataNotFoundException, ResponseStatusException {
         // Save the to the database that we are starting a new job. Throws HTTP errors if such a job is already running
-        Job job = dbToGaDeserializer.createJobForSchedule(scheduleId);
+        Job job = dbToGaDeserializer.createJobForSchedule(scheduleId, numGenerations);
 
         // Get all the data the job will need from the database
-        GeneticAlgorithmJobData geneticAlgorithmJobData = dbToGaDeserializer.generateGAJobDataFromDatabase(scheduleId, job.getJobId());
+        GeneticAlgorithmJobData geneticAlgorithmJobData = dbToGaDeserializer.generateGADataFromDatabase(scheduleId);
+        geneticAlgorithmJobData.setScheduleId(scheduleId);
+        geneticAlgorithmJobData.setJobId(job.getJobId());
+        geneticAlgorithmJobData.setNumGenerations(numGenerations);
 
         // Start the job!
         GeneticAlgorithmRunner jobRunner = new GeneticAlgorithmRunner(geneticAlgorithmJobData);
@@ -74,15 +83,14 @@ public class Dispatcher {
         GeneticAlgorithmRunner jobHandle = runningJobHandles.get(jobId);
         System.out.println("Found the running job? handle=" + jobHandle); // DEBUG
         if (jobHandle != null) {
-            // DEBUG
-            System.out.println("current gen=" + jobHandle.getCurrentGeneration());
-            System.out.println("max gen=" + jobHandle.getTotalGenerations());
+            Job job = jobRepository.findById(jobId).orElseThrow(DataNotFoundException::new);
 
-            // TODO: make an entity class with current info
-            // TODO: save to DB
-            Job dummy = new Job();
-            dummy.setJobId(jobId);
-            return dummy;
+            // Query task runner, which uses an Atomic variable to query the running thread
+            job.setCurrentGeneration(jobHandle.getCurrentGeneration());
+            job.setLastStatusUpdateTime(new Timestamp(new Date().getTime())); // Timestamp of now
+            jobRepository.save(job);
+
+            return job;
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No handle to job with that ID exists to check its status", new DataNotFoundException());
         }
