@@ -5,13 +5,11 @@ import net.andreweast.services.data.api.JobRepository;
 import net.andreweast.services.data.api.ScheduleRepository;
 import net.andreweast.services.data.api.ScheduledModuleRepository;
 import net.andreweast.services.data.model.Schedule;
-import net.andreweast.services.data.model.ScheduledModulePK;
-import net.andreweast.services.ga.geneticalgorithm.GAJobData;
+import net.andreweast.services.ga.geneticalgorithm.GeneticAlgorithmJobData;
 import net.andreweast.services.ga.geneticalgorithm.ScheduledModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,7 +26,7 @@ public class GaToDbSerializer {
     @Autowired
     private ScheduledModuleRepository scheduledModuleRepository;
 
-    public void writeScheduleData(GAJobData gaData, Long scheduleId) {
+    public void writeScheduleData(GeneticAlgorithmJobData gaData, Long scheduleId) {
         // Anytime a schedule is modified by the GA, it is not longer new, therefore should be considered a "work-in-progress"
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(DataNotFoundException::new);
         schedule.setWip(true);

@@ -7,11 +7,10 @@ import net.andreweast.services.data.api.ScheduleRepository;
 import net.andreweast.services.data.api.ScheduledModuleRepository;
 import net.andreweast.services.data.api.TimeslotRepository;
 import net.andreweast.services.data.api.VenueRepository;
-import net.andreweast.services.data.model.Course;
 import net.andreweast.services.data.model.CourseModule;
 import net.andreweast.services.data.model.Job;
 import net.andreweast.services.data.model.Schedule;
-import net.andreweast.services.ga.geneticalgorithm.GAJobData;
+import net.andreweast.services.ga.geneticalgorithm.GeneticAlgorithmJobData;
 import net.andreweast.services.ga.geneticalgorithm.Module;
 import net.andreweast.services.ga.geneticalgorithm.ScheduledModule;
 import net.andreweast.services.ga.geneticalgorithm.Timeslot;
@@ -57,11 +56,14 @@ public class DbToGaDeserializer {
      *
      * @param scheduleId The schedule_id to record to get from the database
      */
-    public GAJobData generateGAJobDataFromDatabase(Long scheduleId) throws DataNotFoundException {
+    public GeneticAlgorithmJobData generateGAJobDataFromDatabase(Long scheduleId, Long jobId) throws DataNotFoundException {
         // Find Schedule in database
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(DataNotFoundException::new);
 
-        GAJobData data = new GAJobData();
+        GeneticAlgorithmJobData data = new GeneticAlgorithmJobData();
+
+        data.setScheduleId(scheduleId);
+        data.setJobId(jobId);
 
         // Get all timeslots, venues, and modules from database
         // They are not specific to this job (i.e. do not depend on database table "schedules")
@@ -151,7 +153,7 @@ public class DbToGaDeserializer {
 //    private List<ScheduledModule> createNewScheduledModules(Long scheduleId) {
 //    }
 
-    private List<ScheduledModule> generateScheduledModulesFromDatabase(Long scheduleId, GAJobData data) {
+    private List<ScheduledModule> generateScheduledModulesFromDatabase(Long scheduleId, GeneticAlgorithmJobData data) {
         List<net.andreweast.services.data.model.ScheduledModule> entities = scheduledModuleRepository.getAllBySchedule_ScheduleId(scheduleId);
 
         // Build a set of "indicies" of already-found modules, venues, and timeslots s.t. creating each new ScheduledModule won't be a polynomial operation (n^3 at least)

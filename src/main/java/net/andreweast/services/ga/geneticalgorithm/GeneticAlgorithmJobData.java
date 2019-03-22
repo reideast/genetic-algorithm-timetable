@@ -11,7 +11,8 @@ import java.util.Random;
  * Contains every piece of information (as component collections) that a GA job needs to create a schedule
  * Essentially, a very complex POJO
  */
-public class GAJobData implements Serializable {
+public class GeneticAlgorithmJobData implements Serializable {
+    private long scheduleId;
     private long jobId;
 
     private boolean isModifyExistingJob;
@@ -34,6 +35,14 @@ public class GAJobData implements Serializable {
 
     public Venue getRandomVenue() {
         return venues.get(random.nextInt(venues.size()));
+    }
+
+    public long getScheduleId() {
+        return scheduleId;
+    }
+
+    public void setScheduleId(long scheduleId) {
+        this.scheduleId = scheduleId;
     }
 
     public long getJobId() {
