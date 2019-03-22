@@ -5,28 +5,7 @@
 -- Dumped from database version 9.6.11
 -- Dumped by pg_dump version 11.1
 
--- Started on 2019-03-21 17:46:03
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET client_min_messages = warning;
-SET row_security = off;
-
-DROP DATABASE ga_dev;
---
--- TOC entry 3204 (class 1262 OID 16391)
--- Name: ga_dev; Type: DATABASE; Schema: -; Owner: -
---
-
-CREATE DATABASE ga_dev WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8';
-
-
-\connect ga_dev
+-- Started on 2019-03-22 20:25:17
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -222,7 +201,8 @@ CREATE TABLE public.jobs (
     job_id integer NOT NULL,
     start_date timestamp without time zone,
     total_generations integer,
-    current_generation integer
+    current_generation integer,
+    last_status_update_time timestamp without time zone
 );
 
 
@@ -302,7 +282,8 @@ CREATE TABLE public.lecturer_timeslot_preferences (
 CREATE TABLE public.modules (
     module_id integer NOT NULL,
     name text NOT NULL,
-    lecturer_id integer
+    lecturer_id integer,
+    is_lab boolean DEFAULT false
 );
 
 
@@ -545,7 +526,7 @@ ALTER SEQUENCE public.venue_id_sequence OWNED BY public.venues.venue_id;
 
 
 --
--- TOC entry 3004 (class 2604 OID 16663)
+-- TOC entry 3005 (class 2604 OID 16663)
 -- Name: buildings building_id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -553,7 +534,7 @@ ALTER TABLE ONLY public.buildings ALTER COLUMN building_id SET DEFAULT nextval('
 
 
 --
--- TOC entry 3009 (class 2604 OID 16666)
+-- TOC entry 3010 (class 2604 OID 16666)
 -- Name: courses course_id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -569,7 +550,7 @@ ALTER TABLE ONLY public.departments ALTER COLUMN department_id SET DEFAULT nextv
 
 
 --
--- TOC entry 3010 (class 2604 OID 16723)
+-- TOC entry 3011 (class 2604 OID 16723)
 -- Name: jobs job_id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -593,7 +574,7 @@ ALTER TABLE ONLY public.modules ALTER COLUMN module_id SET DEFAULT nextval('publ
 
 
 --
--- TOC entry 3007 (class 2604 OID 16679)
+-- TOC entry 3008 (class 2604 OID 16679)
 -- Name: schedules schedule_id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -601,7 +582,7 @@ ALTER TABLE ONLY public.schedules ALTER COLUMN schedule_id SET DEFAULT nextval('
 
 
 --
--- TOC entry 3008 (class 2604 OID 16682)
+-- TOC entry 3009 (class 2604 OID 16682)
 -- Name: timeslots timeslot_id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -609,7 +590,7 @@ ALTER TABLE ONLY public.timeslots ALTER COLUMN timeslot_id SET DEFAULT nextval('
 
 
 --
--- TOC entry 3003 (class 2604 OID 16685)
+-- TOC entry 3004 (class 2604 OID 16685)
 -- Name: users user_id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -617,7 +598,7 @@ ALTER TABLE ONLY public.users ALTER COLUMN user_id SET DEFAULT nextval('public.u
 
 
 --
--- TOC entry 3006 (class 2604 OID 16688)
+-- TOC entry 3007 (class 2604 OID 16688)
 -- Name: venues venue_id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -625,7 +606,7 @@ ALTER TABLE ONLY public.venues ALTER COLUMN venue_id SET DEFAULT nextval('public
 
 
 --
--- TOC entry 3179 (class 0 OID 16489)
+-- TOC entry 3180 (class 0 OID 16489)
 -- Dependencies: 189
 -- Data for Name: buildings; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -638,7 +619,7 @@ INSERT INTO public.buildings VALUES (5, 'Áras Ui Chathail', '(53.27887199999999
 
 
 --
--- TOC entry 3186 (class 0 OID 16643)
+-- TOC entry 3187 (class 0 OID 16643)
 -- Dependencies: 196
 -- Data for Name: course_module; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -666,7 +647,7 @@ INSERT INTO public.course_module VALUES (13, 6, 'CS15');
 
 
 --
--- TOC entry 3185 (class 0 OID 16622)
+-- TOC entry 3186 (class 0 OID 16622)
 -- Dependencies: 195
 -- Data for Name: courses; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -686,7 +667,7 @@ INSERT INTO public.courses VALUES (51, '4LAW', 3, 100);
 
 
 --
--- TOC entry 3182 (class 0 OID 16529)
+-- TOC entry 3183 (class 0 OID 16529)
 -- Dependencies: 192
 -- Data for Name: department_building; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -701,7 +682,7 @@ INSERT INTO public.department_building VALUES (3, 5, 20);
 
 
 --
--- TOC entry 3175 (class 0 OID 16422)
+-- TOC entry 3176 (class 0 OID 16422)
 -- Dependencies: 185
 -- Data for Name: departments; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -711,25 +692,26 @@ INSERT INTO public.departments VALUES (3, 'Law');
 
 
 --
--- TOC entry 3198 (class 0 OID 16720)
+-- TOC entry 3199 (class 0 OID 16720)
 -- Dependencies: 208
 -- Data for Name: jobs; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.jobs VALUES (1, '2019-03-20 22:30:25', 500, 100);
-INSERT INTO public.jobs VALUES (25, '2019-03-21 17:27:06.946', NULL, NULL);
 
 
 --
--- TOC entry 3184 (class 0 OID 16562)
+-- TOC entry 3185 (class 0 OID 16562)
 -- Dependencies: 194
 -- Data for Name: lecturer_timeslot_preferences; Type: TABLE DATA; Schema: public; Owner: -
 --
 
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 1, 50);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (2, 1, 50);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (3, 1, 50);
 
 
 --
--- TOC entry 3176 (class 0 OID 16446)
+-- TOC entry 3177 (class 0 OID 16446)
 -- Dependencies: 186
 -- Data for Name: lecturers; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -740,43 +722,54 @@ INSERT INTO public.lecturers VALUES (3, 'Johnny Law', 3);
 
 
 --
--- TOC entry 3177 (class 0 OID 16459)
+-- TOC entry 3178 (class 0 OID 16459)
 -- Dependencies: 187
 -- Data for Name: modules; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.modules VALUES (2, 'Data Structures', 2);
-INSERT INTO public.modules VALUES (3, 'Enterprise Programming', 1);
-INSERT INTO public.modules VALUES (5, 'Advanced Law', 3);
-INSERT INTO public.modules VALUES (4, 'Intro Law', 3);
-INSERT INTO public.modules VALUES (6, 'Writing Lab', 3);
-INSERT INTO public.modules VALUES (1, 'Introduction to Programming', 1);
+INSERT INTO public.modules VALUES (2, 'Data Structures', 2, false);
+INSERT INTO public.modules VALUES (3, 'Enterprise Programming', 1, false);
+INSERT INTO public.modules VALUES (5, 'Advanced Law', 3, false);
+INSERT INTO public.modules VALUES (4, 'Intro Law', 3, false);
+INSERT INTO public.modules VALUES (1, 'Introduction to Programming', 1, false);
+INSERT INTO public.modules VALUES (6, 'Writing Lab', 3, true);
 
 
 --
--- TOC entry 3196 (class 0 OID 16689)
+-- TOC entry 3197 (class 0 OID 16689)
 -- Dependencies: 206
 -- Data for Name: scheduled_modules; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.scheduled_modules VALUES (1, 1, 3, 1);
+INSERT INTO public.scheduled_modules VALUES (2, 2, 48, 2);
+INSERT INTO public.scheduled_modules VALUES (2, 3, 13, 1);
+INSERT INTO public.scheduled_modules VALUES (2, 5, 46, 4);
+INSERT INTO public.scheduled_modules VALUES (2, 4, 30, 4);
+INSERT INTO public.scheduled_modules VALUES (2, 6, 40, 4);
+INSERT INTO public.scheduled_modules VALUES (2, 1, 18, 3);
+INSERT INTO public.scheduled_modules VALUES (3, 2, 26, 3);
+INSERT INTO public.scheduled_modules VALUES (3, 3, 32, 2);
+INSERT INTO public.scheduled_modules VALUES (3, 5, 27, 3);
+INSERT INTO public.scheduled_modules VALUES (3, 4, 21, 1);
+INSERT INTO public.scheduled_modules VALUES (3, 6, 48, 4);
+INSERT INTO public.scheduled_modules VALUES (3, 1, 39, 1);
 
 
 --
--- TOC entry 3181 (class 0 OID 16519)
+-- TOC entry 3182 (class 0 OID 16519)
 -- Dependencies: 191
 -- Data for Name: schedules; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 INSERT INTO public.schedules VALUES (1, '2019-03-18 19:50:52.812', 3, false, false, false, true, NULL);
 INSERT INTO public.schedules VALUES (4, '2019-03-18 20:30:50', 12287, false, false, false, false, NULL);
-INSERT INTO public.schedules VALUES (2, '2019-03-18 19:49:58.55', 3, false, false, false, false, NULL);
 INSERT INTO public.schedules VALUES (5, '2019-03-20 23:50:09.723', 3, false, false, false, false, NULL);
-INSERT INTO public.schedules VALUES (3, '2019-03-20 23:47:53.236', 3, false, false, false, false, 25);
+INSERT INTO public.schedules VALUES (2, '2019-03-18 19:49:58.55', 3, true, false, false, false, NULL);
+INSERT INTO public.schedules VALUES (3, '2019-03-20 23:47:53.236', 3, true, false, false, false, NULL);
 
 
 --
--- TOC entry 3183 (class 0 OID 16544)
+-- TOC entry 3184 (class 0 OID 16544)
 -- Dependencies: 193
 -- Data for Name: timeslots; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -839,7 +832,7 @@ INSERT INTO public.timeslots VALUES (55, 4, 18);
 
 
 --
--- TOC entry 3178 (class 0 OID 16477)
+-- TOC entry 3179 (class 0 OID 16477)
 -- Dependencies: 188
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -849,7 +842,7 @@ INSERT INTO public.users VALUES (3, 'it', 'NOT_HASHED_PASSWORD', 'salty', 'IT De
 
 
 --
--- TOC entry 3180 (class 0 OID 16497)
+-- TOC entry 3181 (class 0 OID 16497)
 -- Dependencies: 190
 -- Data for Name: venues; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -893,7 +886,7 @@ SELECT pg_catalog.setval('public.department_id_sequence', 3, true);
 -- Name: job_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.job_id_seq', 25, true);
+SELECT pg_catalog.setval('public.job_id_seq', 51, true);
 
 
 --
@@ -951,7 +944,7 @@ SELECT pg_catalog.setval('public.venue_id_sequence', 4, true);
 
 
 --
--- TOC entry 3022 (class 2606 OID 16496)
+-- TOC entry 3023 (class 2606 OID 16496)
 -- Name: buildings buildings_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -960,7 +953,7 @@ ALTER TABLE ONLY public.buildings
 
 
 --
--- TOC entry 3036 (class 2606 OID 16650)
+-- TOC entry 3037 (class 2606 OID 16650)
 -- Name: course_module course_module_pk; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -969,7 +962,7 @@ ALTER TABLE ONLY public.course_module
 
 
 --
--- TOC entry 3034 (class 2606 OID 16629)
+-- TOC entry 3035 (class 2606 OID 16629)
 -- Name: courses course_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -978,7 +971,7 @@ ALTER TABLE ONLY public.courses
 
 
 --
--- TOC entry 3028 (class 2606 OID 16578)
+-- TOC entry 3029 (class 2606 OID 16578)
 -- Name: department_building department_building_pk; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -987,7 +980,7 @@ ALTER TABLE ONLY public.department_building
 
 
 --
--- TOC entry 3012 (class 2606 OID 16429)
+-- TOC entry 3013 (class 2606 OID 16429)
 -- Name: departments departments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -996,7 +989,7 @@ ALTER TABLE ONLY public.departments
 
 
 --
--- TOC entry 3040 (class 2606 OID 16725)
+-- TOC entry 3041 (class 2606 OID 16725)
 -- Name: jobs job_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1005,7 +998,7 @@ ALTER TABLE ONLY public.jobs
 
 
 --
--- TOC entry 3032 (class 2606 OID 16566)
+-- TOC entry 3033 (class 2606 OID 16566)
 -- Name: lecturer_timeslot_preferences lec_time_pk; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1014,7 +1007,7 @@ ALTER TABLE ONLY public.lecturer_timeslot_preferences
 
 
 --
--- TOC entry 3014 (class 2606 OID 16453)
+-- TOC entry 3015 (class 2606 OID 16453)
 -- Name: lecturers lecturers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1023,7 +1016,7 @@ ALTER TABLE ONLY public.lecturers
 
 
 --
--- TOC entry 3016 (class 2606 OID 16466)
+-- TOC entry 3017 (class 2606 OID 16466)
 -- Name: modules module_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1032,7 +1025,7 @@ ALTER TABLE ONLY public.modules
 
 
 --
--- TOC entry 3038 (class 2606 OID 16693)
+-- TOC entry 3039 (class 2606 OID 16693)
 -- Name: scheduled_modules scheduled_modules_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1041,7 +1034,7 @@ ALTER TABLE ONLY public.scheduled_modules
 
 
 --
--- TOC entry 3026 (class 2606 OID 16523)
+-- TOC entry 3027 (class 2606 OID 16523)
 -- Name: schedules schedules_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1050,7 +1043,7 @@ ALTER TABLE ONLY public.schedules
 
 
 --
--- TOC entry 3030 (class 2606 OID 16548)
+-- TOC entry 3031 (class 2606 OID 16548)
 -- Name: timeslots timeslots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1059,7 +1052,7 @@ ALTER TABLE ONLY public.timeslots
 
 
 --
--- TOC entry 3018 (class 2606 OID 16484)
+-- TOC entry 3019 (class 2606 OID 16484)
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1068,7 +1061,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 3020 (class 2606 OID 16486)
+-- TOC entry 3021 (class 2606 OID 16486)
 -- Name: users users_username_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1077,7 +1070,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 3024 (class 2606 OID 16504)
+-- TOC entry 3025 (class 2606 OID 16504)
 -- Name: venues venues_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1086,7 +1079,7 @@ ALTER TABLE ONLY public.venues
 
 
 --
--- TOC entry 3051 (class 2606 OID 16630)
+-- TOC entry 3052 (class 2606 OID 16630)
 -- Name: courses course_department_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1095,7 +1088,7 @@ ALTER TABLE ONLY public.courses
 
 
 --
--- TOC entry 3052 (class 2606 OID 16651)
+-- TOC entry 3053 (class 2606 OID 16651)
 -- Name: course_module course_module_course_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1104,7 +1097,7 @@ ALTER TABLE ONLY public.course_module
 
 
 --
--- TOC entry 3053 (class 2606 OID 16656)
+-- TOC entry 3054 (class 2606 OID 16656)
 -- Name: course_module course_module_module_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1113,7 +1106,7 @@ ALTER TABLE ONLY public.course_module
 
 
 --
--- TOC entry 3048 (class 2606 OID 16539)
+-- TOC entry 3049 (class 2606 OID 16539)
 -- Name: department_building department_building_building_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1122,7 +1115,7 @@ ALTER TABLE ONLY public.department_building
 
 
 --
--- TOC entry 3047 (class 2606 OID 16534)
+-- TOC entry 3048 (class 2606 OID 16534)
 -- Name: department_building department_building_department_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1131,7 +1124,7 @@ ALTER TABLE ONLY public.department_building
 
 
 --
--- TOC entry 3049 (class 2606 OID 16567)
+-- TOC entry 3050 (class 2606 OID 16567)
 -- Name: lecturer_timeslot_preferences lecturer_timeslot_preferences_lecturer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1140,7 +1133,7 @@ ALTER TABLE ONLY public.lecturer_timeslot_preferences
 
 
 --
--- TOC entry 3050 (class 2606 OID 16572)
+-- TOC entry 3051 (class 2606 OID 16572)
 -- Name: lecturer_timeslot_preferences lecturer_timeslot_preferences_timeslot_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1149,7 +1142,7 @@ ALTER TABLE ONLY public.lecturer_timeslot_preferences
 
 
 --
--- TOC entry 3041 (class 2606 OID 16454)
+-- TOC entry 3042 (class 2606 OID 16454)
 -- Name: lecturers lecturers_department_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1158,7 +1151,7 @@ ALTER TABLE ONLY public.lecturers
 
 
 --
--- TOC entry 3042 (class 2606 OID 16472)
+-- TOC entry 3043 (class 2606 OID 16472)
 -- Name: modules module_lecturers_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1167,7 +1160,7 @@ ALTER TABLE ONLY public.modules
 
 
 --
--- TOC entry 3054 (class 2606 OID 16694)
+-- TOC entry 3055 (class 2606 OID 16694)
 -- Name: scheduled_modules scheduled_modules_module_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1176,7 +1169,7 @@ ALTER TABLE ONLY public.scheduled_modules
 
 
 --
--- TOC entry 3055 (class 2606 OID 16699)
+-- TOC entry 3056 (class 2606 OID 16699)
 -- Name: scheduled_modules scheduled_modules_schedule_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1185,7 +1178,7 @@ ALTER TABLE ONLY public.scheduled_modules
 
 
 --
--- TOC entry 3056 (class 2606 OID 16704)
+-- TOC entry 3057 (class 2606 OID 16704)
 -- Name: scheduled_modules scheduled_modules_timeslot_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1194,7 +1187,7 @@ ALTER TABLE ONLY public.scheduled_modules
 
 
 --
--- TOC entry 3057 (class 2606 OID 16709)
+-- TOC entry 3058 (class 2606 OID 16709)
 -- Name: scheduled_modules scheduled_modules_venue_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1203,7 +1196,7 @@ ALTER TABLE ONLY public.scheduled_modules
 
 
 --
--- TOC entry 3045 (class 2606 OID 16524)
+-- TOC entry 3046 (class 2606 OID 16524)
 -- Name: schedules schedules_creator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1212,7 +1205,7 @@ ALTER TABLE ONLY public.schedules
 
 
 --
--- TOC entry 3046 (class 2606 OID 16727)
+-- TOC entry 3047 (class 2606 OID 16727)
 -- Name: schedules schedules_jobs_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1221,7 +1214,7 @@ ALTER TABLE ONLY public.schedules
 
 
 --
--- TOC entry 3043 (class 2606 OID 16609)
+-- TOC entry 3044 (class 2606 OID 16609)
 -- Name: users users_departments_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1230,7 +1223,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 3044 (class 2606 OID 16505)
+-- TOC entry 3045 (class 2606 OID 16505)
 -- Name: venues venues_building_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1238,7 +1231,7 @@ ALTER TABLE ONLY public.venues
     ADD CONSTRAINT venues_building_id_fkey FOREIGN KEY (building_id) REFERENCES public.buildings(building_id);
 
 
--- Completed on 2019-03-21 17:46:11
+-- Completed on 2019-03-22 20:25:22
 
 --
 -- PostgreSQL database dump complete

@@ -1,6 +1,7 @@
 package net.andreweast.services.ga.geneticalgorithm;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Random;
 
 public class Venue implements Serializable {
@@ -17,7 +18,7 @@ public class Venue implements Serializable {
     double locationY;
 
     // TODO: the score the department running the job has given this venue
-//    HashMap<Long, Integer> departmentsScore;
+    HashMap<Long, Integer> departmentsScore;
     /* Logic of scores for venue:
         each venue needs to have a HashMap: department -> score
         when a module has been tentatively scheduled in that venue

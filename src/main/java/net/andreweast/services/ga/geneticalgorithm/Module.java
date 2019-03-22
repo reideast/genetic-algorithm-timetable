@@ -4,20 +4,33 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 // TODO: This was made as...an enum??
 public class Module implements Serializable {
+    // Database module_id
     long id;
 
+    // TODO: Only used for debugging
     String name;
 
+    // To determine how big of a classroom is needed for this module
     int numEnrolled;
 
-    // TODO: Any departments which are offering this module for one of their courses. Used to find department preferences for buildings
-//    List<Long> departmentIds;
+    // Used to find this module's lecturer's preferences for timeslots
+    long lecturerId;
 
-    // TODO: to be used to find lecturer preferences for timeslots
-//    long lecturerId;
+    // Any departments which are offering this module for one of their courses. Used to find department preferences for buildings
+    Set<Long> departmentIds;
+
+    public Module(long id, String name, int numEnrolled, long lecturerId, Set<Long> departmentIds) {
+        this.id = id;
+        this.name = name;
+        this.numEnrolled = numEnrolled;
+        this.lecturerId = lecturerId;
+        this.departmentIds = departmentIds;
+    }
 
     public Module(long id, String name, int numEnrolled) {
         this.id = id;
@@ -28,9 +41,12 @@ public class Module implements Serializable {
     @Override
     public String toString() {
         return "Module{" +
-                "name='" + name + '\'' +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", numEnrolled=" + numEnrolled +
-                '}';
+                ", lecturerId=" + lecturerId +
+                ", departmentIds=[" + departmentIds.stream().map(Object::toString).collect(Collectors.joining(",")) +
+                "]}";
     }
 
     public long getId() {
@@ -39,6 +55,38 @@ public class Module implements Serializable {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getNumEnrolled() {
+        return numEnrolled;
+    }
+
+    public void setNumEnrolled(int numEnrolled) {
+        this.numEnrolled = numEnrolled;
+    }
+
+    public long getLecturerId() {
+        return lecturerId;
+    }
+
+    public void setLecturerId(long lecturerId) {
+        this.lecturerId = lecturerId;
+    }
+
+    public Set<Long> getDepartmentIds() {
+        return departmentIds;
+    }
+
+    public void setDepartmentIds(Set<Long> departmentIds) {
+        this.departmentIds = departmentIds;
     }
 
     private String moduleName;

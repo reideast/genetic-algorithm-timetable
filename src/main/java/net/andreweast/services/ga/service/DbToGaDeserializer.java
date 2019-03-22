@@ -2,6 +2,7 @@ package net.andreweast.services.ga.service;
 
 import net.andreweast.exception.DataNotFoundException;
 import net.andreweast.services.data.api.JobRepository;
+import net.andreweast.services.data.api.LecturerTimeslotPreferenceRepository;
 import net.andreweast.services.data.api.ModuleRepository;
 import net.andreweast.services.data.api.ScheduleRepository;
 import net.andreweast.services.data.api.ScheduledModuleRepository;
@@ -9,6 +10,7 @@ import net.andreweast.services.data.api.TimeslotRepository;
 import net.andreweast.services.data.api.VenueRepository;
 import net.andreweast.services.data.model.CourseModule;
 import net.andreweast.services.data.model.Job;
+import net.andreweast.services.data.model.LecturerTimeslotPreference;
 import net.andreweast.services.data.model.Schedule;
 import net.andreweast.services.ga.geneticalgorithm.GeneticAlgorithmJobData;
 import net.andreweast.services.ga.geneticalgorithm.Module;
@@ -24,7 +26,9 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Gets all information needed for a Genetic Algorithm run from the database
@@ -50,6 +54,9 @@ public class DbToGaDeserializer {
 
     @Autowired
     private ScheduledModuleRepository scheduledModuleRepository;
+
+    @Autowired
+    private LecturerTimeslotPreferenceRepository lecturerTimeslotPreferenceRepository;
 
     /**
      * Build up all required data structures for the genetic algorithm by getting them from the database
@@ -91,15 +98,21 @@ public class DbToGaDeserializer {
 
         List<Timeslot> timeslots = new ArrayList<>();
         for (net.andreweast.services.data.model.Timeslot entity : entities) {
-            timeslots.add(new Timeslot(entity.getTimeslotId(), entity.getDay(), entity.getTime()));
+            // Get preferences of all lecturers for this timeslot
+            List<LecturerTimeslotPreference> preferences = lecturerTimeslotPreferenceRepository.findByTimeslot_TimeslotId(entity.getTimeslotId());
+            HashMap<Long, Integer> mapPreferencesByLecturerId = new HashMap<>();
+            for (LecturerTimeslotPreference pref : preferences) {
+                mapPreferencesByLecturerId.put(pref.getLecturer().getLecturerId(), pref.getRank());
+            }
+
+            timeslots.add(new Timeslot(entity.getTimeslotId(), entity.getDay(), entity.getTime(), mapPreferencesByLecturerId));
         }
 
         // DEBUG:
-        System.out.print("Timeslots: ");
+        System.out.println("Timeslots: ");
         for (Timeslot item : timeslots) {
-            System.out.print(item);
+            System.out.println(item);
         }
-        System.out.println();
 
         return timeslots;
     }
@@ -110,6 +123,16 @@ public class DbToGaDeserializer {
 
         List<Venue> venues = new ArrayList<>();
         for (net.andreweast.services.data.model.Venue entity : entities) {
+            // TODO: Need:
+//            HashMap<Long, Integer> departmentsScore;
+            /* Logic of scores for venue:
+                each venue needs to have a HashMap: department -> score
+                when a module has been tentatively scheduled in that venue
+                the module has an associated department(s)
+                then can used that associated department to look up the score that department has given the venue
+                    (if a module has more than one department (i.e. cross-listed IT and Maths), then average their scores for that venue)
+             */
+
             venues.add(new Venue(entity.getVenueId(), entity.getName(), entity.getLab(), entity.getCapacity(), entity.getBuilding().getLocation().x, entity.getBuilding().getLocation().y));
             // TODO: departmentScore is just -1. Need custom query
             // TODO: and even more detailed: need to get department_building.score's for ALL departments for that venue, and save them in a HashMap(dept_id -> score) in that venue
@@ -129,11 +152,15 @@ public class DbToGaDeserializer {
 
         List<Module> modules = new ArrayList<>();
         for (net.andreweast.services.data.model.Module entity : entities) {
+            Set<Long> departmentIdsOfferingModule = new HashSet<>();
             int totalEnrolled = 0;
-            for (CourseModule courses : entity.getCourseModules()) {
-                totalEnrolled += courses.getCourse().getNumEnrolled();
+            for (CourseModule course : entity.getCourseModules()) {
+                totalEnrolled += course.getCourse().getNumEnrolled();
+                departmentIdsOfferingModule.add(course.getCourse().getDepartment().getDepartmentId());
             }
-            modules.add(new Module(entity.getModuleId(), entity.getName(), totalEnrolled));
+
+            modules.add(new Module(entity.getModuleId(), entity.getName(), totalEnrolled,
+                    entity.getLecturer().getLecturerId(), departmentIdsOfferingModule));
         }
 
         // DEBUG:

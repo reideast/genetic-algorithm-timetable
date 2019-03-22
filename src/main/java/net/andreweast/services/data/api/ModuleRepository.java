@@ -22,6 +22,12 @@ public interface ModuleRepository extends PagingAndSortingRepository<Module, Lon
     @RestResource(path = "courseName", rel = "courseName")
     List<Module> findByCourseModules_CourseName(String name);
 
+    @RestResource(path = "labs", rel = "labs")
+    List<Module> findByIsLabTrue();
+
+    @RestResource(path = "classrooms", rel = "classrooms")
+    List<Module> findByIsLabFalse();
+
     /*
      * This is the key REST call for getting the details of a schedule
      * Gets ALL the modules for a certain schedule (by schedule_id)
@@ -31,4 +37,11 @@ public interface ModuleRepository extends PagingAndSortingRepository<Module, Lon
      */
     @RestResource(path = "scheduledModule", rel = "scheduledModule")
     List<Module> findByScheduledModules_Schedule_ScheduleId(Long id);
+
+
+//    @Query(value = "INSERT INTO scheduled_modules (schedule_id, module_id, timeslot_id, venue_id) " +
+//            "VALUES (:scheduleId, :moduleId, :timeslotId, :venueId) " +
+//            "ON CONFLICT (schedule_id, module_id) DO UPDATE SET timeslot_id = :timeslotId, venue_id = :venueId",
+//            nativeQuery = true)
+//    List<Module> (@Param("scheduleId") Long scheduleId, @Param("moduleId") Long moduleId, @Param("timeslotId") Long timeslotId, @Param("venueId") Long venueId);
 }
