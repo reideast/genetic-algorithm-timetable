@@ -33,6 +33,7 @@ public class GaToDbSerializer {
         scheduleRepository.save(schedule);
 
         List<ScheduledModule> scheduledModules = gaData.getScheduledModules();
+        // DEBUG:
 //        List<net.andreweast.services.data.model.ScheduledModule> entities = new ArrayList<>();
 //        for (ScheduledModule item : scheduledModules) {
 //            net.andreweast.services.data.model.ScheduledModule entity = new net.andreweast.services.data.model.ScheduledModule();

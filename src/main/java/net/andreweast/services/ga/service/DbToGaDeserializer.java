@@ -65,6 +65,9 @@ public class DbToGaDeserializer {
         data.setScheduleId(scheduleId);
         data.setJobId(jobId);
 
+        // TODO: How many generations to run?
+        data.setNumGenerations(20000); // DEBUG!!
+
         // Get all timeslots, venues, and modules from database
         // They are not specific to this job (i.e. do not depend on database table "schedules")
         data.setTimeslots(generateTimeslotsFromDatabase());
@@ -79,12 +82,10 @@ public class DbToGaDeserializer {
 
             if (data.getScheduledModules().size() != data.getModules().size()) {
                 System.out.println("For preexisting schedule (id=" + scheduleId + "), the no. of scheduled modules in the databse was " + data.getScheduledModules().size() +
-                        ", but it was expected to equal the number of modules in the database (" + data.getModules().size() + ")");
+                        ", but it was expected to equal the number of modules in the database (" + data.getModules().size() + ")"); // TODO: Logger error
             }
         } else {
-            // This job is a new job, therefore need to create all the scheduled_modules
-            // DEBUG: don't need to pre-generate these. the GA job should make them when it's done
-//            data.setScheduledModules(createNewScheduledModules(schedule.getScheduleId()));
+            // This job is a new job, therefore there are no scheduled_modules to fetch. They will be created when the job is done
             data.setModifyExistingJob(false);
         }
 
@@ -150,13 +151,11 @@ public class DbToGaDeserializer {
         return modules;
     }
 
-//    private List<ScheduledModule> createNewScheduledModules(Long scheduleId) {
-//    }
-
     private List<ScheduledModule> generateScheduledModulesFromDatabase(Long scheduleId, GeneticAlgorithmJobData data) {
-        List<net.andreweast.services.data.model.ScheduledModule> entities = scheduledModuleRepository.getAllBySchedule_ScheduleId(scheduleId);
+//        List<net.andreweast.services.data.model.ScheduledModule> entities = scheduledModuleRepository.getAllBySchedule_ScheduleId(scheduleId);
+        List<net.andreweast.services.data.model.ScheduledModule> entities = scheduledModuleRepository.findBySchedule_ScheduleId_OrderByTimeslot_TimeslotIdAsc(scheduleId);
 
-        // Build a set of "indicies" of already-found modules, venues, and timeslots s.t. creating each new ScheduledModule won't be a polynomial operation (n^3 at least)
+        // Build a set of indexes of already-found modules, venues, and timeslots s.t. creating each new ScheduledModule won't be a polynomial operation (n^3 at least)
         HashMap<Long, Module> moduleIndex = new HashMap<>();
         for (Module module : data.getModules()) {
             moduleIndex.put(module.getId(), module);

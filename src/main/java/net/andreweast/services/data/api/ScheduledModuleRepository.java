@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,17 +18,21 @@ import java.util.List;
 //    @RestResource(path = "schedule", rel = "schedule")
 //    List<ScheduledModule> findBySchedule_ScheduleId(Long id);
 
-@Repository
+@RepositoryRestResource(collectionResourceRel = "scheduledModule", path = "scheduledModule")
 //@Transactional(readOnly = true)
 //public class ScheduledModuleRepository {
 public interface ScheduledModuleRepository extends JpaRepository<ScheduledModule, ScheduledModulePK> {
 //    @PersistenceContext
 //    private EntityManager em;
 
+    @RestResource(path = "schedule", rel = "schedule")
+    List<ScheduledModule> findBySchedule_ScheduleId_OrderByTimeslot_TimeslotIdAsc(Long id);
+
     List<ScheduledModule> getAllBySchedule_ScheduleId(Long scheduleId);
 
     /**
      * "Upsert": Inserts new or updates existing (if scheduleId/moduleId record already exists)
+     *
      * @return number of modified rows
      */
     @Modifying

@@ -12,15 +12,25 @@ import java.util.Random;
  * Essentially, a very complex POJO
  */
 public class GeneticAlgorithmJobData implements Serializable {
+    // Database keys for this job
     private long scheduleId;
     private long jobId;
 
+    // Properties of this job
+    // Are we making a brand new schedule or are we based on an existing schedule?
     private boolean isModifyExistingJob;
+    // How many generations maximum to run
+    private int numGenerations;
 
+    // The various things to be scheduled. Each one may have data that the Fitness Function will utilise
     private List<Timeslot> timeslots;
     private List<Module> modules;
     private List<Venue> venues;
 
+    // The results: A set of modules, each placed in a timeslot.
+    // If this is not an "modify existing job", then this collection will be NULL
+    // Either way, at the end of the job, it will be filled up with the results
+    // TODO: fill it up wiht results at end
     private List<ScheduledModule> scheduledModules;
 
     private static final Random random = new Random();
@@ -59,6 +69,14 @@ public class GeneticAlgorithmJobData implements Serializable {
 
     public void setModifyExistingJob(boolean modifyExistingJob) {
         isModifyExistingJob = modifyExistingJob;
+    }
+
+    public int getNumGenerations() {
+        return numGenerations;
+    }
+
+    public void setNumGenerations(int numGenerations) {
+        this.numGenerations = numGenerations;
     }
 
     public List<Timeslot> getTimeslots() {
