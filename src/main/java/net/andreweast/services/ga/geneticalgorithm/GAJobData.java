@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * This is the MASTER object: The {@link net.andreweast.services.ga.service.Dispatcher} will create one of these, (via a {@link net.andreweast.services.ga.service.GeneticAlgorithmDeserializer}
+ * This is the MASTER object: The {@link net.andreweast.services.ga.service.Dispatcher} will create one of these, (via a {@link net.andreweast.services.ga.service.DbToGaDeserializer}
  * and then pass it to the actual GA runner to define ALL properties of the job
  *
  * Contains every piece of information (as component collections) that a GA job needs to create a schedule

@@ -18,7 +18,7 @@ import java.util.List;
  * Puts all information from a completed Genetic Algorithm run back into the database
  */
 @Service
-public class GeneticAlgorithmSerializer {
+public class GaToDbSerializer {
     @Autowired
     private ScheduleRepository scheduleRepository;
 

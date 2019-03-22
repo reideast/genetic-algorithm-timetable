@@ -33,7 +33,7 @@ import java.util.List;
  * Returns a single object that encapsulates all data for the GA
  */
 @Service
-public class GeneticAlgorithmDeserializer {
+public class DbToGaDeserializer {
     @Autowired
     private ScheduleRepository scheduleRepository;
 

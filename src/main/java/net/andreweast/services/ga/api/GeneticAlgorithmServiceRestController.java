@@ -3,7 +3,7 @@ package net.andreweast.services.ga.api;
 import net.andreweast.services.data.model.Job;
 import net.andreweast.services.data.model.JobDto;
 import net.andreweast.services.ga.service.Dispatcher;
-import net.andreweast.services.ga.service.GeneticAlgorithmSerializer;
+import net.andreweast.services.ga.service.GaToDbSerializer;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,7 +28,7 @@ public class GeneticAlgorithmServiceRestController {
 
     // DEBUG: Used for my temporary cleanup method
     @Autowired
-    GeneticAlgorithmSerializer geneticAlgorithmSerializer;
+    GaToDbSerializer gaToDbSerializer;
 
     /**
      * Start a genetic algorithm batch job running, using an existing Schedule (which may or may not be a work-in-progress)
@@ -52,7 +52,7 @@ public class GeneticAlgorithmServiceRestController {
     @DeleteMapping("/failed-job/{scheduleId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void cleanUpDatabaseAfterJobFailed(@PathVariable Long scheduleId) {
-        geneticAlgorithmSerializer.deleteJobForSchedule(scheduleId);
+        gaToDbSerializer.deleteJobForSchedule(scheduleId);
     }
 
     @GetMapping("/job/{jobId}")
