@@ -18,6 +18,7 @@ public class GeneticAlgorithmRunner {
 
     public void start() {
         jobThread = new Thread(job);
+        job.setIsRunning(true);
         jobThread.start();
     }
 
