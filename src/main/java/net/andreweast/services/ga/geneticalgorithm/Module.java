@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-// TODO: This was made as...an enum??
 public class Module implements Serializable {
     // Database module_id
     long id;

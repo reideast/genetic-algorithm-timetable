@@ -14,7 +14,7 @@ public class Job {
     @Column(name = "job_id", updatable = false, nullable = false)
     private Long jobId;
 
-    // TODO: See: https://www.baeldung.com/hibernate-date-time
+    // FUTURE: Does SQL Timestamp type need any other work? See: https://www.baeldung.com/hibernate-date-time
     @Basic
     @Column(name = "start_date", nullable = true)
     private Timestamp startDate = new Timestamp(new Date().getTime()); // Default to timestamp of Now

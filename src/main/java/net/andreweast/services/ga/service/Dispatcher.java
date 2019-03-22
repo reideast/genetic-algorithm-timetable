@@ -49,7 +49,7 @@ public class Dispatcher {
         GeneticAlgorithmRunner jobRunner = new GeneticAlgorithmRunner(geneticAlgorithmJobData);
         jobRunner.start();
 
-        // Save a handle to the job in the in-memory database
+        // Save a handle to the job in the in-memory datastore
         runningJobHandles.put(geneticAlgorithmJobData.getJobId(), jobRunner);
 
         return job;
@@ -60,16 +60,8 @@ public class Dispatcher {
      *
      * @param jobId The database ID of the job to remove
      */
-    public static void jobCompleted(Long jobId) {
-        System.out.println("Current job handles:");
-        runningJobHandles.forEach((key, value) -> {
-            System.out.println(key + ":" + value);
-        });
+    public void jobCompleted(Long jobId) {
         runningJobHandles.remove(jobId);
-        System.out.println("Job removed, handles:");
-        runningJobHandles.forEach((key, value) -> {
-            System.out.println(key + ":" + value);
-        });
     }
 
     /**
@@ -81,7 +73,6 @@ public class Dispatcher {
      */
     public Job getStatusForJob(Long jobId) {
         GeneticAlgorithmRunner jobHandle = runningJobHandles.get(jobId);
-        System.out.println("Found the running job? handle=" + jobHandle); // DEBUG
         if (jobHandle != null) {
             Job job = jobRepository.findById(jobId).orElseThrow(DataNotFoundException::new);
 
@@ -103,7 +94,6 @@ public class Dispatcher {
      */
     public void stopJob(Long jobId) {
         GeneticAlgorithmRunner jobHandle = runningJobHandles.get(jobId);
-        System.out.println("Stopping job id=" + jobId + ", handle=" + jobHandle); // DEBUG
         if (jobHandle != null) {
             jobHandle.stop();
         } else {

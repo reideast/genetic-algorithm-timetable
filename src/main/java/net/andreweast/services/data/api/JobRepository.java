@@ -11,4 +11,8 @@ import java.util.List;
 public interface JobRepository extends PagingAndSortingRepository<Job, Long> {
     @RestResource(path = "schedule", rel = "schedule")
     List<Job> findBySchedule_ScheduleId(Long id);
+
+    // Find if a user has a job running (empty result if they do not)
+    @RestResource(path = "user", rel = "user")
+    List<Job> findBySchedule_Creator_UserId(Long id);
 }

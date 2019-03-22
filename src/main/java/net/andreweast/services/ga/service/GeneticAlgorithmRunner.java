@@ -5,7 +5,7 @@ import net.andreweast.services.ga.geneticalgorithm.GeneticAlgorithmJobData;
 
 /**
  * Control (start, interrupt, and get data from) a sub thread
- *
+ * Interacts over Atomic variables
  * Method is from: https://www.baeldung.com/java-thread-stop
  */
 public class GeneticAlgorithmRunner {
@@ -27,20 +27,6 @@ public class GeneticAlgorithmRunner {
     }
 
     public int getCurrentGeneration() {
-        System.out.println("Attempting to get data from sub-thread");
-
-        System.out.println("Found the running job? handle=" + jobThread);
-        if (jobThread != null) {
-            System.out.println("state=" + jobThread.getState());
-            System.out.println("name=" + jobThread.getName());
-            System.out.println("id=" + jobThread.getId());
-        }
-
         return job.getCurrentGeneration();
-    }
-
-    public int getTotalGenerations() {
-        System.out.println("Attempting to get max gen from sub-thread");
-        return job.getNumGenerations();
     }
 }

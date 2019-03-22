@@ -27,10 +27,6 @@ public class GeneticAlgorithmServiceRestController {
     @Autowired
     Dispatcher dispatcher;
 
-    // DEBUG: Used for my temporary cleanup method
-    @Autowired
-    GaToDbSerializer gaToDbSerializer;
-
     // TODO: Where should this be determined? Some sort of public static constant in the GA controller?
     // TODO: How many generations to run?
     private static final String NUM_GENERATIONS = "2000"; // DEBUG!!
@@ -45,7 +41,7 @@ public class GeneticAlgorithmServiceRestController {
     @ResponseStatus(HttpStatus.ACCEPTED) // Why ACCEPTED? Processing isn't complete, but this HTTP transaction is closed. Perfect! See: https://httpstatuses.com/202
     public JobDto createJob(@PathVariable Long scheduleId,
                             @RequestParam(required = false, defaultValue = NUM_GENERATIONS) Integer numGenerations) {
-        System.out.println("Hey, let's start a scheduling job! Created from schedule with ID: " + scheduleId); // DEBUG
+        System.out.println("Creating a GA job from schedule, id=" + scheduleId); // FUTURE: Logger info
 
         // Dispatch the job. After getting data from database, and creating a new record in the Job table,
         // the dispatcher will spawn its own thread (so that this method (and API call) can return)
@@ -54,6 +50,9 @@ public class GeneticAlgorithmServiceRestController {
         return modelMapper.map(job, JobDto.class);
     }
 
+    // DEBUG: Used for my temporary cleanup method
+    @Autowired
+    GaToDbSerializer gaToDbSerializer;
     // DEBUG: A temporary method to clean up the database faster
     @DeleteMapping("/failed-job/{scheduleId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

@@ -28,9 +28,8 @@ public class GeneticAlgorithmJobData implements Serializable {
     private List<Venue> venues;
 
     // The results: A set of modules, each placed in a timeslot.
-    // If this is not an "modify existing job", then this collection will be NULL
+    // If this is not an "modify existing job", then this collection will start as NULL
     // Either way, at the end of the job, it will be filled up with the results
-    // TODO: fill it up wiht results at end
     private List<ScheduledModule> scheduledModules;
 
     private static final Random random = new Random();

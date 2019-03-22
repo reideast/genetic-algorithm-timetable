@@ -17,8 +17,6 @@ public interface ScheduledModuleRepository extends JpaRepository<ScheduledModule
     @RestResource(path = "schedule", rel = "schedule")
     List<ScheduledModule> findBySchedule_ScheduleId_OrderByTimeslot_TimeslotIdAsc(Long id);
 
-    List<ScheduledModule> getAllBySchedule_ScheduleId(Long scheduleId);
-
     /**
      * "Upsert": Inserts new or updates existing (if scheduleId/moduleId record already exists)
      * See: https://www.postgresql.org/docs/9.6/sql-insert.html
@@ -37,7 +35,7 @@ public interface ScheduledModuleRepository extends JpaRepository<ScheduledModule
 // DEBUG: note: SELECT DISTINCT a FROM Author a INNER JOIN a.books b WHERE b.publisher.name = 'XYZ Press'
 
 /*
-DEBUG:
+DEBUG: note:
 @Query("SELECT u FROM User u WHERE u.status = :status and u.name = :name")
 User findUserByUserStatusAndUserName(@Param("status") Integer userStatus,
   @Param("name") String userName);

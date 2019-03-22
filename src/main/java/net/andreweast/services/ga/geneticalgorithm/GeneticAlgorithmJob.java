@@ -9,20 +9,33 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+
 public class GeneticAlgorithmJob implements Runnable {
-    private final GaToDbSerializer gaToDbSerializer;
+    // To control the thread, change this atomic (i.e. thread-safe) boolean. The thread will stop itself after the next generation
     private AtomicBoolean isRunning;
+
+    // Data on this job:
+    // Master data is all the metadata the GA needs to run
     private GeneticAlgorithmJobData masterData;
-    private AtomicInteger numGenerations;
+    // Number of generations to stop after
+    private final int numGenerations;
+    // Generation counter; Atomic so that it can be read by outside services querying this GA job's progress
     private AtomicInteger currentGeneration;
+
+    // Spring @Service bean classes
+    // Can't use @Autowired here because that would require letting Spring manage the lifecycle of this class,
+    // but the lifecycle of this class is managed as a Thread
+    private final GaToDbSerializer gaToDbSerializer;
+    private final Dispatcher dispatcher;
 
     public GeneticAlgorithmJob(GeneticAlgorithmJobData geneticAlgorithmJobData) {
         this.masterData = geneticAlgorithmJobData;
 
+        // Directly get Spring @Services via a context-aware utility class
         gaToDbSerializer = BeanUtil.getBean(GaToDbSerializer.class);
-        System.out.println("Attempted to get a gaToDbSerializer=" + gaToDbSerializer); // DEBUG
+        dispatcher = BeanUtil.getBean(Dispatcher.class);
 
-        numGenerations = new AtomicInteger(masterData.getNumGenerations());
+        numGenerations = masterData.getNumGenerations();
         currentGeneration = new AtomicInteger(0);
 
         isRunning = new AtomicBoolean(false);
@@ -41,27 +54,33 @@ public class GeneticAlgorithmJob implements Runnable {
     }
 
     private void runAllGenerations() {
-        // TODO: Figure out how to have this be interruptable (requires serializing a handle to this thread into the database, maybe?)
         currentGeneration.set(0);
         isRunning.set(true);
         while (isRunning.get()) { // Use of AtomicBoolean to control a Thread see: https://www.baeldung.com/java-thread-stop
             // TODO: Actually run the job!
+            // TODO: act differently based on masterData.isModifyExistingJob
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
-                // DEBUG: There's no way to deal this anymore...the REST call has already returned!
-                // Should I do the interrupt() way, see: https://www.baeldung.com/java-thread-stop
+                // TODO: Should I do the interrupt() way, see: https://www.baeldung.com/java-thread-stop
+
+                // DEBUG: How to deal with this error? There's no way to send it back to user directly anymore...the REST call has already returned!
                 e.printStackTrace();
             }
-            if (currentGeneration.incrementAndGet() > numGenerations.get()) {
+            if (currentGeneration.incrementAndGet() > numGenerations) {
                 isRunning.set(false);
             }
         }
-        System.out.println("Job's done, m'lord!"); // DEBUG
+        System.out.println("GA generations have completed, job=" + masterData.getJobId() + ", schedule=" + masterData.getScheduleId()); // FUTURE: Logger info
     }
 
+    /**
+     * Inspects Population, and choose a single Chromosome to write back into {@link this.masterData}
+     */
     private void saveBestIndividualToMasterData() {
-        // DEBUG: To simulate a job, we'll make a set of random ScheduledModules
+        // TODO: Get info from Population, and choose a Chromosome to write into {@link masterData}
+
+        // DEBUG: To simulate a job, we'll just make a set of random ScheduledModules
         List<ScheduledModule> randomScheduledModules = new ArrayList<>();
         for (Module module : masterData.getModules()) {
             randomScheduledModules.add(new ScheduledModule(module, masterData.getRandomVenue(), masterData.getRandomTimeslot()));
@@ -80,7 +99,7 @@ public class GeneticAlgorithmJob implements Runnable {
     }
 
     private void finaliseJob() {
-        Dispatcher.jobCompleted(masterData.getJobId());
+        dispatcher.jobCompleted(masterData.getJobId());
         gaToDbSerializer.deleteJobForSchedule(masterData.getScheduleId());
     }
 
@@ -92,27 +111,11 @@ public class GeneticAlgorithmJob implements Runnable {
         this.isRunning.set(isRunning);
     }
 
-    public GeneticAlgorithmJobData getMasterData() {
-        return masterData;
-    }
-
-    public void setMasterData(GeneticAlgorithmJobData masterData) {
-        this.masterData = masterData;
-    }
-
     public int getNumGenerations() {
-        return numGenerations.get();
-    }
-
-    public void setNumGenerations(int numGenerations) {
-        this.numGenerations.set(numGenerations);
+        return numGenerations;
     }
 
     public int getCurrentGeneration() {
         return currentGeneration.get();
-    }
-
-    public void setCurrentGeneration(int currentGeneration) {
-        this.currentGeneration.set(currentGeneration);
     }
 }

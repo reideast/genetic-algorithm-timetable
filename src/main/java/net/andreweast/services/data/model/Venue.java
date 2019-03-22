@@ -8,7 +8,7 @@ import java.util.Objects;
 @Table(name = "venues", schema = "public", catalog = "ga_dev")
 public class Venue {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "venue_generator") // DEBUG: Added manually. SEQUENCE for Postgres
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "venue_generator") // SEQUENCE is how to do a auto-increment primary key for PostgreSQL
     @SequenceGenerator(name="venue_generator", sequenceName = "venue_id_sequence", allocationSize = 1)
     @Column(name = "venue_id", updatable = false, nullable = false)
     private Long venueId;

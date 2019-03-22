@@ -13,7 +13,8 @@ public class Timeslot implements Serializable {
     // Time slots, integer by the hour. Usually 8-18 (8:00 AM - 6:00 PM)
     int time;
 
-    // TODO: store set of preferences for each lecturer for this timeslot. Fitness can then look up the score for a module's lecturer to teach in this timeslot
+    // Stores set of preferences for each lecturer for this timeslot
+    // Fitness can then look up the score for a module's lecturer to teach in this timeslot
     HashMap<Long, Integer> lecturerPreferences;
 
     public Timeslot(long id, int day, int time, HashMap<Long, Integer> lecturerPreferences) {
