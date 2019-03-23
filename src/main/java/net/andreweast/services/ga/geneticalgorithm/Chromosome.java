@@ -127,7 +127,7 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
         for (int i = 0; i < genes.length; ++i) {
             for (int j = i + 1; j < genes.length; ++j) {
                 if (i != j) {
-                    if (genes[i].conflict(genes[j])) {
+                    if (genes[i].conflictsWith(genes[j])) {
                         fitnessFromOverlappingClasses -= ONE_HARD_CONSTRAINT;
                         isValidSolution = false;
                     }

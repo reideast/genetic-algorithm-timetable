@@ -1,6 +1,8 @@
 package net.andreweast.services.ga.geneticalgorithm;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,32 +22,31 @@ public class Module implements Serializable {
     // Used to find this module's lecturer's preferences for timeslots
     long lecturerId;
 
+    // The courses that are offering this module. Used to make sure a course doesn't have modules scheduled at the same time
+    HashSet<Long> courseIds; // Purposefully restricted to HashSet rather than the abstract Set, so that .contains() will be done in O(1) time
+
     // Any departments which are offering this module for one of their courses. Used to find department preferences for buildings
     Set<Long> departmentIds;
 
-    public Module(long id, String name, boolean isLab, int numEnrolled, long lecturerId, Set<Long> departmentIds) {
+    public Module(long id, String name, int numEnrolled, boolean isLab, long lecturerId, HashSet<Long> courseIds, Set<Long> departmentIds) {
         this.id = id;
         this.name = name;
+        this.numEnrolled = numEnrolled;
         this.isLab = isLab;
-        this.numEnrolled = numEnrolled;
         this.lecturerId = lecturerId;
+        this.courseIds = courseIds;
         this.departmentIds = departmentIds;
-    }
-
-    public Module(long id, String name, int numEnrolled) {
-        this.id = id;
-        this.name = name;
-        this.numEnrolled = numEnrolled;
     }
 
     @Override
     public String toString() {
         return "Module{" +
                 name +
-                " size=" + numEnrolled +
+                " " + numEnrolled +
                 " lab=" + isLab +
-                " lec=" + lecturerId +
-                " depts=[" + departmentIds.stream().map(Object::toString).collect(Collectors.joining(",")) +
+                " l=" + lecturerId +
+                " c=[" + courseIds.stream().map(Object::toString).collect(Collectors.joining(",")) +
+                "] d=[" + departmentIds.stream().map(Object::toString).collect(Collectors.joining(",")) +
                 "]}";
     }
 
@@ -89,12 +90,27 @@ public class Module implements Serializable {
         this.lecturerId = lecturerId;
     }
 
+    public HashSet<Long> getCourseIds() {
+        return courseIds;
+    }
+
+    public void setCourseIds(HashSet<Long> courseIds) {
+        this.courseIds = courseIds;
+    }
+
     public Set<Long> getDepartmentIds() {
         return departmentIds;
     }
 
     public void setDepartmentIds(Set<Long> departmentIds) {
         this.departmentIds = departmentIds;
+    }
+
+    public boolean offeredBySameCourse(Module that) {
+        // Possible optimisation: could use Dynamic Programming to "cache" results of this polynomial-time operation. (However, each module should only be taught for a couple of courses, so the impact here is quite minimal.)
+        // Actually, after reading the library code, this method checks if either argument is a SET, and then uses the .contains() method. It's in O(n) time!
+        // This depends on using HashSet in particular, since a hashed list check-for-exist is O(1), see: https://stackoverflow.com/a/36671316/5271224
+        return !Collections.disjoint(this.courseIds, that.courseIds);
     }
 
 //    private String moduleName;

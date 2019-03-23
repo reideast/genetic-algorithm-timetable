@@ -36,7 +36,7 @@ public class GaToDbSerializer {
         List<ScheduledModule> scheduledModules = gaData.getScheduledModules();
         int numUpdated;
         for (ScheduledModule item : scheduledModules) {
-            numUpdated = scheduledModuleRepository.upsert(scheduleId, item.getModule().getId(), item.getTimeSlot().getId(), item.getVenue().getId());
+            numUpdated = scheduledModuleRepository.upsert(scheduleId, item.getModule().getId(), item.getTimeslot().getId(), item.getVenue().getId());
             if (numUpdated != 1) {
                 System.out.println("Saved ScheduledModule to database, but incorrect no. of rows modified: " + numUpdated); // FUTURE: Logger critical
             }
