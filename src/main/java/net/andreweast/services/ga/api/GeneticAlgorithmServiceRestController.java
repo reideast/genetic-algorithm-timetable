@@ -28,8 +28,9 @@ public class GeneticAlgorithmServiceRestController {
     Dispatcher dispatcher;
 
     // TODO: Where should this be determined? Some sort of public static constant in the GA controller?
+    // TODO: Perhaps in a configuration text file
     // TODO: How many generations to run?
-    private static final String NUM_GENERATIONS = "2000"; // DEBUG!!
+    private static final String NUM_GENERATIONS = "20"; // DEBUG!!
 
     /**
      * Start a genetic algorithm batch job running, using an existing Schedule (which may or may not be a work-in-progress)

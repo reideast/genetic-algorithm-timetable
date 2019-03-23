@@ -56,7 +56,7 @@ public class GeneticAlgorithmJob implements Runnable {
 
     private void createInitialPopulation() {
         // TODO: get data from the new DB-based objects
-        population = new Population();
+        population = new Population(masterData);
     }
 
     private void runAllGenerations() {
@@ -105,9 +105,9 @@ public class GeneticAlgorithmJob implements Runnable {
         }
         // DEBUG
         System.out.println("Complexity of dataset:");
-        System.out.println("Courses: " + Module.getAllModulesSize());
-        System.out.println("Venues x TimeSlots: " + (Venue.Room.values().length * Timeslot.DayOfWeek.values().length * Timeslot.StartTime.values().length));
-        System.out.println("\nRunning time stats:");
+        System.out.println("Num modules: " + masterData.getModules().size());
+        System.out.println("Venues x Timeslots: " + (masterData.getVenues().size() * masterData.getTimeslots().size()));
+        System.out.println("Running time stats:");
         System.out.println("Time init: " + (initTime * 1.0E-6) + " ms");
         System.out.println("Average generation time: " + (runningAverage * 1E-6) + " ms");
 
@@ -123,7 +123,7 @@ public class GeneticAlgorithmJob implements Runnable {
         // DEBUG: To simulate a job, we'll just make a set of random ScheduledModules
         List<ScheduledModule> randomScheduledModules = new ArrayList<>();
         for (Module module : masterData.getModules()) {
-            randomScheduledModules.add(new ScheduledModule(module, masterData.getRandomVenue(), masterData.getRandomTimeslot()));
+            randomScheduledModules.add(new ScheduledModule(module, masterData.getRandomVenue(), masterData.getRandomTimeslot(), masterData));
         }
         masterData.setScheduledModules(randomScheduledModules);
 

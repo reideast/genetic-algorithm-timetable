@@ -21,11 +21,13 @@ public class GeneticAlgorithmJobData implements Serializable {
     private boolean isModifyExistingJob;
     // How many generations maximum to run
     private int numGenerations;
+    // How big an Individual will be (e.g. how many modules there are to schedule)
+    private int chromosomeSize;
 
     // The various things to be scheduled. Each one may have data that the Fitness Function will utilise
-    private List<Timeslot> timeslots;
     private List<Module> modules;
     private List<Venue> venues;
+    private List<Timeslot> timeslots;
 
     // The results: A set of modules, each placed in a timeslot.
     // If this is not an "modify existing job", then this collection will start as NULL
@@ -34,16 +36,32 @@ public class GeneticAlgorithmJobData implements Serializable {
 
     private static final Random random = new Random();
 
-    public Timeslot getRandomTimeslot() {
-        return timeslots.get(random.nextInt(timeslots.size()));
-    }
-
     public Module getRandomModule() {
         return modules.get(random.nextInt(modules.size()));
     }
 
+    public Module getIndexedModule(int index) {
+        return modules.get(index);
+    }
+
     public Venue getRandomVenue() {
         return venues.get(random.nextInt(venues.size()));
+    }
+
+    public Venue getIndexedVenue(int index) {
+        return venues.get(index);
+    }
+
+    public Timeslot getRandomTimeslot() {
+        return timeslots.get(random.nextInt(timeslots.size()));
+    }
+
+    public Timeslot getIndexedTimeslot(int index) {
+        return timeslots.get(index);
+    }
+
+    public int getChromosomeSize() {
+        return chromosomeSize;
     }
 
     public long getScheduleId() {
@@ -78,20 +96,17 @@ public class GeneticAlgorithmJobData implements Serializable {
         this.numGenerations = numGenerations;
     }
 
-    public List<Timeslot> getTimeslots() {
-        return timeslots;
-    }
-
-    public void setTimeslots(List<Timeslot> timeslots) {
-        this.timeslots = timeslots;
-    }
-
+    // Potential source of error: If this.modules is retrieved, then items are added/removed,
+    // then this.chromosomeSize will be incorrect.
+    // There is minimal risk of this, since this.modules will be set when being first read from the
+    // database, then it should never again be used
     public List<Module> getModules() {
         return modules;
     }
 
     public void setModules(List<Module> modules) {
         this.modules = modules;
+        this.chromosomeSize = this.modules.size();
     }
 
     public List<Venue> getVenues() {
@@ -100,6 +115,14 @@ public class GeneticAlgorithmJobData implements Serializable {
 
     public void setVenues(List<Venue> venues) {
         this.venues = venues;
+    }
+
+    public List<Timeslot> getTimeslots() {
+        return timeslots;
+    }
+
+    public void setTimeslots(List<Timeslot> timeslots) {
+        this.timeslots = timeslots;
     }
 
     public List<ScheduledModule> getScheduledModules() {

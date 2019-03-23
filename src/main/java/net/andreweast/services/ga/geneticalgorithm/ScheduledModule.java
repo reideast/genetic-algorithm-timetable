@@ -3,15 +3,11 @@ package net.andreweast.services.ga.geneticalgorithm;
 import java.io.Serializable;
 
 public class ScheduledModule implements Cloneable, Serializable {
+    private GeneticAlgorithmJobData data;
+
     Module module;
     Venue venue;
     Timeslot timeSlot;
-
-    public ScheduledModule(Module module, Venue venue, Timeslot timeSlot) {
-        this.module = module;
-        this.venue = venue;
-        this.timeSlot = timeSlot;
-    }
 
     @Override
     public String toString() {
@@ -22,26 +18,37 @@ public class ScheduledModule implements Cloneable, Serializable {
                 '}';
     }
 
-    public ScheduledModule(Module module) {
+    /**
+     * Randomising constructor
+     */
+    public ScheduledModule(Module module, GeneticAlgorithmJobData masterData) {
+        data = masterData;
+
         this.module = module;
-        this.venue = Venue.getRandomVenue();
-        this.timeSlot = Timeslot.getRandomTimeSlot();
+        this.venue = data.getRandomVenue();
+        this.timeSlot = data.getRandomTimeslot();
+    }
+
+    /**
+     * Cloning constructor
+     */
+    public ScheduledModule(Module module, Venue venue, Timeslot timeSlot, GeneticAlgorithmJobData masterData) {
+        this.module = module;
+        this.venue = venue;
+        this.timeSlot = timeSlot;
     }
 
     public ScheduledModule clone() {
-        return new ScheduledModule(this.module, this.venue, this.timeSlot);
+        return new ScheduledModule(this.module, this.venue, this.timeSlot, this.data);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ScheduledModule that = (ScheduledModule) o;
-        return venue.equals(that.venue) &&
-                timeSlot.equals(that.timeSlot);
-//        return module.equals(that.module) &&
-//                venue.equals(that.venue) &&
-//                timeSlot.equals(that.timeSlot);
+    /**
+     * Compare two genes. If they overlap in both venue and timeslot, there is a conflict! Return true
+     */
+    public boolean conflict(ScheduledModule that) {
+        if (this == that) return true;
+        return venue == that.venue &&
+                timeSlot == that.timeSlot;
     }
 
 //    public String toString() {

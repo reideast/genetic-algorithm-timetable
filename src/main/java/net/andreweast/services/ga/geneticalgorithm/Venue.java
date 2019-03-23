@@ -2,7 +2,6 @@ package net.andreweast.services.ga.geneticalgorithm;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 public class Venue implements Serializable {
@@ -51,26 +50,6 @@ public class Venue implements Serializable {
                 ", departmentsScore=[" + departmentsScores.keySet().stream().map(key -> key + "=" + departmentsScores.get(key)).collect(Collectors.joining(",")) +
                 "]}";
     }
-
-    private Room room;
-
-    private static Random random = new Random();
-
-    public static Venue getRandomVenue() {
-        Venue venue = new Venue();
-        venue.room = Room.getRandomRoom();
-        return venue;
-    }
-    public Venue() {
-    }
-
-    public Room getRoom() {
-        return room;
-    }
-
-//    public String toString() {
-//        return room.name();
-//    }
 
     public long getId() {
         return id;
@@ -128,19 +107,31 @@ public class Venue implements Serializable {
         this.departmentsScores = departmentsScores;
     }
 
-    enum Room {
-        IT201, IT202; //, IT204, IT205, IT125, IT250
-
-        static Room getRandomRoom() {
-            return values()[Venue.random.nextInt(values().length)];
-        }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Venue venue = (Venue) o;
-        return room == venue.room;
-    }
+//    enum Room {
+//        IT201, IT202; //, IT204, IT205, IT125, IT250
+//
+//        static Room getRandomRoom() {
+//            return values()[Venue.random.nextInt(values().length)];
+//        }
+//    }
+//
+//    private Room room;
+//
+//    private static Random random = new Random();
+//
+//    public static Venue getRandomVenue() {
+//        Venue venue = new Venue();
+//        venue.room = Room.getRandomRoom();
+//        return venue;
+//    }
+//    public Venue() {
+//    }
+//
+//    public Room getRoom() {
+//        return room;
+//    }
+//
+////    public String toString() {
+////        return room.name();
+////    }
 }

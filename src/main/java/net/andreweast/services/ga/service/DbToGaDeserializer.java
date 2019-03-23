@@ -188,9 +188,11 @@ public class DbToGaDeserializer {
 
         List<ScheduledModule> scheduledModules = new ArrayList<>();
         for (net.andreweast.services.data.model.ScheduledModule entity : entities) {
-            scheduledModules.add(new ScheduledModule(moduleIndex.get(entity.getModule().getModuleId()),
+            scheduledModules.add(new ScheduledModule(
+                    moduleIndex.get(entity.getModule().getModuleId()),
                     venueIndex.get(entity.getVenue().getVenueId()),
-                    timeslotIndex.get(entity.getTimeslot().getTimeslotId())));
+                    timeslotIndex.get(entity.getTimeslot().getTimeslotId()),
+                    data));
         }
 
         // DEBUG:

@@ -2,7 +2,6 @@ package net.andreweast.services.ga.geneticalgorithm;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Random;
 
 public class Timeslot implements Serializable {
     // Database ID
@@ -32,6 +31,14 @@ public class Timeslot implements Serializable {
                 '}';
     }
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
     public int getDay() {
         return day;
     }
@@ -56,72 +63,63 @@ public class Timeslot implements Serializable {
         this.lecturerPreferences = lecturerPreferences;
     }
 
-    public static Timeslot getRandomTimeSlot() {
-        Timeslot slot = new Timeslot();
-        slot.setDayOfWeek(DayOfWeek.getRandomDayOfWeek());
-        slot.setStartTime(StartTime.getRandomStartTime());
-        return slot;
-    }
-
-    public Timeslot() {
-    }
-
-//    public String toString() {
-//        return getDayOfWeek().name() + getStartTime().name();
+//    public static Timeslot getRandomTimeSlot() {
+//        Timeslot slot = new Timeslot();
+//        slot.setDayOfWeek(DayOfWeek.getRandomDayOfWeek());
+//        slot.setStartTime(StartTime.getRandomStartTime());
+//        return slot;
 //    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Timeslot timeSlot = (Timeslot) o;
-        return dayOfWeek == timeSlot.dayOfWeek &&
-                startTime == timeSlot.startTime;
-    }
-
-    public DayOfWeek getDayOfWeek() {
-        return dayOfWeek;
-    }
-
-    public void setDayOfWeek(DayOfWeek dayOfWeek) {
-        this.dayOfWeek = dayOfWeek;
-    }
-
-    public StartTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(StartTime startTime) {
-        this.startTime = startTime;
-    }
-
-    private DayOfWeek dayOfWeek;
-    private StartTime startTime;
-    private static Random random = new Random();
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    enum DayOfWeek {
-        M, T, W, R, F;
-
-        public static DayOfWeek getRandomDayOfWeek() {
-            return values()[Timeslot.random.nextInt(values().length)];
-        }
-
-    }
-
-    enum StartTime {
-        a09, a10, a11, p12, p13, p14, p15, p16, p17;
-
-        public static StartTime getRandomStartTime() {
-            return values()[Timeslot.random.nextInt(values().length)];
-        }
-
-    }
+//
+//    public Timeslot() {
+//    }
+//
+////    public String toString() {
+////        return getDayOfWeek().name() + getStartTime().name();
+////    }
+//
+//    public DayOfWeek getDayOfWeek() {
+//        return dayOfWeek;
+//    }
+//
+//    public void setDayOfWeek(DayOfWeek dayOfWeek) {
+//        this.dayOfWeek = dayOfWeek;
+//    }
+//
+//    public StartTime getStartTime() {
+//        return startTime;
+//    }
+//
+//    public void setStartTime(StartTime startTime) {
+//        this.startTime = startTime;
+//    }
+//
+//    private DayOfWeek dayOfWeek;
+//    private StartTime startTime;
+//    private static Random random = new Random();
+//
+//    public long getId() {
+//        return id;
+//    }
+//
+//    public void setId(long id) {
+//        this.id = id;
+//    }
+//
+//    enum DayOfWeek {
+//        M, T, W, R, F;
+//
+//        public static DayOfWeek getRandomDayOfWeek() {
+//            return values()[Timeslot.random.nextInt(values().length)];
+//        }
+//
+//    }
+//
+//    enum StartTime {
+//        a09, a10, a11, p12, p13, p14, p15, p16, p17;
+//
+//        public static StartTime getRandomStartTime() {
+//            return values()[Timeslot.random.nextInt(values().length)];
+//        }
+//
+//    }
 }
