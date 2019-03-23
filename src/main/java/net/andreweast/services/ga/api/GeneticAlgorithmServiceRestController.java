@@ -29,8 +29,10 @@ public class GeneticAlgorithmServiceRestController {
 
     // TODO: Where should this be determined? Some sort of public static constant in the GA controller?
     // TODO: Perhaps in a configuration text file
-    // TODO: How many generations to run?
+    // TODO: How many generations to run? Ref. literature
     private static final String NUM_GENERATIONS = "20"; // DEBUG!!
+    // TODO: What size of population? Ref. literature
+    private static final String POPULATION_SIZE = "20"; // DEBUG!!
 
     /**
      * Start a genetic algorithm batch job running, using an existing Schedule (which may or may not be a work-in-progress)
@@ -41,12 +43,13 @@ public class GeneticAlgorithmServiceRestController {
     @PutMapping("/job/{scheduleId}")
     @ResponseStatus(HttpStatus.ACCEPTED) // Why ACCEPTED? Processing isn't complete, but this HTTP transaction is closed. Perfect! See: https://httpstatuses.com/202
     public JobDto createJob(@PathVariable Long scheduleId,
-                            @RequestParam(required = false, defaultValue = NUM_GENERATIONS) Integer numGenerations) {
+                            @RequestParam(required = false, defaultValue = NUM_GENERATIONS) Integer numGenerations,
+                            @RequestParam(required = false, defaultValue = POPULATION_SIZE) Integer populationSize) {
         System.out.println("Creating a GA job from schedule, id=" + scheduleId); // FUTURE: Logger info
 
         // Dispatch the job. After getting data from database, and creating a new record in the Job table,
         // the dispatcher will spawn its own thread (so that this method (and API call) can return)
-        Job job = dispatcher.dispatchNewJobForSchedule(scheduleId, numGenerations);
+        Job job = dispatcher.dispatchNewJobForSchedule(scheduleId, numGenerations, populationSize);
 
         return modelMapper.map(job, JobDto.class);
     }

@@ -35,7 +35,7 @@ public class Dispatcher {
      * @param scheduleId Database record to fetch
      * @return The created Job's data
      */
-    public Job dispatchNewJobForSchedule(Long scheduleId, int numGenerations) throws DataNotFoundException, ResponseStatusException {
+    public Job dispatchNewJobForSchedule(Long scheduleId, int numGenerations, int populationSize) throws DataNotFoundException, ResponseStatusException {
         // Save the to the database that we are starting a new job. Throws HTTP errors if such a job is already running
         Job job = dbToGaDeserializer.createJobForSchedule(scheduleId, numGenerations);
 
@@ -44,6 +44,7 @@ public class Dispatcher {
         geneticAlgorithmJobData.setScheduleId(scheduleId);
         geneticAlgorithmJobData.setJobId(job.getJobId());
         geneticAlgorithmJobData.setNumGenerations(numGenerations);
+        geneticAlgorithmJobData.setPopulationSize(populationSize);
 
         // Start the job!
         GeneticAlgorithmRunner jobRunner = new GeneticAlgorithmRunner(geneticAlgorithmJobData);

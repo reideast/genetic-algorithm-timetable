@@ -7,21 +7,18 @@ import java.util.List;
 import java.util.Random;
 
 public class Population implements Serializable {
-    private static final int NUM_INDIVIDUALS = 20;
     private static final Random random = new Random();
 
     private GeneticAlgorithmJobData data;
+    private final int populationSize;
 
     private Chromosome[] individuals;
 
-    public Chromosome[] getIndividuals() {
-        return individuals;
-    }
-
     public Population(GeneticAlgorithmJobData masterData) {
         data = masterData;
+        populationSize = data.getPopulationSize();
 
-        individuals = new Chromosome[NUM_INDIVIDUALS];
+        individuals = new Chromosome[populationSize];
         if (data.isModifyExistingJob()) {
             makePopulationFromExisting(data);
         } else {
@@ -31,12 +28,11 @@ public class Population implements Serializable {
 
     private void makePopulationFromExisting(GeneticAlgorithmJobData data) {
         // FUTURE: To modify an existing Schedule, make a population out of the existing data's ScheduledModules
-        // FUTURE: For now, just overwrite everything by running this job as if it were new
-        makeNewPopulation(data); // FUTURE
+        makeNewPopulation(data); // FUTURE: For now, just overwrite everything by running this job as if it were new
     }
 
     private void makeNewPopulation(GeneticAlgorithmJobData data) {
-        for (int i = 0; i < NUM_INDIVIDUALS; ++i) {
+        for (int i = 0; i < populationSize; ++i) {
             individuals[i] = new Chromosome(data);
         }
     }
@@ -46,12 +42,12 @@ public class Population implements Serializable {
      * The fittest individuals will tend to be selected more often
      */
     public void select() {
-        final Chromosome[] nextPopulation = new Chromosome[NUM_INDIVIDUALS];
+        final Chromosome[] nextPopulation = new Chromosome[populationSize];
 
         // Determine sum total of all individuals' fitness s.t. roulette wheel can select from them
         int totalFitness = 0;
-        for (int i = 0; i < NUM_INDIVIDUALS; ++i) {
-            totalFitness += individuals[i].getStoredFitness();
+        for (int i = 0; i < populationSize; ++i) {
+            totalFitness += individuals[i].getCachedFitness();
         }
 
         // Select a whole new population
@@ -60,16 +56,16 @@ public class Population implements Serializable {
            can speed up convergence to a solution as much as twice as fast as just plain roulette-wheel selection.
            Keeping 1 elite member halved num generations to converge. 2-3 elites selected improved a good bit, and any more had diminishing returns.
            TODO: Keep population members ranked 1st, and maybe also 2nd, and 3rd
-           TODO: Probably require: Arrays.sort(individuals);
+           TODO: Probably requires: Arrays.sort(individuals);
          */
-        for (int i = 0; i < NUM_INDIVIDUALS; ++i) {
+        for (int i = 0; i < populationSize; ++i) {
             // "Spin the roulette wheel". Based on https://en.wikipedia.org/wiki/Fitness_proportionate_selection
             int randomSelected = random.nextInt(totalFitness);
 
             // For each individual, starting with first, if random number was less than its proportion, then roulette wheel "landed" on this item
-            for (int individual = 0; individual < NUM_INDIVIDUALS; ++individual) {
+            for (int individual = 0; individual < populationSize; ++individual) {
                 // Subtract this individual's fitness, so the next individual's fitness will be the closest to zero
-                randomSelected -= individuals[individual].getStoredFitness();
+                randomSelected -= individuals[individual].getCachedFitness();
                 if (randomSelected < 0) {
                     nextPopulation[i] = new Chromosome(individuals[individual]);// deep clone individual
                     break;
@@ -79,7 +75,7 @@ public class Population implements Serializable {
         }
 
         // DEBUG: an assertion
-        for (int i = 0; i < NUM_INDIVIDUALS; ++i) {
+        for (int i = 0; i < populationSize; ++i) {
             if (nextPopulation[i] == null) {
                 throw new RuntimeException("ERROR: individual #" + i + " was null!");
             }
@@ -113,7 +109,7 @@ public class Population implements Serializable {
     public void mutate() {
         // Mutate a random individual with p = 0.9
         if (random.nextInt(100) < 90) { // TODO: hardcoded 90% mutate. See (Cekała et all 2015) and/or my lit review for suggested %
-            individuals[random.nextInt(NUM_INDIVIDUALS)].mutate();
+            individuals[random.nextInt(populationSize)].mutate();
         }
 
     }
@@ -121,6 +117,7 @@ public class Population implements Serializable {
     @Override
     public String toString() {
         final StringBuilder s = new StringBuilder();
+        s.append("Entire Population\n");
         for (Chromosome individual : individuals) {
             s.append(individual.toString()).append("\n");
         }
@@ -130,7 +127,7 @@ public class Population implements Serializable {
     public List<Integer> toFitnessList() {
         List<Integer> fitnessValues = new ArrayList<>(individuals.length);
         for (Chromosome individual : individuals) {
-            fitnessValues.add(individual.getStoredFitness());
+            fitnessValues.add(individual.getCachedFitness());
         }
         return fitnessValues;
     }

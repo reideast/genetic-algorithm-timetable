@@ -69,9 +69,6 @@ public class GeneticAlgorithmJob implements Runnable {
         final long initTime = System.nanoTime() - startTime; // DEBUG
         double runningAverage = -1; // DEBUG
         while (isRunning.get()) { // Use of AtomicBoolean to control a Thread see: https://www.baeldung.com/java-thread-stop
-            // TODO: Actually run the job!
-            // TODO: act differently based on masterData.isModifyExistingJob
-
             startTime = System.nanoTime(); // DEBUG
 
             population.select();
@@ -81,6 +78,7 @@ public class GeneticAlgorithmJob implements Runnable {
             population.mutate();
 
             if (DEBUG) { // DEBUG
+                System.out.print("Gen " + currentGeneration.get() + ": ");
                 System.out.println(population.toFitnessList());
             }
 

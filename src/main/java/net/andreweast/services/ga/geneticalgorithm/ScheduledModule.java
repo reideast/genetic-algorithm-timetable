@@ -11,11 +11,7 @@ public class ScheduledModule implements Cloneable, Serializable {
 
     @Override
     public String toString() {
-        return "ScheduledModule{" +
-                "module=" + module +
-                ", venue=" + venue +
-                ", timeSlot=" + timeSlot +
-                '}';
+        return "ScheduledModule{" + module + venue + timeSlot + '}';
     }
 
     /**
@@ -33,6 +29,8 @@ public class ScheduledModule implements Cloneable, Serializable {
      * Cloning constructor
      */
     public ScheduledModule(Module module, Venue venue, Timeslot timeSlot, GeneticAlgorithmJobData masterData) {
+        data = masterData;
+
         this.module = module;
         this.venue = venue;
         this.timeSlot = timeSlot;
@@ -50,10 +48,6 @@ public class ScheduledModule implements Cloneable, Serializable {
         return venue == that.venue &&
                 timeSlot == that.timeSlot;
     }
-
-//    public String toString() {
-//        return module.toString() + ":" + venue.toString() + "-" + timeSlot.toString();
-//    }
 
     public Module getModule() {
         return module;

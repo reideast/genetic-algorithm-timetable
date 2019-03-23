@@ -21,6 +21,8 @@ public class GeneticAlgorithmJobData implements Serializable {
     private boolean isModifyExistingJob;
     // How many generations maximum to run
     private int numGenerations;
+    // How many individuals in the population
+    private int populationSize;
     // How big an Individual will be (e.g. how many modules there are to schedule)
     private int chromosomeSize;
 
@@ -94,6 +96,14 @@ public class GeneticAlgorithmJobData implements Serializable {
 
     public void setNumGenerations(int numGenerations) {
         this.numGenerations = numGenerations;
+    }
+
+    public int getPopulationSize() {
+        return populationSize;
+    }
+
+    public void setPopulationSize(int populationSize) {
+        this.populationSize = populationSize;
     }
 
     // Potential source of error: If this.modules is retrieved, then items are added/removed,

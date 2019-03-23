@@ -2,6 +2,7 @@ package net.andreweast.services.ga.geneticalgorithm;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Venue implements Serializable {
@@ -27,7 +28,7 @@ public class Venue implements Serializable {
     // The score the all departments have given this venue
     // When a module has been tentatively scheduled in this venue, can look up all departments teaching that module here
     // and then average the scores for fitness
-    HashMap<Long, Integer> departmentsScores;
+    Map<Long, Integer> departmentsScores;
 
     public Venue(long id, String name, boolean isLab, int capacity, double locationX, double locationY, HashMap<Long, Integer> departmentsScores) {
         this.id = id;
@@ -42,12 +43,10 @@ public class Venue implements Serializable {
     @Override
     public String toString() {
         return "Venue{" +
-                "name='" + name + '\'' +
-                ", isLab=" + isLab +
-                ", capacity=" + capacity +
-                ", locationX=" + locationX +
-                ", locationY=" + locationY +
-                ", departmentsScore=[" + departmentsScores.keySet().stream().map(key -> key + "=" + departmentsScores.get(key)).collect(Collectors.joining(",")) +
+                name +
+                " size=" + capacity +
+                " lab=" + isLab +
+                " deptScores=[" + departmentsScores.keySet().stream().map(key -> key + "=" + departmentsScores.get(key)).collect(Collectors.joining(",")) +
                 "]}";
     }
 
@@ -99,11 +98,11 @@ public class Venue implements Serializable {
         this.locationY = locationY;
     }
 
-    public HashMap<Long, Integer> getDepartmentsScores() {
+    public Map<Long, Integer> getDepartmentsScores() {
         return departmentsScores;
     }
 
-    public void setDepartmentsScore(HashMap<Long, Integer> departmentsScores) {
+    public void setDepartmentsScore(Map<Long, Integer> departmentsScores) {
         this.departmentsScores = departmentsScores;
     }
 

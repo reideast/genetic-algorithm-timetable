@@ -2,6 +2,8 @@ package net.andreweast.services.ga.geneticalgorithm;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Timeslot implements Serializable {
     // Database ID
@@ -14,7 +16,7 @@ public class Timeslot implements Serializable {
 
     // Stores set of preferences for each lecturer for this timeslot
     // Fitness can then look up the score for a module's lecturer to teach in this timeslot
-    HashMap<Long, Integer> lecturerPreferences;
+    Map<Long, Integer> lecturerPreferences;
 
     public Timeslot(long id, int day, int time, HashMap<Long, Integer> lecturerPreferences) {
         this.id = id;
@@ -25,9 +27,9 @@ public class Timeslot implements Serializable {
 
     @Override
     public String toString() {
-        return "Timeslot{" +
-                day + ":" + time + "," +
-                "prefs=" + lecturerPreferences.size() +
+        return "Time{" +
+                day + ":" + time +
+                (lecturerPreferences.size() != 0 ? " lecPrefs=[" + lecturerPreferences.keySet().stream().map(key -> key + "=" + lecturerPreferences.get(key)).collect(Collectors.joining(",")) : "") +
                 '}';
     }
 
@@ -55,11 +57,11 @@ public class Timeslot implements Serializable {
         this.time = time;
     }
 
-    public HashMap<Long, Integer> getLecturerPreferences() {
+    public Map<Long, Integer> getLecturerPreferences() {
         return lecturerPreferences;
     }
 
-    public void setLecturerPreferences(HashMap<Long, Integer> lecturerPreferences) {
+    public void setLecturerPreferences(Map<Long, Integer> lecturerPreferences) {
         this.lecturerPreferences = lecturerPreferences;
     }
 

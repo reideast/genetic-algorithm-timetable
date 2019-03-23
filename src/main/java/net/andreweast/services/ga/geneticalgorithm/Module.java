@@ -41,11 +41,11 @@ public class Module implements Serializable {
     @Override
     public String toString() {
         return "Module{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", numEnrolled=" + numEnrolled +
-                ", lecturerId=" + lecturerId +
-                ", departmentIds=[" + departmentIds.stream().map(Object::toString).collect(Collectors.joining(",")) +
+                name +
+                " size=" + numEnrolled +
+                " lab=" + isLab +
+                " lec=" + lecturerId +
+                " depts=[" + departmentIds.stream().map(Object::toString).collect(Collectors.joining(",")) +
                 "]}";
     }
 
