@@ -2,7 +2,7 @@ package net.andreweast.services.ga.geneticalgorithm;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Random;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Venue implements Serializable {
@@ -28,7 +28,7 @@ public class Venue implements Serializable {
     // The score the all departments have given this venue
     // When a module has been tentatively scheduled in this venue, can look up all departments teaching that module here
     // and then average the scores for fitness
-    HashMap<Long, Integer> departmentsScores;
+    Map<Long, Integer> departmentsScores;
 
     public Venue(long id, String name, boolean isLab, int capacity, double locationX, double locationY, HashMap<Long, Integer> departmentsScores) {
         this.id = id;
@@ -42,35 +42,13 @@ public class Venue implements Serializable {
 
     @Override
     public String toString() {
-        return "Venue{" +
-                "name='" + name + '\'' +
-                ", isLab=" + isLab +
-                ", capacity=" + capacity +
-                ", locationX=" + locationX +
-                ", locationY=" + locationY +
-                ", departmentsScore=[" + departmentsScores.keySet().stream().map(key -> key + "=" + departmentsScores.get(key)).collect(Collectors.joining(",")) +
+        return "Venue{" + id + " " +
+                name +
+                " size=" + capacity +
+                " lab=" + isLab +
+                " deptScores=[" + departmentsScores.keySet().stream().map(key -> key + "=" + departmentsScores.get(key)).collect(Collectors.joining(",")) +
                 "]}";
     }
-
-    private Room room;
-
-    private static Random random = new Random();
-
-    public static Venue getRandomVenue() {
-        Venue venue = new Venue();
-        venue.room = Room.getRandomRoom();
-        return venue;
-    }
-    public Venue() {
-    }
-
-    public Room getRoom() {
-        return room;
-    }
-
-//    public String toString() {
-//        return room.name();
-//    }
 
     public long getId() {
         return id;
@@ -120,27 +98,39 @@ public class Venue implements Serializable {
         this.locationY = locationY;
     }
 
-    public HashMap<Long, Integer> getDepartmentsScores() {
+    public Map<Long, Integer> getDepartmentsScores() {
         return departmentsScores;
     }
 
-    public void setDepartmentsScore(HashMap<Long, Integer> departmentsScores) {
+    public void setDepartmentsScore(Map<Long, Integer> departmentsScores) {
         this.departmentsScores = departmentsScores;
     }
 
-    enum Room {
-        IT201, IT202; //, IT204, IT205, IT125, IT250
-
-        static Room getRandomRoom() {
-            return values()[Venue.random.nextInt(values().length)];
-        }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Venue venue = (Venue) o;
-        return room == venue.room;
-    }
+//    enum Room {
+//        IT201, IT202; //, IT204, IT205, IT125, IT250
+//
+//        static Room getRandomRoom() {
+//            return values()[Venue.random.nextInt(values().length)];
+//        }
+//    }
+//
+//    private Room room;
+//
+//    private static Random random = new Random();
+//
+//    public static Venue getRandomVenue() {
+//        Venue venue = new Venue();
+//        venue.room = Room.getRandomRoom();
+//        return venue;
+//    }
+//    public Venue() {
+//    }
+//
+//    public Room getRoom() {
+//        return room;
+//    }
+//
+////    public String toString() {
+////        return room.name();
+////    }
 }

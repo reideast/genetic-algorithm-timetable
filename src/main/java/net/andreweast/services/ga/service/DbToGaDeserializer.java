@@ -155,17 +155,19 @@ public class DbToGaDeserializer {
         int totalEnrolled;
         List<Module> modules = new ArrayList<>();
         for (net.andreweast.services.data.model.Module entity : entities) {
+            HashSet<Long> coursesOfferingModule = new HashSet<>();
             Set<Long> departmentIdsOfferingModule = new HashSet<>();
 
-            // Sum all courses that have
+            // Sum size of all courses which are offering this module, get courses
             totalEnrolled = 0;
             for (CourseModule course : entity.getCourseModules()) {
                 totalEnrolled += course.getCourse().getNumEnrolled(); // FUTURE: This could be a COMPOSITE query in SQL
+                coursesOfferingModule.add(course.getId().getCourseId());
                 departmentIdsOfferingModule.add(course.getCourse().getDepartment().getDepartmentId());
             }
 
-            modules.add(new Module(entity.getModuleId(), entity.getName(), entity.getLab(), totalEnrolled,
-                    entity.getLecturer().getLecturerId(), departmentIdsOfferingModule));
+            modules.add(new Module(entity.getModuleId(), entity.getName(), totalEnrolled, entity.getLab(),
+                    entity.getLecturer().getLecturerId(), coursesOfferingModule, departmentIdsOfferingModule));
         }
 
         // DEBUG:
@@ -188,9 +190,11 @@ public class DbToGaDeserializer {
 
         List<ScheduledModule> scheduledModules = new ArrayList<>();
         for (net.andreweast.services.data.model.ScheduledModule entity : entities) {
-            scheduledModules.add(new ScheduledModule(moduleIndex.get(entity.getModule().getModuleId()),
+            scheduledModules.add(new ScheduledModule(
+                    moduleIndex.get(entity.getModule().getModuleId()),
                     venueIndex.get(entity.getVenue().getVenueId()),
-                    timeslotIndex.get(entity.getTimeslot().getTimeslotId())));
+                    timeslotIndex.get(entity.getTimeslot().getTimeslotId()),
+                    data));
         }
 
         // DEBUG:
