@@ -77,12 +77,14 @@ dependencies {
     // See: https://www.baeldung.com/spring-boot-start
     // See: https://spring.io/guides/gs/serving-web-content/
     compile("org.springframework.boot:spring-boot-starter-thymeleaf")
-    compile("org.springframework.boot:spring-boot-devtools")
 
     // Spring Boot Database
     compile("org.springframework.boot:spring-boot-starter-data-rest")
     compile("org.springframework.boot:spring-boot-starter-data-jpa")
     compile group: 'org.postgresql', name: 'postgresql', version: '42.2.5'
+
+    // Spring Boot Security
+    compile("org.springframework.boot:spring-boot-starter-security")
 }
 
 // For SpringBoot's bootRun that starts a server, load the .ebextensions YAML file as environmental variables first
