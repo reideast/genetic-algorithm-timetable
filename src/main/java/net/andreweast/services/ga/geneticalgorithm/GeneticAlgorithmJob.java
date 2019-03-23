@@ -87,7 +87,7 @@ public class GeneticAlgorithmJob implements Runnable {
 
         isRunning.set(true);
         while (isRunning.get()) { // Use of AtomicBoolean to control a Thread see: https://www.baeldung.com/java-thread-stop
-            startTime = System.nanoTime(); // DEBUG
+            long generationTime = System.nanoTime(); // DEBUG
 
             population.crossover(CROSSOVER_PERCENTAGE);
 
@@ -103,9 +103,9 @@ public class GeneticAlgorithmJob implements Runnable {
 
             // DEBUG
             if (currentGeneration.get() == 0) {
-                runningAverage = System.nanoTime() - startTime;
+                runningAverage = System.nanoTime() - generationTime;
             } else {
-                runningAverage += ((System.nanoTime() - startTime) - runningAverage) / ((double) (currentGeneration.get() + 1));
+                runningAverage += ((System.nanoTime() - generationTime) - runningAverage) / ((double) (currentGeneration.get() + 1));
             }
 
             // Increment generation counter, and then check for exit conditions
@@ -136,6 +136,7 @@ public class GeneticAlgorithmJob implements Runnable {
         System.out.println("Running time stats:");
         System.out.println("Time init: " + (initTime * 1.0E-6) + " ms");
         System.out.println("Average generation time: " + (runningAverage * 1E-6) + " ms");
+        System.out.println("Total time: " + ((System.nanoTime() - startTime) * 1E-6) + " ms");
 
         System.out.println("GA generations have completed, job=" + masterData.getJobId() + ", schedule=" + masterData.getScheduleId()); // FUTURE: Logger info
     }
@@ -144,14 +145,8 @@ public class GeneticAlgorithmJob implements Runnable {
      * Inspects Population, and choose a single Chromosome to write back into {@link this.masterData}
      */
     private void saveBestIndividualToMasterData() {
-        // TODO: Get info from Population, and choose a Chromosome to write into {@link masterData}
-
-        // DEBUG: To simulate a job, we'll just make a set of random ScheduledModules
-        List<ScheduledModule> randomScheduledModules = new ArrayList<>();
-        for (Module module : masterData.getModules()) {
-            randomScheduledModules.add(new ScheduledModule(module, masterData.getRandomVenue(), masterData.getRandomTimeslot(), masterData));
-        }
-        masterData.setScheduledModules(randomScheduledModules);
+        // Get info from Population, and choose a Chromosome to write back to {@link masterData}
+        masterData.setScheduledModules(population.getBestChromosomeScheduledModule());
 
         // DEBUG:
         System.out.println("Scheduled Modules:");

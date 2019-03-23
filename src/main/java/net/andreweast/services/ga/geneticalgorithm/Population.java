@@ -41,6 +41,7 @@ public class Population implements Serializable {
     /**
      * Select a new population with the "roulette wheel" method
      * The fittest individuals will tend to be selected more often
+     *
      * @param numEliteSurvivors How many of the very best individuals should be guaranteed to be represented at least once in the next generation
      *                          As suggested by (Cekała et al 2015), keeping the "Elite" members of the population
      *                          can speed up convergence to a solution as much as twice as fast as just plain roulette-wheel selection.
@@ -54,6 +55,7 @@ public class Population implements Serializable {
         // TODO: Probably requires: Arrays.sort(individuals);
 
         // Determine sum total of all individuals' fitness s.t. roulette wheel can select from them
+        // Also, determine if any of the chromosomes represents a valid solution
         int totalFitness = 0;
         hasValidSolution = false;
         for (int i = 0; i < populationSize; ++i) {
@@ -135,7 +137,12 @@ public class Population implements Serializable {
     }
 
     public Boolean hasValidSolution() {
-        return hasValidSolution;
+        if (hasValidSolution != null) {
+            return hasValidSolution;
+        } else {
+            // Enforces contract for this method: cannot get unless have recently found hasValidSolution
+            throw new IllegalStateException("Population individuals have been changed since hasValidSolution was last calculated");
+        }
     }
 
     @Override
@@ -164,7 +171,26 @@ public class Population implements Serializable {
      * @return The best individual in the population
      */
     public Chromosome getBestChromosome() {
-//        Arrays.sort(individuals);
-        throw new UnsupportedOperationException(); // DEBUG TODO
+        System.out.println("Getting best chromosome:");
+        Arrays.sort(individuals);
+        System.out.print("Sorted individuals (fitness values): ");
+        System.out.println(this.toFitnessList());
+
+        if (this.hasValidSolution) {
+            // Go through list and return the FIRST valid one, which will be best since list is sorted DESC
+            for (Chromosome individual : individuals) {
+                if (individual.isValidSolution()) {
+                    return individual;
+                }
+            }
+            throw new IllegalStateException("No individuals were a valid solution, but hasValidSolution thought one was!");
+        } else {
+            // None of valid, so just return the best of the bunch
+            return individuals[0];
+        }
+    }
+
+    public List<ScheduledModule> getBestChromosomeScheduledModule() {
+        return Arrays.asList(this.getBestChromosome().getGenes());
     }
 }

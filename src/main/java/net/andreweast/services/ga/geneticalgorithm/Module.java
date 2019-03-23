@@ -40,7 +40,7 @@ public class Module implements Serializable {
 
     @Override
     public String toString() {
-        return "Module{" +
+        return "Module{" + id + " " +
                 name +
                 " " + numEnrolled +
                 " lab=" + isLab +

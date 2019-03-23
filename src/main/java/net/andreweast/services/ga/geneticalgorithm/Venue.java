@@ -42,7 +42,7 @@ public class Venue implements Serializable {
 
     @Override
     public String toString() {
-        return "Venue{" +
+        return "Venue{" + id + " " +
                 name +
                 " size=" + capacity +
                 " lab=" + isLab +

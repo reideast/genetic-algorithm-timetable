@@ -27,7 +27,7 @@ public class Timeslot implements Serializable {
 
     @Override
     public String toString() {
-        return "Time{" +
+        return "Time{" + id + " " +
                 day + ":" + time +
                 (lecturerPreferences.size() != 0 ? " lecPrefs=[" + lecturerPreferences.keySet().stream().map(key -> key + "=" + lecturerPreferences.get(key)).collect(Collectors.joining(",")) : "") +
                 '}';

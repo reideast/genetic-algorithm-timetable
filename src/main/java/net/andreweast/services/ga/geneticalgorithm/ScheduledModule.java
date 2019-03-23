@@ -11,7 +11,7 @@ public class ScheduledModule implements Cloneable, Serializable {
 
     @Override
     public String toString() {
-        return "ScheduledModule{" + module + venue + timeslot + '}';
+        return "ScheduledModule{" + module + "," + venue + "," + timeslot + '}';
     }
 
     /**
@@ -43,8 +43,10 @@ public class ScheduledModule implements Cloneable, Serializable {
     /**
      * Compare two genes. If they overlap in both venue and timeslot, there is a conflict! Return true
      * If they overlap in JUST timeslot and the two modules are offered BY THE SAME COURSE, return true
+     *
+     * @return true if these two modules both be taught in this timeslot/venue
      */
-    public boolean conflictsWith(ScheduledModule that) {
+    public boolean conflictsWithTimeOrPlaceOf(ScheduledModule that) {
         if (this == that) return true;
 
         if (timeslot == that.timeslot) {
@@ -61,6 +63,17 @@ public class ScheduledModule implements Cloneable, Serializable {
 
 
         return false;
+    }
+
+    /**
+     * For this gene, has it been assigned to a lecture/lab venue that is proper?
+     *
+     * @return true if the module can be successfully taught within this venue
+     */
+    public boolean isInValidVenue() {
+        if (this.module.isLab != this.venue.isLab) return false;
+        if (this.venue.capacity < this.module.numEnrolled) return false;
+        return true;
     }
 
     public Module getModule() {
