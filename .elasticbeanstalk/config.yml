@@ -2,7 +2,7 @@ branch-defaults:
   spring:
     environment: null
 deploy:
-  artifact: build\libs\ga-rest-api-0.6.0.jar
+  artifact: build\libs\ga-rest-api-0.7.0.jar
 global:
   application_name: genetic-algorithm
   branch: null
