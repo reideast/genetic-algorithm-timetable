@@ -13,6 +13,7 @@ public class Population implements Serializable {
     private final int populationSize;
 
     private Chromosome[] individuals;
+    private Boolean hasValidSolution = null;
 
     public Population(GeneticAlgorithmJobData masterData) {
         data = masterData;
@@ -40,24 +41,29 @@ public class Population implements Serializable {
     /**
      * Select a new population with the "roulette wheel" method
      * The fittest individuals will tend to be selected more often
+     * @param numEliteSurvivors How many of the very best individuals should be guaranteed to be represented at least once in the next generation
+     *                          As suggested by (Cekała et al 2015), keeping the "Elite" members of the population
+     *                          can speed up convergence to a solution as much as twice as fast as just plain roulette-wheel selection.
+     *                          Keeping 1 elite member halved num generations to converge. 2-3 elites selected improved a good bit, and any more had diminishing returns.
      */
-    public void select() {
+    public void select(int numEliteSurvivors) {
         final Chromosome[] nextPopulation = new Chromosome[populationSize];
+
+        // TODO: numEliteSurvivors:
+        // TODO: Keep population members ranked 1st, and maybe also 2nd, and 3rd
+        // TODO: Probably requires: Arrays.sort(individuals);
 
         // Determine sum total of all individuals' fitness s.t. roulette wheel can select from them
         int totalFitness = 0;
+        hasValidSolution = false;
         for (int i = 0; i < populationSize; ++i) {
             totalFitness += individuals[i].getCachedFitness();
+            if (individuals[i].isValidSolution()) {
+                hasValidSolution = true;
+            }
         }
 
         // Select a whole new population
-        /*
-           FUTURE: As suggested by (Cekała et al 2015), keeping the "Elite" members of the population
-           can speed up convergence to a solution as much as twice as fast as just plain roulette-wheel selection.
-           Keeping 1 elite member halved num generations to converge. 2-3 elites selected improved a good bit, and any more had diminishing returns.
-           TODO: Keep population members ranked 1st, and maybe also 2nd, and 3rd
-           TODO: Probably requires: Arrays.sort(individuals);
-         */
         for (int i = 0; i < populationSize; ++i) {
             // "Spin the roulette wheel". Based on https://en.wikipedia.org/wiki/Fitness_proportionate_selection
             int randomSelected = random.nextInt(totalFitness);
@@ -85,11 +91,16 @@ public class Population implements Serializable {
         individuals = nextPopulation;
     }
 
-    public void crossover() {
-        // Crossover with p = 0.6
-        if (random.nextInt(100) < 60) { // TODO: hardcoded 60% crossover. See (Cekała et all 2015) and/or my lit review for suggested %
+    /**
+     * Possibly do genetic crossover (e.g. sexual reproduction) within the population
+     *
+     * @param crossoverRate int range [0,100], how often to do crossover. Higher is more often
+     */
+    public void crossover(int crossoverRate) {
+        if (random.nextInt(100) < crossoverRate) { // TODO: hardcoded 60% crossover. See (Cekała et all 2015) and/or my lit review for suggested %
             // TODO: Rather naive (and therefore probably inefficient) method of choosing best: Just sort the population by fitness
-            // TODO: Is there support in the literature to crossing _random_ individuals
+
+            // TODO: Is there support in the literature to crossing _random_ individuals rather than the best
             Arrays.sort(individuals);
             Chromosome first = individuals[0];
             Chromosome second = individuals[1];
@@ -102,16 +113,29 @@ public class Population implements Serializable {
 
             // replace lowest individual with new offspring
             individuals[individuals.length - 1] = offspring;
+
+            // Since population has changed, invalidate cached hasValidSolution
+            hasValidSolution = null;
+        }
+    }
+
+    /**
+     * Possibly mutate (e.g. random perturb a gene) within the population
+     *
+     * @param mutateRate int range [0,100], how often to mutate. Higher is more often
+     */
+    public void mutate(int mutateRate) {
+        if (random.nextInt(100) < mutateRate) { // TODO: hardcoded 90% mutate. See (Cekała et all 2015) and/or my lit review for suggested %
+            individuals[random.nextInt(populationSize)].mutate();
+
+            // Since population has changed, invalidate cached hasValidSolution
+            hasValidSolution = null;
         }
 
     }
 
-    public void mutate() {
-        // Mutate a random individual with p = 0.9
-        if (random.nextInt(100) < 90) { // TODO: hardcoded 90% mutate. See (Cekała et all 2015) and/or my lit review for suggested %
-            individuals[random.nextInt(populationSize)].mutate();
-        }
-
+    public Boolean hasValidSolution() {
+        return hasValidSolution;
     }
 
     @Override
@@ -130,5 +154,17 @@ public class Population implements Serializable {
             fitnessValues.add(individual.getCachedFitness());
         }
         return fitnessValues;
+    }
+
+    /**
+     * Used after the algorithm runs to get the best chromosome for saving to the database
+     * If there is at least one valid solution (i.e. has no violated hard constraints), this will return the BEST VALID individual
+     * If there isn't a valid solution, this will return the BEST individual
+     *
+     * @return The best individual in the population
+     */
+    public Chromosome getBestChromosome() {
+//        Arrays.sort(individuals);
+        throw new UnsupportedOperationException(); // DEBUG TODO
     }
 }

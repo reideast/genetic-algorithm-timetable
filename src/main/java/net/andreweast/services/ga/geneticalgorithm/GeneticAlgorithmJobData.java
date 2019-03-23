@@ -33,8 +33,12 @@ public class GeneticAlgorithmJobData implements Serializable {
 
     // The results: A set of modules, each placed in a timeslot.
     // If this is not an "modify existing job", then this collection will start as NULL
-    // Either way, at the end of the job, it will be filled up with the results
+    // Either way, at the END of the job, it will be filled up with the results
     private List<ScheduledModule> scheduledModules;
+
+    // Does this job's data represent a schedule with no hard constraints violated?
+    // Will be set and read DURING the job
+    private boolean hasValidSolution;
 
     private static final Random random = new Random();
 
@@ -64,6 +68,14 @@ public class GeneticAlgorithmJobData implements Serializable {
 
     public int getChromosomeSize() {
         return chromosomeSize;
+    }
+
+    public boolean isHasValidSolution() {
+        return hasValidSolution;
+    }
+
+    public void setHasValidSolution(boolean hasValidSolution) {
+        this.hasValidSolution = hasValidSolution;
     }
 
     public long getScheduleId() {

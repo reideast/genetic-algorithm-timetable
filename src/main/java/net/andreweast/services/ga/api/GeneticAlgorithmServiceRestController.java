@@ -27,10 +27,10 @@ public class GeneticAlgorithmServiceRestController {
     @Autowired
     Dispatcher dispatcher;
 
-    // TODO: Where should this be determined? Some sort of public static constant in the GA controller?
-    // TODO: Perhaps in a configuration text file
+    // FUTURE: These constants should be stored somewhere else. Some sort of public static constant in the GA controller?
+    // FUTURE: Perhaps in a configuration text file, or better: in a database config table
     // TODO: How many generations to run? Ref. literature
-    private static final String NUM_GENERATIONS = "20"; // DEBUG!!
+    private static final String NUM_GENERATIONS = "200"; // DEBUG!!
     // TODO: What size of population? Ref. literature
     private static final String POPULATION_SIZE = "20"; // DEBUG!!
 
