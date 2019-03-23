@@ -56,6 +56,13 @@ bootJar {
     }
     inputs.files('.ebextensions') // Informs the JAR task that files in this directory should be considered inputs, thus the JAR must be rebuilt if they are modified
 
+    // copy all static web files into the JAR
+    from('static') {
+        include '**'
+        into('META-INF/resources')
+    }
+    inputs.files('static') // Informs the JAR task that files in this directory should be considered inputs, thus the JAR must be rebuilt if they are modified
+
     manifest {
         attributes(
             "Implementation-Title": appName,
