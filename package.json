@@ -1,0 +1,40 @@
+{
+    "name": "genetic-algorithm-scheduler",
+    "version": "0.8.0",
+    "description": "Front end for a college timetable creator that uses a genetic algorithm machine learning scheduler",
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:reideast/genetic-algorithm-timetable.git"
+    },
+    "keywords": [
+        "machine-learning",
+        "genetic-algorithm",
+        "rest",
+        "hateoas",
+        "spring",
+        "data",
+        "react"
+    ],
+    "author": "Andrew Reid East",
+    "bugs": {
+        "url": "https://github.com/reideast/genetic-algorithm-timetable/issues"
+    },
+    "homepage": "https://github.com/reideast/genetic-algorithm-timetable/",
+    "dependencies": {
+        "react": "^16.5.2",
+        "react-dom": "^16.5.2",
+        "rest": "^1.3.1"
+    },
+    "scripts": {
+        "watch": "webpack --watch -d"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.1.0",
+        "@babel/preset-env": "^7.1.0",
+        "@babel/preset-react": "^7.0.0",
+        "babel-loader": "^8.0.2",
+        "copy-webpack-plugin": "^5.0.2",
+        "webpack": "^4.19.1",
+        "webpack-cli": "^3.1.0"
+    }
+}

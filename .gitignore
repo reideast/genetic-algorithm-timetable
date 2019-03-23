@@ -96,3 +96,6 @@ logs/
 .ebextensions/environmentvariables.config
 .ebextensions/aws.environmentvariables.config
 .ebextensions/local.environmentvariables.config
+
+# JavaScript files
+node_modules/
