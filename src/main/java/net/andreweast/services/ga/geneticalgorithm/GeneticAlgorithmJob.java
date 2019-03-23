@@ -96,6 +96,13 @@ public class GeneticAlgorithmJob implements Runnable {
             // DEBUG: According to (Padhy 2005), selection should/may be done AFTER crossover & mutation
             population.select(ELITE_SURVIVORS); // Selection must be done after genetic crossover/mutate in order to find cached hasValidSolution
 
+//            // DEBUG
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+
             if (DEBUG) { // DEBUG
                 System.out.print("Gen " + currentGeneration.get() + ": ");
                 System.out.println(population.toFitnessList());

@@ -4,8 +4,8 @@ import net.andreweast.services.data.model.Job;
 import net.andreweast.services.data.model.JobDto;
 import net.andreweast.services.ga.service.Dispatcher;
 import net.andreweast.services.ga.service.GaToDbSerializer;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,9 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 // Does not run from /api/genetic-algorithm-api, but rather just from /genetic-algorithm-api
 // Because this Controller isn't included with the data REST Repositories, which use application.properties config: spring.data.rest.base-path=/api
 public class GeneticAlgorithmServiceRestController {
-    @Autowired
-    ModelMapper modelMapper;
-
     @Autowired
     Dispatcher dispatcher;
 
@@ -51,7 +48,10 @@ public class GeneticAlgorithmServiceRestController {
         // the dispatcher will spawn its own thread (so that this method (and API call) can return)
         Job job = dispatcher.dispatchNewJobForSchedule(scheduleId, numGenerations, populationSize);
 
-        return modelMapper.map(job, JobDto.class);
+        // Return a JSON response representing the Job
+        JobDto dto = buildJsonResponse(job);
+        dto.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(GeneticAlgorithmServiceRestController.class).createJob(scheduleId, numGenerations, populationSize)).withSelfRel());
+        return dto;
     }
 
     // DEBUG: Used for my temporary cleanup method
@@ -68,7 +68,11 @@ public class GeneticAlgorithmServiceRestController {
     @ResponseStatus(HttpStatus.OK)
     public JobDto checkStatusOfJob(@PathVariable Long jobId) {
         Job job = dispatcher.getStatusForJob(jobId);
-        return modelMapper.map(job, JobDto.class);
+
+        // Return a JSON response representing the Job
+        JobDto dto = buildJsonResponse(job);
+        dto.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(GeneticAlgorithmServiceRestController.class).checkStatusOfJob(jobId)).withSelfRel());
+        return dto;
     }
 
     @DeleteMapping("/job/{jobId}")
@@ -76,4 +80,13 @@ public class GeneticAlgorithmServiceRestController {
     public void stopJob(@PathVariable Long jobId) {
         dispatcher.stopJob(jobId);
     }
+
+    private JobDto buildJsonResponse(Job job) {
+        // Building a HATEOAS JSON object: https://docs.spring.io/spring-hateoas/docs/current/reference/html/
+        JobDto dto = new JobDto(job);
+        dto.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(GeneticAlgorithmServiceRestController.class).checkStatusOfJob(job.getJobId())).withRel("checkStatus"));
+        try { dto.add(ControllerLinkBuilder.linkTo(GeneticAlgorithmServiceRestController.class.getMethod("stopJob", Long.class), job.getJobId()).withRel("stopJob")); } catch (NoSuchMethodException ignored) {}
+        return dto;
+    }
+
 }
