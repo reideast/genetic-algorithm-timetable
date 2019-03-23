@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Served via Thymeleaf</title>
+</head>
+<body>
+<h1 th:text="${appName}">DEFAULT APP NAME</h1>
+    <p th:text="'Hello, ' + ${name} + '!'" />
+</body>
+</html>

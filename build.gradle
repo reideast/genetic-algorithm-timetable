@@ -56,13 +56,6 @@ bootJar {
     }
     inputs.files('.ebextensions') // Informs the JAR task that files in this directory should be considered inputs, thus the JAR must be rebuilt if they are modified
 
-//    // copy all static web files into the JAR
-//    from('static') {
-//        include '**'
-//        into('META-INF/resources')
-//    }
-//    inputs.files('static') // Informs the JAR task that files in this directory should be considered inputs, thus the JAR must be rebuilt if they are modified
-
     manifest {
         attributes(
             "Implementation-Title": appName,
@@ -77,37 +70,19 @@ repositories {
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-
+    // Spring Boot REST API
     compile("org.springframework.boot:spring-boot-starter-web")
-    testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('com.jayway.jsonpath:json-path')
 
     // See: https://www.baeldung.com/spring-boot-start
-//    compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+    // See: https://spring.io/guides/gs/serving-web-content/
+    compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+    compile("org.springframework.boot:spring-boot-devtools")
 
-//    compile("org.springframework.boot:spring-boot-starter-security")
-//    testCompile("org.springframework.security:spring-security-test")
-    /*
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-web</artifactId>
-            <version>${spring-security.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-config</artifactId>
-            <version>${spring-security.version}</version>
-        </dependency>
-     */
-
+    // Spring Boot Database
     compile("org.springframework.boot:spring-boot-starter-data-rest")
     compile("org.springframework.boot:spring-boot-starter-data-jpa")
-//    compile("com.h2database:h2")
-    // https://mvnrepository.com/artifact/org.postgresql/postgresql
     compile group: 'org.postgresql', name: 'postgresql', version: '42.2.5'
-
-    // "providedCompile and providedRuntime, analogous to compile and runtime in regular Java applications, to represent dependencies that are needed locally but should not be added to the generated webdemo.war file." https://guides.gradle.org/building-java-web-applications/
 }
 
 // For SpringBoot's bootRun that starts a server, load the .ebextensions YAML file as environmental variables first
