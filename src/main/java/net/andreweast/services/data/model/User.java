@@ -1,5 +1,9 @@
 package net.andreweast.services.data.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
@@ -7,9 +11,13 @@ import java.util.Objects;
 @Entity
 @Table(name = "users", schema = "public", catalog = "ga_dev")
 public class User {
+    // Worker to securely store the password
+    // No salt field needed: The Spring BCrypt password encoder implementation will generate a random salt and store is AS PART OF THE FIELD, separated by a '$'
+    public static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_generator")
-    @SequenceGenerator(name="user_generator", sequenceName = "user_id_sequence", allocationSize = 1)
+    @SequenceGenerator(name = "user_generator", sequenceName = "user_id_sequence", allocationSize = 1)
     @Column(name = "user_id", updatable = false, nullable = false)
     private Long userId;
 
@@ -17,13 +25,10 @@ public class User {
     @Column(name = "username", nullable = false, length = -1)
     private String username;
 
+    @JsonIgnore
     @Basic
     @Column(name = "password", nullable = false, length = 256)
     private String password;
-
-    @Basic
-    @Column(name = "password_salt", nullable = false, length = 256)
-    private String passwordSalt;
 
     @Basic
     @Column(name = "display_name", nullable = false, length = -1)
@@ -36,6 +41,10 @@ public class User {
     @Basic
     @Column(name = "is_admin", nullable = true)
     private Boolean isAdmin = false; // Default value
+
+    @Basic
+    @Column(name = "roles", nullable = true)
+    private String roles;
 
     @Basic
     @Column(name = "email", nullable = true, length = -1)
@@ -69,15 +78,13 @@ public class User {
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = passwordEncoder.encode(password);
+//        this.password = password;
     }
 
-    public String getPasswordSalt() {
-        return passwordSalt;
-    }
-
-    public void setPasswordSalt(String passwordSalt) {
-        this.passwordSalt = passwordSalt;
+    @JsonIgnore
+    public String getName() {
+        return this.getDisplayName();
     }
 
     public String getDisplayName() {
@@ -102,6 +109,19 @@ public class User {
 
     public void setAdmin(Boolean admin) {
         isAdmin = admin;
+    }
+
+    @JsonIgnore
+    public String[] getRolesSplitByComma() {
+        return roles.split(",");
+    }
+
+    public String getRoles() {
+        return roles;
+    }
+
+    public void setRoles(String roles) {
+        this.roles = roles;
     }
 
     public String getEmail() {
@@ -136,10 +156,10 @@ public class User {
         return userId.equals(user.userId) &&
                 username.equals(user.username) &&
                 password.equals(user.password) &&
-                passwordSalt.equals(user.passwordSalt) &&
                 displayName.equals(user.displayName) &&
                 Objects.equals(isFacilities, user.isFacilities) &&
                 Objects.equals(isAdmin, user.isAdmin) &&
+                Objects.equals(roles, user.roles) &&
                 Objects.equals(email, user.email) &&
                 Objects.equals(department, user.department) &&
                 Objects.equals(schedules, user.schedules);
@@ -147,6 +167,6 @@ public class User {
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, username, password, passwordSalt, displayName, isFacilities, isAdmin, email, department, schedules);
+        return Objects.hash(userId, username, password, displayName, isFacilities, isAdmin, roles, email, department, schedules);
     }
 }

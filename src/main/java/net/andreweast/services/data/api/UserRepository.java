@@ -12,6 +12,8 @@ public interface UserRepository extends PagingAndSortingRepository<User, Long> {
     @RestResource(path = "username", rel = "username")
     List<User> findByUsername(String username);
 
+    User findDistinctByUsername(String username);
+
     @RestResource(path = "email", rel = "email")
     List<User> findByEmail(String email);
 

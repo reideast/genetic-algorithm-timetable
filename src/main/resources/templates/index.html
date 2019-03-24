@@ -1,11 +1,27 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${appName}"></title>
+    <title th:text="${appName}">title</title>
     <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
+    <div>
+        <em>User: <span th:text="${#authentication.getName()}">user</span></em>
+        <div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+            <p>You have admin privileges</p>
+        </div>
+        <div sec:authentication="name">
+            The value of the "name" property of the authentication object should appear here.
+        </div>
+        <div sec:authorize="hasRole('ROLE_ADMIN')">
+            This will only be displayed if authenticated user has role ROLE_ADMIN.
+        </div>
+        <form th:action="@{/logout}" method="post">
+            <input type="submit" value="Logout" />
+        </form>
+    </div>
+
     <div id="react"></div>
 
     <script src="built/bundle.js"></script>
