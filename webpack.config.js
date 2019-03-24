@@ -7,6 +7,11 @@ module.exports = {
     devtool: 'sourcemaps',
     cache: true,
     mode: 'development',
+    resolve: {
+        alias: {
+            'stompjs': __dirname + '/node_modules' + '/stompjs/lib/stomp.js',
+        }
+    },
     output: {
         path: __dirname,
         filename: './src/main/resources/static/built/bundle.js'
@@ -26,6 +31,7 @@ module.exports = {
         ]
     },
     plugins: [
+        // Copy built JS file from build location into where Spring Boot gradle runner servers it. This allows hot-reload of any JavaScript (and only javascript! no static files)
         new CopyPlugin([ // See: https://webpack.js.org/plugins/copy-webpack-plugin/
             {
                 from: './src/main/resources/static/built/bundle.js',
