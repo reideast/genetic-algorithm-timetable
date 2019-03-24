@@ -100,3 +100,4 @@ logs/
 
 # JavaScript files
 node_modules/
+*bundle.js
