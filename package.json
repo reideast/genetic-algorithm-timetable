@@ -1,6 +1,6 @@
 {
     "name": "genetic-algorithm-scheduler",
-    "version": "0.8.0",
+    "version": "0.7.0",
     "description": "Front end for a college timetable creator that uses a genetic algorithm machine learning scheduler",
     "repository": {
         "type": "git",
