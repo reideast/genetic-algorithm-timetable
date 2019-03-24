@@ -65,8 +65,11 @@ bootJar {
 }
 
 repositories {
-//    jcenter()
     mavenCentral()
+//    jcenter()
+    jcenter {
+        url "http://oss.jfrog.org/artifactory/oss-snapshot-local/" // Needed for springfox @Swagger2WebMvc: https://github.com/springfox/springfox/issues/2581#issuecomment-451769249
+    }
 }
 
 dependencies {
@@ -85,6 +88,11 @@ dependencies {
 
     // Spring Boot Security
     compile("org.springframework.boot:spring-boot-starter-security")
+
+    // Swagger REST API Documentation
+    compile group: 'io.springfox', name: 'springfox-swagger2', version: '3.0.0-SNAPSHOT' // See: https://github.com/springfox/springfox/issues/2581#issuecomment-451769249
+    compile group: 'io.springfox', name: 'springfox-data-rest', version: '3.0.0-SNAPSHOT'
+    compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
 }
 
 // For SpringBoot's bootRun that starts a server, load the .ebextensions YAML file as environmental variables first
