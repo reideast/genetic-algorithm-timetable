@@ -85,46 +85,19 @@ dependencies {
 
     // Spring Boot Security
     compile("org.springframework.boot:spring-boot-starter-security")
-
-    // REST Documentation
-    testCompile("org.springframework.boot:spring-boot-starter-test")
-    testCompile("org.springframework.restdocs:spring-restdocs-mockmvc")
-    testCompile group: 'org.postgresql', name: 'postgresql', version: '42.2.5'
-}
-
-def "load env variables from AWS EB YAML file"() {
-    def yamlFileContents = (".ebextensions/environmentvariables.config" as File).text
-    def envs = new Yaml().load(yamlFileContents)["option_settings"]["aws:elasticbeanstalk:application:environment"] as Map<String, String>
-    envs.each { key, value ->
-        systemProperty key, value // Gradle's idiom for System.setProperty()
-//        System.setProperty(key, String.valueOf(value)) // Gradle's idiom for System.setProperty()
-//        println "\"${key}=${value}\""
-
-        if (key == "RDS_HOSTNAME") {
-            println "POSTGRESQL HOSTNAME: Will be connecting to database: ${value}"
-        }
-    }
 }
 
 // For SpringBoot's bootRun that starts a server, load the .ebextensions YAML file as environmental variables first
 bootRun {
     doFirst {
-        "load env variables from AWS EB YAML file"()
+        def yamlFileContents = (".ebextensions/environmentvariables.config" as File).text
+        def envs = new Yaml().load(yamlFileContents)["option_settings"]["aws:elasticbeanstalk:application:environment"] as Map<String, String>
+        envs.each { key, value ->
+            systemProperty key, value // Gradle's idiom for System.setProperty()
+
+            if (key == "RDS_HOSTNAME") {
+                println "POSTGRESQL HOSTNAME: Will be connecting to database: ${value}"
+            }
+        }
     }
 }
-
-//test {
-//    doFirst {
-//        "load env variables from AWS EB YAML file"()
-//
-////        System.setProperty("server.port", System.getProperty("SERVER_PORT"))
-////        System.setProperty("spring.datasource.url", "jdbc:postgresql://${System.getProperty('RDS_HOSTNAME')}:${System.getProperty('RDS_PORT')}/${System.getProperty('RDS_DB_NAME')}")
-////        System.setProperty("spring.datasource.username", System.getProperty("RDS_USERNAME"))
-////        System.setProperty("spring.datasource.password", System.getProperty("RDS_PASSWORD"))
-//        System.setProperty("SERVER_PORT", System.getProperty("SERVER_PORT"))
-//        System.setProperty("SPRING_DATASOURCE_URL", "jdbc:postgresql://${System.getProperty('RDS_HOSTNAME')}:${System.getProperty('RDS_PORT')}/${System.getProperty('RDS_DB_NAME')}")
-//        System.setProperty("SPRING_DATASOURCE_USERNAME", System.getProperty("RDS_USERNAME"))
-//        System.setProperty("SPRING_DATASOURCE_PASSWORD", System.getProperty("RDS_PASSWORD"))
-//        println "\"${key}=${value}\""
-//    }
-//}
