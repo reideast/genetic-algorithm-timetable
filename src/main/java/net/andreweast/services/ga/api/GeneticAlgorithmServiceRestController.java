@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -37,9 +37,9 @@ public class GeneticAlgorithmServiceRestController {
      * @param scheduleId Primary key of an existing record in the Schedules Table
      * @return Data on the new job, and an HTTP 202 Accepted (which comes from the @ResponseStatus annotation)
      */
-    @PutMapping("/job/{scheduleId}")
-    @ResponseStatus(HttpStatus.ACCEPTED) // Why ACCEPTED? Processing isn't complete, but this HTTP transaction is closed. Perfect! See: https://httpstatuses.com/202
-    public JobDto createJob(@PathVariable Long scheduleId,
+    @PostMapping("/job")
+    @ResponseStatus(HttpStatus.ACCEPTED) // Why HTTP 202 Accepted? Processing isn't complete, but this HTTP transaction is closed. Perfect! See: https://httpstatuses.com/202
+    public JobDto createJob(@RequestParam(required = true) Long scheduleId,
                             @RequestParam(required = false, defaultValue = NUM_GENERATIONS) Integer numGenerations,
                             @RequestParam(required = false, defaultValue = POPULATION_SIZE) Integer populationSize) {
         System.out.println("Creating a GA job from schedule, id=" + scheduleId); // FUTURE: Logger info
@@ -57,9 +57,9 @@ public class GeneticAlgorithmServiceRestController {
     // DEBUG: Used for my temporary cleanup method
     @Autowired
     GaToDbSerializer gaToDbSerializer;
-    // DEBUG: A temporary method to clean up the database faster
     @DeleteMapping("/failed-job/{scheduleId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    // DEBUG: A temporary method to clean up the database faster
     public void cleanUpDatabaseAfterJobFailed(@PathVariable Long scheduleId) {
         gaToDbSerializer.deleteJobForSchedule(scheduleId);
     }
