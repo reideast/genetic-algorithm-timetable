@@ -10,6 +10,7 @@
 .idea/**/encodings.xml
 .idea/**/dataSources.xml
 .idea/**/sqldialects.xml
+.idea/**/copyright/**
 
 .idea/checkstyle-idea.xml
 .idea/misc.xml

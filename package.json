@@ -16,6 +16,7 @@
         "react"
     ],
     "author": "Andrew Reid East",
+    "license": "BSD-3-Clause",
     "bugs": {
         "url": "https://github.com/reideast/genetic-algorithm-timetable/issues"
     },
