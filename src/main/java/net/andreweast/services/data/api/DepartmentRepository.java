@@ -7,7 +7,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 
 import java.util.List;
 
-@RepositoryRestResource(collectionResourceRel = "department", path = "department")
+@RepositoryRestResource(collectionResourceRel = "departments", path = "departments")
 // I believe the purpose of this is to skip the need for a separate @RestController. Contrast to: https://spring.io/guides/tutorials/bookmarks/
 public interface DepartmentRepository extends PagingAndSortingRepository<Department, Long> {
     @RestResource(path = "name", rel = "name")

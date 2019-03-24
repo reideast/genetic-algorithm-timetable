@@ -7,7 +7,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 
 import java.util.List;
 
-@RepositoryRestResource(collectionResourceRel = "timeslot", path = "timeslot")
+@RepositoryRestResource(collectionResourceRel = "timeslots", path = "timeslots")
 public interface TimeslotRepository extends PagingAndSortingRepository<Timeslot, Long> {
     @RestResource(path = "day", rel = "day")
     List<Timeslot> findByDay(Integer day);

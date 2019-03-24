@@ -16,7 +16,7 @@ Create and edit "location" field in JSON:
 N.b. Can't just set x or y, have to set both at once
 */
 
-@RepositoryRestResource(collectionResourceRel = "building", path = "building")
+@RepositoryRestResource(collectionResourceRel = "buildings", path = "buildings")
 public interface BuildingRepository extends PagingAndSortingRepository<Building, Long> {
     @RestResource(path = "name", rel = "name")
     List<Building> findByName(String name);

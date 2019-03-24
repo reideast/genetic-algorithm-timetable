@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@RepositoryRestResource(collectionResourceRel = "scheduledModule", path = "scheduledModule")
+@RepositoryRestResource(collectionResourceRel = "scheduledModules", path = "scheduledModules")
 public interface ScheduledModuleRepository extends JpaRepository<ScheduledModule, ScheduledModulePK> {
     @RestResource(path = "schedule", rel = "schedule")
     List<ScheduledModule> findBySchedule_ScheduleId_OrderByTimeslot_TimeslotIdAsc(Long id);

@@ -34,7 +34,7 @@ Content-Type:text/uri-list
 body: "http://localhost:5000/department/3"
 */
 
-@RepositoryRestResource(collectionResourceRel = "course", path = "course")
+@RepositoryRestResource(collectionResourceRel = "courses", path = "courses")
 // I believe the purpose of this is to skip the need for a separate @RestController. Contrast to: https://spring.io/guides/tutorials/bookmarks/
 public interface CourseRepository extends PagingAndSortingRepository<Course, Long> {
     // /course/{ID} is created implicitly

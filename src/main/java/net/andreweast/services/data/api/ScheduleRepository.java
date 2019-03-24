@@ -7,7 +7,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 
 import java.util.List;
 
-@RepositoryRestResource(collectionResourceRel = "schedule", path = "schedule")
+@RepositoryRestResource(collectionResourceRel = "schedules", path = "schedules")
 public interface ScheduleRepository extends PagingAndSortingRepository<Schedule, Long> {
     @RestResource(path = "masterSchedule", rel = "masterSchedule")
     List<Schedule> findByIsMasterIsTrue();

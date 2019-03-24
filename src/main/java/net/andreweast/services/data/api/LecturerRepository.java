@@ -7,7 +7,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 
 import java.util.List;
 
-@RepositoryRestResource(collectionResourceRel = "lecturer", path = "lecturer")
+@RepositoryRestResource(collectionResourceRel = "lecturers", path = "lecturers")
 public interface LecturerRepository extends PagingAndSortingRepository<Lecturer, Long> {
     @RestResource(path = "name", rel = "name")
     List<Lecturer> findByName(String name);

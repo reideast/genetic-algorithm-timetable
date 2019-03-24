@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@RepositoryRestResource(collectionResourceRel = "lecturerTimeslotPreference", path = "lecturerTimeslotPreference")
+@RepositoryRestResource(collectionResourceRel = "lecturerTimeslotPreferences", path = "lecturerTimeslotPreferences")
 public interface LecturerTimeslotPreferenceRepository extends JpaRepository<LecturerTimeslotPreference, LecturerTimeslotPreferencePK> {
     @RestResource(path = "timeslot", rel = "timeslot")
     List<LecturerTimeslotPreference> findByTimeslot_TimeslotId(Long id);
