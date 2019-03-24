@@ -1,5 +1,6 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
+const when = require('when');
 const client = require('./client');
 const follow = require('./follow');
 
@@ -10,7 +11,7 @@ class App extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { schedules: [], attributes: [], pageSize: 5, links: {} }; // State is data that this component manages; can change over time
+        this.state = { schedules: [], attributes: [], page: 1, pageSize: 3, links: {} }; // State is data that this component manages; can change over time
         this.updatePageSize = this.updatePageSize.bind(this);
         this.onCreate = this.onCreate.bind(this);
         this.onDelete = this.onDelete.bind(this);
@@ -35,15 +36,40 @@ class App extends React.Component {
                 path: scheduleCollection.entity._links.profile.href,
                 headers: { 'Accept': 'application/schema+json' }
             }).then(schema => {
+                // Filter out extra properties of the schema that aren't relevant
+                Object.keys(schema.entity.properties).forEach(function(property) {
+                    if (schema.entity.properties[property].hasOwnProperty('format') &&
+                        schema.entity.properties[property].format === 'uri') {
+                        delete schema.entity.properties[property];
+                    } else if (schema.entity.properties[property].hasOwnProperty('$ref')) {
+                        delete schema.entity.properties[property];
+                    }
+                });
                 this.schema = schema.entity;
+
+                // Save the type of links that a schedule has (i.e. foreign keys)
+                this.links = scheduleCollection.entity._links;
+
                 return scheduleCollection;
             });
-        }).done(scheduleCollection => {
+        }).then(scheduleCollection => {
+            this.page = scheduleCollection.entity.page;
+            // get the ACTUAL schedule objects, no the "stub" _embedded
+            return scheduleCollection.entity._embedded.schedule.map(schedule =>
+                client({
+                    method: 'GET',
+                    path: schedule._links.self.href
+                })
+            );
+        }).then(schedulePromises => {
+            return when.all(schedulePromises);
+        }).done(schedules => {
             this.setState({
-                schedules: scheduleCollection.entity._embedded.schedule,
+                page: this.page,
+                schedules: schedules,
                 attributes: Object.keys(this.schema.properties),
                 pageSize: pageSize,
-                links: scheduleCollection.entity._links
+                links: this.links
             });
         });
     }
@@ -95,15 +121,68 @@ class App extends React.Component {
     render() {
         return (
             <div>
-                <CreateDialog attributes={this.state.attributes} onCreate={this.onCreate} />
-                <ScheduleList schedules={this.state.schedules}
-                              links={this.state.links}
-                              pageSize={this.state.pageSize}
-                              onNavigate={this.onNavigate}
-                              onDelete={this.onDelete}
-                              updatePageSize={this.updatePageSize} />
+                <RunGeneticAlgorithmDialog
+                    attributes={this.state.attributes}
+                    scheduleId={3}
+                />
+                {/*DEBUG temporarily disable all the schedule stuff*/}
+                {/*<CreateDialog attributes={this.state.attributes} onCreate={this.onCreate} />*/}
+                {/*<ScheduleList schedules={this.state.schedules}*/}
+                {/*links={this.state.links}*/}
+                {/*page={this.state.page}*/}
+                {/*pageSize={this.state.pageSize}*/}
+                {/*attributes={this.state.attributes}*/}
+                {/*onNavigate={this.onNavigate}*/}
+                {/*onDelete={this.onDelete}*/}
+                {/*updatePageSize={this.updatePageSize} />*/}
             </div>
 
+        );
+    }
+}
+
+class RunGeneticAlgorithmDialog extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    handleSubmit(e) {
+        e.preventDefault();
+
+        console.log(this.props, 'scheduleId=', this.props.scheduleId);
+
+        client({
+            method: 'POST',
+            path: apiGeneticAlgorithmRoot + '/job',
+            params: { scheduleId: this.props.scheduleId }
+        // }).then(response => {
+        //     return follow(client, apiRoot, [{ rel: 'schedule', params: { 'size': this.state.pageSize } }]);
+        }).done(response => {
+            console.log(response);
+            // // After creating a new entity, go to the last page so the new item is visible
+            // if (typeof response.entity._links.last !== 'undefined') {
+            //     this.onNavigate(response.entity._links.last.href);
+            // } else {
+            //     this.onNavigate(response.entity._links.self.href);
+            // }
+        });
+    }
+
+    render() {
+        return (
+            <div>
+                <a href="#createJob">Create</a>
+                <div id="createJob" className="modalDialog">
+                    <div>
+                        <a href="#" title="Close" className="close">X</a>
+                        <h2>Create a scheduling job</h2>
+                        <form>
+                            <button onClick={this.handleSubmit}>Create</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         );
     }
 }
@@ -171,8 +250,14 @@ class ScheduleList extends React.Component {
     }
 
     render() {
+        const pageInfo = this.props.page.hasOwnProperty('number') ?
+            <h3>Schedules - Page {this.props.page.number + 1} of {this.props.page.totalPages}</h3> : null;
+
         const schedules = this.props.schedules.map(schedule =>
-            <Schedule key={schedule._links.self.href} schedule={schedule} onDelete={this.props.onDelete} />
+            <Schedule key={schedule.entity._links.self.href}
+                      schedule={schedule}
+                      attribtes={this.props.attributes}
+                      onDelete={this.props.onDelete} />
         );
 
         const navLinks = [];
@@ -191,6 +276,7 @@ class ScheduleList extends React.Component {
 
         return (
             <div>
+                {pageInfo}
                 <input ref="pageSize" defaultValue={this.props.pageSize} onInput={this.handlePageSizeInput} />
                 <table>
                     <tbody>
@@ -256,8 +342,7 @@ class Schedule extends React.Component {
     render() {
         return (
             <tr>
-                {/* creator is a _link not part of the entity._embedded, so this won't work: <td>{this.props.schedule.creator}</td>*/}
-                <td>creator</td>
+                <td>{this.props.schedule.creator}</td>
                 <td>{this.props.schedule.scheduleId}</td>
                 <td>{this.props.schedule.creationDate}</td>
                 <td>{this.props.schedule.master ? 'true' : 'false'}</td>
