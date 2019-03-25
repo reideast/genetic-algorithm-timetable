@@ -28,6 +28,8 @@ const stompClient = require('./websocket-listener');
 const apiRoot = '/api';
 const apiGeneticAlgorithmRoot = '/genetic-algorithm-api';
 
+// TODO: need a REST controller for the root of /genetic-algorithm-api, which returns metadata for all possible endpoints. How does spring-data do it?
+
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -55,7 +57,7 @@ class SchedulingJobLauncher extends React.Component {
     }
 
     onJob(foo) {
-
+        console.log('STUB ON JOB', foo);
     }
 
     render() {
@@ -75,18 +77,18 @@ class AvailableSchedulesTable extends React.Component {
         // State is data that this component manages; can change over time
         this.state = {
             schedules: [],
-            links: {},
             loggedInUser: this.props.loggedInUser
         }; // this.props.loggedInUser comes from when the App object is created <App loggedInUser="..."
         this.refreshPageOfSchedules = this.refreshPageOfSchedules.bind(this);
     }
 
     loadFromServer() {
-        follow(client, apiRoot, ['schedules']).then(scheduleCollection => {
-            // TODO: follow(client, apiRoot, ['schedules/search/creatorUsername/' + this.props.loggedInUser]).then(scheduleCollection => {
-            // Save the type of links that a schedule has (i.e. first, next, search, profile)
-            this.links = scheduleCollection.entity._links;
-
+        // Get all schedules that were created by this logged-in user
+        follow(client, apiRoot, [
+            'schedules',
+            'search',
+            { rel: 'creatorUsername', params: { username: this.props.loggedInUser } }
+        ]).then(scheduleCollection => {
             // get the ACTUAL schedule objects (with ETag version number), not the "stub" _embedded
             return scheduleCollection.entity._embedded.schedules.map(schedule =>
                 client({
@@ -98,16 +100,13 @@ class AvailableSchedulesTable extends React.Component {
             return when.all(schedulePromises);
         }).done(schedules => {
             this.setState({
-                schedules: schedules, // an array: each item: obj, with obj.entity (obj.entity.scheduleId, obj.entity.master, etc). Also, obj.entity.creator (type Promise)
-                links: this.links
+                schedules: schedules // an array: each item: obj, with obj.entity (obj.entity.scheduleId, obj.entity.master, etc). Also, obj.entity.creator (type Promise)
             });
         });
     }
 
     refreshPageOfSchedules(message) {
-        follow(client, apiRoot, [ 'schedules' ]).then(schedulesCollection => {
-            this.links = schedulesCollection.entity._links;
-
+        follow(client, apiRoot, ['schedules']).then(schedulesCollection => {
             return schedulesCollection.entity._embedded.schedules.map(schedule => {
                 return client({
                     method: 'GET',
@@ -118,8 +117,7 @@ class AvailableSchedulesTable extends React.Component {
             return when.all(schedulesPromises);
         }).then(schedules => {
             this.setState({
-                schedules: schedules,
-                links: this.links
+                schedules: schedules
             });
         });
     }
@@ -140,8 +138,7 @@ class AvailableSchedulesTable extends React.Component {
             <div>
                 <ScheduleTable loggedInUser={this.state.loggedInUser}
                                schedules={this.state.schedules}
-                               links={this.state.links}
-                               onJob={this.onJob} />
+                               onJob={this.props.onJob} />
             </div>
 
         );
@@ -159,6 +156,10 @@ class RunGeneticAlgorithmDialog extends React.Component {
 
         console.log(this.props, 'scheduleId=', this.props.scheduleId);
 
+        this.props.onJob(this.props.scheduleId);
+
+        // Can't actually use follow.js: we're making a POST request: follow(client, apiGeneticAlgorithmRoot, ['job'])
+        // TODO: Once genetic-algorithm-api root has an endpoint that returns all other endpoints, we can use follow to get the endpoint, then will still use client() to make the POST. See: https://github.com/spring-guides/tut-react-and-spring-data-rest/blob/master/security/src/main/js/app.js#L81
         client({
             method: 'POST',
             path: apiGeneticAlgorithmRoot + '/job',
@@ -166,7 +167,7 @@ class RunGeneticAlgorithmDialog extends React.Component {
         }).done(response => {
             console.log('Job submitted, response received:', response);
             // TODO: UI Message
-            window.location = '#';
+            window.location = '#'; // Close dialog box
         });
     }
 
@@ -179,7 +180,7 @@ class RunGeneticAlgorithmDialog extends React.Component {
                         <a href="#" title="Close" className="close">X</a>
                         <h2>Create a genetic algorithm job</h2>
                         <form>
-                            <button onClick={this.handleSubmit}>Create</button>
+                            <button onClick={this.handleSubmit}>Create Job</button>
                         </form>
                     </div>
                 </div>
@@ -195,13 +196,13 @@ class ScheduleTable extends React.Component {
 
     render() {
         const schedules = this.props.schedules.map(schedule => {
-            // console.log("making a schedule row:", schedule);
-            return (
-                <Schedule key={schedule.entity._links.self.href}
-                          loggedInUser={this.props.loggedInUser}
-                          schedule={schedule}
-                          onJob={this.props.onJob} />
-            )
+                // console.log("making a schedule row:", schedule);
+                return (
+                    <Schedule key={schedule.entity._links.self.href}
+                              loggedInUser={this.props.loggedInUser}
+                              schedule={schedule}
+                              onJob={this.props.onJob} />
+                );
             }
         );
 
@@ -228,6 +229,27 @@ class ScheduleTable extends React.Component {
 class Schedule extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            creator: {},
+            loggedInUser: this.props.loggedInUser
+        }; // this.props.loggedInUser comes from when the App object is created <App loggedInUser="..."
+    }
+
+    loadFromServer() {
+        // Get creator of this schedule
+        // this REST call returns an actual object, no double-calling through the _embedded is needed
+        client({
+            method: 'GET',
+            path: this.props.schedule.entity._links.creator.href
+        }).done(creator => {
+            this.setState({
+                creator: creator,
+            });
+        });
+    }
+
+    componentDidMount() {
+        this.loadFromServer();
     }
 
     render() {
@@ -237,7 +259,7 @@ class Schedule extends React.Component {
         return (
             <tr>
                 <td>{this.props.schedule.entity.scheduleId}</td>
-                <td>{this.props.schedule.entity.creator.username}</td>
+                <td><Creator creator={this.state.creator} /></td>
                 <td>{this.props.schedule.entity.creationDate}</td>
                 <td>
                     <RunGeneticAlgorithmDialog key={this.props.schedule.entity.scheduleId}
@@ -247,6 +269,18 @@ class Schedule extends React.Component {
                 </td>
             </tr>
         );
+    }
+}
+
+// A simple component that returns nothing while the AJAX call is busy fetching the `creator` endpoint
+// FUTURE: Surely, there is an actual React idiom for this...
+class Creator extends React.Component {
+    render() {
+        if (this.props.creator.entity) {
+            return this.props.creator.entity.displayName;
+        } else {
+            return null;
+        }
     }
 }
 
