@@ -1,5 +1,7 @@
 package net.andreweast.services.data.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -14,6 +16,10 @@ public class Schedule {
     @SequenceGenerator(name = "schedule_generator", sequenceName = "schedule_id_sequence", allocationSize = 1)
     @Column(name = "schedule_id", updatable = false, nullable = false)
     private Long scheduleId;
+
+    @Version
+    @JsonIgnore
+    private Long version;
 
     // FUTURE: Does SQL Timestamp type need any other work? See: https://www.baeldung.com/hibernate-date-time
     @Basic
@@ -59,6 +65,14 @@ public class Schedule {
 
     public void setScheduleId(Long scheduleId) {
         this.scheduleId = scheduleId;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public Timestamp getCreationDate() {
@@ -123,6 +137,7 @@ public class Schedule {
         if (o == null || getClass() != o.getClass()) return false;
         Schedule schedule = (Schedule) o;
         return scheduleId.equals(schedule.scheduleId) &&
+                version.equals(schedule.version) &&
                 Objects.equals(creationDate, schedule.creationDate) &&
                 Objects.equals(isWip, schedule.isWip) &&
                 Objects.equals(isAccepted, schedule.isAccepted) &&
@@ -134,6 +149,6 @@ public class Schedule {
 
     @Override
     public int hashCode() {
-        return Objects.hash(scheduleId, creationDate, isWip, isAccepted, isMaster, creator, scheduledModules, job);
+        return Objects.hash(scheduleId, version, creationDate, isWip, isAccepted, isMaster, creator, scheduledModules, job);
     }
 }

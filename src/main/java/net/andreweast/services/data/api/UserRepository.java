@@ -6,13 +6,14 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 import java.util.List;
+import java.util.Optional;
 
 @RepositoryRestResource(collectionResourceRel = "users", path = "users")
 public interface UserRepository extends PagingAndSortingRepository<User, Long> {
     @RestResource(path = "username", rel = "username")
     List<User> findByUsername(String username);
 
-    User findDistinctByUsername(String username);
+    Optional<User> findByUsernameIgnoreCase(String username);
 
     @RestResource(path = "email", rel = "email")
     List<User> findByEmail(String email);

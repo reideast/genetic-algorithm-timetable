@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
+    <div style="display:none;" id="loggedInUser" th:text="${#authentication.name}">user</div>
     <div>
         <em>User: <span th:text="${#authentication.getName()}">user</span></em>
         <div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">

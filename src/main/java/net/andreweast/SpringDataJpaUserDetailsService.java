@@ -20,7 +20,7 @@ public class SpringDataJpaUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = this.userRepository.findDistinctByUsername(username);
+        User user = this.userRepository.findByUsernameIgnoreCase(username).orElseThrow(() -> new UsernameNotFoundException("Not found"));
         return new org.springframework.security.core.userdetails.User(user.getUsername(),
                 user.getPassword(), AuthorityUtils.createAuthorityList(user.getRolesSplitByComma()));
     }
