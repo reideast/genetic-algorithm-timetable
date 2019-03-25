@@ -49,15 +49,6 @@ class App extends React.Component {
         this.refreshAndGoToLastPage = this.refreshAndGoToLastPage.bind(this);
     }
 
-    componentDidMount() {
-        this.loadFromServer(this.state.pageSize);
-        stompClient.register([
-            { route: '/topic/newSchedule', callback: this.refreshAndGoToLastPage },
-            { route: '/topic/updateSchedule', callback: this.refreshCurrentPage },
-            { route: '/topic/deleteSchedule', callback: this.refreshCurrentPage }
-        ]);
-    }
-
     loadFromServer(pageSize) {
         follow(client, apiRoot, [
             { rel: 'schedules', params: { size: pageSize } }
@@ -99,8 +90,8 @@ class App extends React.Component {
             return when.all(schedulePromises);
         }).done(schedules => {
             this.setState({
-                page: this.page,
-                schedules: schedules,
+                page: this.page, // DEBUG: not seeing page|schema|links on this. in the console
+                schedules: schedules, // an array: each item: obj, with obj.entity (obj.entity.scheduleId, obj.entity.master, etc). Also, obj.entity.creator (type Promise)
                 attributes: Object.keys(this.schema.properties),
                 pageSize: pageSize,
                 links: this.links
@@ -155,7 +146,7 @@ class App extends React.Component {
                 'If-Match': schedule.headers.Etag
             }
         }).done(response => {
-            /* Let the websocket handler update the state */
+            /* Do not update the UI manually. Let the websocket handle updating the UI eventually (though will be soon) */
         }, errorResponse => {
             if (errorResponse.status.code === 403) {
                 alert('ACCESS DENIED: You are not authorized to update ' +
@@ -201,7 +192,7 @@ class App extends React.Component {
             method: 'DELETE',
             path: schedule.entity._links.self.href
         }).done(response => {
-            /* let the websocket handle updating the UI */
+            /* Do not update the UI manually. Let the websocket handle updating the UI eventually (though will be soon) */
         }, errorResponse => {
             if (errorResponse.status.code === 403) {
                 alert('ACCESS DENIED: You are not authorized to delete ' +
@@ -259,6 +250,15 @@ class App extends React.Component {
         });
     }
 
+    componentDidMount() {
+        this.loadFromServer(this.state.pageSize);
+        stompClient.register([
+            { route: '/topic/newSchedule', callback: this.refreshAndGoToLastPage },
+            { route: '/topic/updateSchedule', callback: this.refreshCurrentPage },
+            { route: '/topic/deleteSchedule', callback: this.refreshCurrentPage }
+        ]);
+    }
+
     render() {
         return (
             <div>
@@ -314,7 +314,7 @@ class RunGeneticAlgorithmDialog extends React.Component {
     render() {
         return (
             <div>
-                <a href="#createJob">Create</a>
+                <a href="#createJob">Create a genetic algorithm job</a>
                 <div id="createJob" className="modalDialog">
                     <div>
                         <a href="#" title="Close" className="close">X</a>
@@ -399,7 +399,8 @@ class UpdateDialog extends React.Component {
 
     render() {
         const inputs = this.props.attributes.map(attribute =>
-            <p key={this.props.schedule.entity[attribute]}>
+            <p key={attribute}>
+                {/*FUTURE: Potential pull request for tutorial: key should be {attribute}, not the value of an attribute. When `typeof attribute` is a boolean, there can easily be duplicates*/}
                 <input type="text" placeholder={attribute}
                        defaultValue={this.props.schedule.entity[attribute]}
                        ref={attribute} className="field" />
@@ -451,7 +452,7 @@ class ScheduleList extends React.Component {
             <h3>Schedules - Page {this.props.page.number + 1} of {this.props.page.totalPages}</h3> : null;
 
         const schedules = this.props.schedules.map(schedule =>
-            <Schedule key={schedules.entity._links.self.href}
+            <Schedule key={schedule.entity._links.self.href}
                       schedule={schedule}
                       attributes={this.props.attributes}
                       onUpdate={this.props.onUpdate}
@@ -544,11 +545,11 @@ class Schedule extends React.Component {
     render() {
         return (
             <tr>
-                {/*<td>{this.props.schedule.creator}</td>*/}
-                <td>TODO: creator</td>
-                <td>{this.props.schedule.scheduleId}</td>
-                <td>{this.props.schedule.creationDate}</td>
-                <td>{this.props.schedule.master ? 'true' : 'false'}</td>
+                <td>{this.props.schedule.entity.creator.username}</td>
+                {/*<td>TODO: creator</td>*/}
+                <td>{this.props.schedule.entity.scheduleId}</td>
+                <td>{this.props.schedule.entity.creationDate}</td>
+                <td>{this.props.schedule.entity.master ? 'true' : 'false'}</td>
                 <td>TODO: scheduledModules</td>
                 <td>
                     <UpdateDialog schedule={this.props.schedule}
