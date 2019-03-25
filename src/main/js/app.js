@@ -213,7 +213,7 @@ class ScheduleTable extends React.Component {
                         <tr>
                             <th>ScheduleId</th>
                             <th>Creator</th>
-                            <th>CreationDate</th>
+                            <th>Created On</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -243,7 +243,7 @@ class Schedule extends React.Component {
             path: this.props.schedule.entity._links.creator.href
         }).done(creator => {
             this.setState({
-                creator: creator,
+                creator: creator
             });
         });
     }
@@ -256,11 +256,13 @@ class Schedule extends React.Component {
         // this.props.schedule.entity.creator = this.props.schedule.entity.creator.done();
         // console.log("in the row, id=", this.props.schedule.entity.scheduleId);
 
+        const creationDate = new Date(this.props.schedule.entity.creationDate);
+
         return (
             <tr>
                 <td>{this.props.schedule.entity.scheduleId}</td>
                 <td>{(this.state.creator.entity) ? this.state.creator.entity.displayName : null}</td>
-                <td>{this.props.schedule.entity.creationDate}</td>
+                <td>{creationDate.toLocaleDateString()}</td>
                 <td>
                     <RunGeneticAlgorithmDialog key={this.props.schedule.entity.scheduleId}
                                                loggedInUser={this.props.loggedInUser}
