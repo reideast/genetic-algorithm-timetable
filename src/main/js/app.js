@@ -259,7 +259,7 @@ class Schedule extends React.Component {
         return (
             <tr>
                 <td>{this.props.schedule.entity.scheduleId}</td>
-                <td><Creator creator={this.state.creator} /></td>
+                <td>{(this.state.creator.entity) ? this.state.creator.entity.displayName : null}</td>
                 <td>{this.props.schedule.entity.creationDate}</td>
                 <td>
                     <RunGeneticAlgorithmDialog key={this.props.schedule.entity.scheduleId}
@@ -269,18 +269,6 @@ class Schedule extends React.Component {
                 </td>
             </tr>
         );
-    }
-}
-
-// A simple component that returns nothing while the AJAX call is busy fetching the `creator` endpoint
-// FUTURE: Surely, there is an actual React idiom for this...
-class Creator extends React.Component {
-    render() {
-        if (this.props.creator.entity) {
-            return this.props.creator.entity.displayName;
-        } else {
-            return null;
-        }
     }
 }
 
