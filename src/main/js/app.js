@@ -71,7 +71,7 @@ class App extends React.Component {
                 // Save schema
                 this.schema = schema.entity;
 
-                // Save the type of links that a schedule has (i.e. foreign keys)
+                // Save the type of links that a schedule has (i.e. first, next, search, profile)
                 this.links = scheduleCollection.entity._links;
 
                 return scheduleCollection;
@@ -88,6 +88,27 @@ class App extends React.Component {
             );
         }).then(schedulePromises => {
             return when.all(schedulePromises);
+            // }).then(schedules => {
+            //     console.log(schedules);
+            //     // client({
+            //     //     method: 'GET',
+            //     //     path: schedules[0].entity._links.creator.href
+            //     // }).then(creator => {
+            //     //     console.log(creator);
+            //     // });
+            //
+            //     return schedules.map(schedule => {
+            //         client({
+            //             method: 'GET',
+            //             path: schedule.entity._links.creator.href
+            //         }).then(creator => {
+            //             // confirmed: this is the right object. creator.entity.username, etc. IS FILLED OUT
+            //             console.log('creator', creator);
+            //             schedule.entity.creator = creator;
+            //         });
+            //     });
+            // }).then(schedulePromises => {
+            //     return when.all(schedulePromises);
         }).done(schedules => {
             this.setState({
                 page: this.page, // DEBUG: not seeing page|schema|links on this. in the console
@@ -136,8 +157,7 @@ class App extends React.Component {
         // FUTURE: } else {
         console.log(updatedSchedule['owner']);
         console.log(schedule.entity.owner);
-        // updatedSchedule['manager'] = schedule.entity.manager;
-        // TODO: Need to find current user from the API, then then add them as schedule.entity.owner
+        // updatedSchedule['owner'] = schedule.entity.owner;
         client({
             method: 'PUT',
             path: schedule.entity._links.self.href,
@@ -546,6 +566,8 @@ class Schedule extends React.Component {
     }
 
     render() {
+        // this.props.schedule.entity.creator = this.props.schedule.entity.creator.done();
+
         return (
             <tr>
                 <td>{this.props.schedule.entity.creator.username}</td>
