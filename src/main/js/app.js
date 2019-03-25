@@ -137,6 +137,7 @@ class App extends React.Component {
         console.log(updatedSchedule['owner']);
         console.log(schedule.entity.owner);
         // updatedSchedule['manager'] = schedule.entity.manager;
+        // TODO: Need to find current user from the API, then then add them as schedule.entity.owner
         client({
             method: 'PUT',
             path: schedule.entity._links.self.href,
@@ -231,10 +232,10 @@ class App extends React.Component {
             this.links = schedulesCollection.entity._links;
             this.page = schedulesCollection.entity.page;
 
-            return schedulesCollection.entity._embedded.schedules.map(schedules => {
+            return schedulesCollection.entity._embedded.schedules.map(schedule => {
                 return client({
                     method: 'GET',
-                    path: schedules._links.self.href
+                    path: schedule._links.self.href
                 });
             });
         }).then(schedulesPromises => {
@@ -252,6 +253,8 @@ class App extends React.Component {
 
     componentDidMount() {
         this.loadFromServer(this.state.pageSize);
+        // When WebSockets broker sends us back these events, then perform these callback actions
+        // This is how the data is re-loaded after an object is updated in the DB
         stompClient.register([
             { route: '/topic/newSchedule', callback: this.refreshAndGoToLastPage },
             { route: '/topic/updateSchedule', callback: this.refreshCurrentPage },
