@@ -33,15 +33,15 @@ const apiGeneticAlgorithmRoot = '/genetic-algorithm-api';
 class App extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            loggedInUser: this.props.loggedInUser
-        };
+        // this.state = {
+            // loggedInUser: this.props.loggedInUser // Note: using this.props to set initial state in the constructor can be an anti-pattern: since the constructor is only called ONCE but the Component can be re-rendered with different props, must make sure that any props saved here are meant to be UNCHANGEABLE
+        // };
     }
 
     render() {
         return (
             <div>
-                <SchedulingJobLauncher loggedInUser={this.state.loggedInUser} />
+                <SchedulingJobLauncher loggedInUser={this.props.loggedInUser} />
             </div>
         );
     }
@@ -51,7 +51,6 @@ class SchedulingJobLauncher extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            loggedInUser: this.props.loggedInUser,
             currentTimetableSchedule: [],
             jobRunning: undefined
         };
@@ -74,9 +73,9 @@ class SchedulingJobLauncher extends React.Component {
     render() {
         return (
             <div>
-                <AvailableSchedulesTable loggedInUser={this.state.loggedInUser}
+                <AvailableSchedulesTable loggedInUser={this.props.loggedInUser}
                                          onJob={this.onJob} />
-                <TimetableFetcher loggedInUser={this.state.loggedInUser}
+                <TimetableFetcher loggedInUser={this.props.loggedInUser}
                                   schedule={this.state.currentTimetableSchedule} />
             </div>
         );
@@ -110,7 +109,6 @@ class Timetable extends React.Component {
         super(props);
         this.state = {
             scheduledModules: [],
-            loggedInUser: this.props.loggedInUser
         };
         this.refreshTimetableAfterEvent = this.refreshTimetableAfterEvent.bind(this);
     }
@@ -190,8 +188,7 @@ class AvailableSchedulesTable extends React.Component {
         // State is data that this component manages; can change over time
         this.state = {
             schedules: [],
-            loggedInUser: this.props.loggedInUser
-        }; // this.props.loggedInUser comes from when the App object is created <App loggedInUser="..."
+        };
         this.refreshPageOfSchedules = this.refreshPageOfSchedules.bind(this);
     }
 
@@ -249,7 +246,7 @@ class AvailableSchedulesTable extends React.Component {
     render() {
         return (
             <div>
-                <ScheduleTable loggedInUser={this.state.loggedInUser}
+                <ScheduleTable loggedInUser={this.props.loggedInUser}
                                schedules={this.state.schedules}
                                onJob={this.props.onJob} />
             </div>
@@ -338,9 +335,8 @@ class Schedule extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            creator: {},
-            loggedInUser: this.props.loggedInUser
-        }; // this.props.loggedInUser comes from when the App object is created <App loggedInUser="..."
+            creator: {}
+        };
     }
 
     loadFromServer() {
