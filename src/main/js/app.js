@@ -98,9 +98,10 @@ class Timetable extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            scheduledModules: []
+            scheduledModules: {}
         };
         this.refreshTimetableAfterEvent = this.refreshTimetableAfterEvent.bind(this);
+        this.days = ['Mon', 'Tues', 'Wed', 'Thur', 'Fri'];
     }
 
     loadFromServer() {
@@ -109,25 +110,50 @@ class Timetable extends React.Component {
             'search',
             { rel: 'schedule', params: { id: this.props.schedule.entity.scheduleId } }
         ]).then(scheduledModulesCollection => {
-            scheduledModulesCollection.entity._embedded.scheduledModules.forEach((item) => {
-                console.log('is this a scheduled module?', item);
-            });
+            scheduledModulesCollection.entity._embedded.scheduledModules.forEach((scheduledModule) => {
+                const needToBeFetched = [
+                    { rel: 'module', href: scheduledModule._links.module.href },
+                    { rel: 'timeslot', href: scheduledModule._links.timeslot.href },
+                    { rel: 'venue', href: scheduledModule._links.venue.href }
+                ];
+                needToBeFetched.map(toFetch => {
+                    return client({
+                        method: 'GET',
+                        path: toFetch.href
+                    }).done(fetched => {
+                        console.log("sub-setting", scheduledModule, fetched);
+                        scheduledModule[toFetch.rel] = fetched;
+                    });
+                }).then(promises => {
+                    console.log("waiting for promises");
+                    return when.all(promises);
+                }).done(result => {
+                    console.log("result of all promises", result);
 
-            return scheduledModulesCollection.entity._embedded.scheduledModules.map(scheduledModule => {
-                console.log(scheduledModule._links.module.href);
-                return client({
-                    method: 'GET',
-                    path: scheduledModule._links.module.href
-                });
+                    this.setState(previousState => ({
+                        scheduledModules: {
+                            ...previousState.scheduledModules,
+                            [scheduledModule.id.moduleId]: scheduledModule
+                        }
+                    }));
+                })
             });
-        }).then(promises => {
-            return when.map(promises, (x, i) => {
-                console.log('map', x, i);
-            });
-        }).done(schedules => {
-            this.setState({
-                schedules: schedules // an array: each item: obj, with obj.entity (obj.entity.scheduleId, obj.entity.master, etc). Also, obj.entity.creator (type Promise)
-            });
+            console.log("foreach loop finished");
+
+            return scheduledModulesCollection;
+        // }).then(promises => {
+        //     return when.map(promises, (x, i) => {
+        //         console.log('map', x, i);
+        //     });
+        }).done(scheduledModules => {
+            console.log('DONE');
+            console.log(scheduledModules);
+            // this.setState(previousState => ({
+            //     scheduledModules: {
+            //         ...previousState.scheduledModules,
+            //         woo: 'yeah'
+            //     }
+            // }))
         });
     }
 
@@ -149,22 +175,37 @@ class Timetable extends React.Component {
     }
 
     componentDidMount() {
-        // DEBUG: THIS ISN"T HOW IT SHOULD WORK: Maybe need a guard here? `if (!this.props.schedule)` then do nothing
         this.loadFromServer();
         // When WebSockets broker sends us back these events, then perform these callback actions
         // This is how the data is re-loaded after an object is updated in the DB
         // TODO: in EventHandler.java, add topics for this component
-        stompClient.register([
-            { route: '/topic/newSchedule', callback: this.refreshTimetableAfterEvent },
-            { route: '/topic/updateSchedule', callback: this.refreshTimetableAfterEvent },
-            { route: '/topic/deleteSchedule', callback: this.refreshTimetableAfterEvent }
-        ]);
+        // stompClient.register([
+        //     { route: '/topic/newSchedule', callback: this.refreshTimetableAfterEvent },
+        //     { route: '/topic/updateSchedule', callback: this.refreshTimetableAfterEvent },
+        //     { route: '/topic/deleteSchedule', callback: this.refreshTimetableAfterEvent }
+        // ]);
     }
 
     render() {
+        const modules = Object.keys(this.state.scheduledModules).map(moduleId => {
+            console.log(moduleId);
+            const scheduledModule = this.state.scheduledModules[moduleId];
+            console.log(scheduledModule);
+            console.log("Module:", scheduledModule.module.entity.name);
+            console.log("Venue:", scheduledModule.venue.entity.name);
+            console.log("Timeslot:", this.days[scheduledModule.timeslot.entity.day] + scheduledModule.timeslot.entity.time);
+            return (
+                <div>
+                    <p>Module: {scheduledModule.module.entity.name}</p>
+                    <p>Venue: {scheduledModule.venue.entity.name}</p>
+                    <p>Timeslot: {this.days[scheduledModule.timeslot.entity.day] + scheduledModule.timeslot.entity.time}</p>
+                </div>
+            );
+        });
+
         return (
             <div>
-                {this.state.scheduledModules}
+                {modules}
             </div>
 
         );
@@ -257,7 +298,7 @@ class RunGeneticAlgorithm extends React.Component {
         // TODO: Once genetic-algorithm-api root has an endpoint that returns all other endpoints, we can use follow to get the endpoint, then will still use client() to make the POST. See: https://github.com/spring-guides/tut-react-and-spring-data-rest/blob/master/security/src/main/js/app.js#L81
         // Create a Genetic Algorithm Job through the GA API
         this.refs.jobRunner.originalText = this.refs.jobRunner.innerText;
-        this.refs.jobRunner.innerText = "Starting";
+        this.refs.jobRunner.innerText = 'Starting';
         this.refs.jobRunner.disabled = true;
         client({
             method: 'POST',
