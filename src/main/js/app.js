@@ -34,7 +34,7 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         // this.state = {
-            // loggedInUser: this.props.loggedInUser // Note: using this.props to set initial state in the constructor can be an anti-pattern: since the constructor is only called ONCE but the Component can be re-rendered with different props, must make sure that any props saved here are meant to be UNCHANGEABLE
+        // loggedInUser: this.props.loggedInUser // Note: using this.props to set initial state in the constructor can be an anti-pattern: since the constructor is only called ONCE but the Component can be re-rendered with different props, must make sure that any props saved here are meant to be UNCHANGEABLE
         // };
     }
 
@@ -71,35 +71,24 @@ class SchedulingJobLauncher extends React.Component {
     }
 
     render() {
+        let timetable = null;
+        if (this.state.currentTimetableSchedule.length > 0) { // Do not render until a schedule has been given
+            if (this.state.currentTimetableSchedule.length > 1) {
+                console.error('Assertion error: Schedule job launcher was not meant to create more than one schedule at once, and only the first one will be displayed');
+            }
+            // Now that schedule's length as 1 has been asserted, don't need to loop over the array
+            console.log('making timetable out of schedule:', this.state.currentTimetableSchedule[0]); // DEBUG
+            timetable = (
+                <Timetable loggedInUser={this.props.loggedInUser}
+                           schedule={this.state.currentTimetableSchedule[0]} />
+            );
+        }
+
         return (
             <div>
                 <AvailableSchedulesTable loggedInUser={this.props.loggedInUser}
                                          onJob={this.onJob} />
-                <TimetableFetcher loggedInUser={this.props.loggedInUser}
-                                  schedule={this.state.currentTimetableSchedule} />
-            </div>
-        );
-    }
-}
-
-// Required to deal with SchedulingJobLauncher.state.currentTimetableSchedule being able to be undefined (or, to fit this idiom, []) (unless there's a better idiom)
-// TODO: I _think_ this can be collapsed down. I'm understanding state better now
-class TimetableFetcher extends React.Component {
-    render() {
-        if (this.props.schedule.length < 1) {
-            return null; // Do not render until a schedule has been given
-        }
-
-        if (this.props.scheduleId.left > 1) {
-            console.error("Assertion error: Schedule job launcher was not meant to send more than one schedule at once to show Timetable of")
-        }
-
-        // Now that schedule's length as 1 has been asserted, don't need to loop over the array
-        console.log('making timetable out of schedule:', schedule[0]); // DEBUG
-        return (
-            <div>
-                <Timetable loggedInUser={this.props.loggedInUser}
-                           schdule={this.props.schedule[0]} />
+                {timetable}
             </div>
         );
     }
@@ -109,7 +98,7 @@ class Timetable extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            scheduledModules: [],
+            scheduledModules: []
         };
         this.refreshTimetableAfterEvent = this.refreshTimetableAfterEvent.bind(this);
     }
@@ -188,7 +177,7 @@ class AvailableSchedulesTable extends React.Component {
         super(props);
         // State is data that this component manages; can change over time
         this.state = {
-            schedules: [],
+            schedules: []
         };
         this.refreshPageOfSchedules = this.refreshPageOfSchedules.bind(this);
     }
@@ -256,17 +245,20 @@ class AvailableSchedulesTable extends React.Component {
     }
 }
 
-class RunGeneticAlgorithmDialog extends React.Component {
+class RunGeneticAlgorithm extends React.Component {
     constructor(props) {
         super(props);
-        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleClick = this.handleClick.bind(this);
     }
 
-    handleSubmit(e) {
-        e.preventDefault();
-
+    handleClick(e) {
+        // e.preventDefault();
         // Can't actually use follow.js: we're making a POST request: follow(client, apiGeneticAlgorithmRoot, ['job'])
         // TODO: Once genetic-algorithm-api root has an endpoint that returns all other endpoints, we can use follow to get the endpoint, then will still use client() to make the POST. See: https://github.com/spring-guides/tut-react-and-spring-data-rest/blob/master/security/src/main/js/app.js#L81
+        // Create a Genetic Algorithm Job through the GA API
+        this.refs.jobRunner.originalText = this.refs.jobRunner.innerText;
+        this.refs.jobRunner.innerText = "Starting";
+        this.refs.jobRunner.disabled = true;
         client({
             method: 'POST',
             path: apiGeneticAlgorithmRoot + '/job',
@@ -274,28 +266,57 @@ class RunGeneticAlgorithmDialog extends React.Component {
         }).done(response => {
             console.log('Job submitted, response received:', response); // DEBUG
             // TODO: Do something with this job JSON object?
+
+            this.refs.jobRunner.disabled = false;
+            this.refs.jobRunner.innerText = this.refs.jobRunner.originalText;
+
             this.props.onJob(this.props.schedule);
-            // TODO: UI Message. Actually, probably not needed, since the dialog box should close and then show the <Timetable>
-            window.location = '#'; // Close dialog box
         });
     }
 
     render() {
         return (
             <div>
-                <a href={'#createJob-' + this.props.schedule.entity.scheduleId}>Start genetic algorithm</a>
-                <div id={'createJob-' + this.props.schedule.entity.scheduleId} className="modalDialog">
-                    <div>
-                        <a href="#" title="Close" className="close">X</a>
-                        <h2>Create a genetic algorithm job</h2>
-                        <p><em>scheduleId={this.props.schedule.entity.scheduleId}</em></p>
-                        <button onClick={this.handleSubmit}>Create Job</button>
-                    </div>
-                </div>
+                <button className="jobRunnerButton" ref="jobRunner" onClick={this.handleClick}>Start genetic algorithm</button>
             </div>
         );
     }
 }
+
+// class RunGeneticAlgorithmDialog extends React.Component {
+//     constructor(props) {
+//         super(props);
+//         this.handleSubmit = this.handleSubmit.bind(this);
+//     }
+//
+//     handleSubmit(e) {
+//         e.preventDefault();
+//         client({
+//             method: 'POST',
+//             path: apiGeneticAlgorithmRoot + '/job',
+//             params: { scheduleId: this.props.schedule.entity.scheduleId }
+//         }).done(response => {
+//             this.props.onJob(this.props.schedule);
+//             window.location = '#'; // Close dialog box
+//         });
+//     }
+//
+//     render() {
+//         return (
+//             <div>
+//                 <a href={'#createJob-' + this.props.schedule.entity.scheduleId}>Start genetic algorithm</a>
+//                 <div id={'createJob-' + this.props.schedule.entity.scheduleId} className="modalDialog">
+//                     <div>
+//                         <a href="#" title="Close" className="close">X</a>
+//                         <h2>Create a genetic algorithm job</h2>
+//                         <p><em>scheduleId={this.props.schedule.entity.scheduleId}</em></p>
+//                         <button onClick={this.handleSubmit}>Create Job</button>
+//                     </div>
+//                 </div>
+//             </div>
+//         );
+//     }
+// }
 
 class ScheduleTable extends React.Component {
     constructor(props) {
@@ -365,10 +386,10 @@ class Schedule extends React.Component {
                 <td>{(this.state.creator.entity) ? this.state.creator.entity.displayName : null}</td>
                 <td>{creationDate.toLocaleDateString()}</td>
                 <td>
-                    <RunGeneticAlgorithmDialog key={this.props.schedule.entity.scheduleId}
-                                               loggedInUser={this.props.loggedInUser}
-                                               onJob={this.props.onJob}
-                                               schedule={this.props.schedule} />
+                    <RunGeneticAlgorithm key={this.props.schedule.entity.scheduleId}
+                                         loggedInUser={this.props.loggedInUser}
+                                         onJob={this.props.onJob}
+                                         schedule={this.props.schedule} />
                 </td>
             </tr>
         );
