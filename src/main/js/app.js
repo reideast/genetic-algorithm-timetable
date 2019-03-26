@@ -51,13 +51,24 @@ class SchedulingJobLauncher extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            loggedInUser: this.props.loggedInUser
+            loggedInUser: this.props.loggedInUser,
+            currentTimetableSchedule: [],
+            jobRunning: undefined
         };
         this.onJob = this.onJob.bind(this);
     }
 
-    onJob(foo) {
-        console.log('STUB ON JOB', foo);
+    /**
+     * After a job has been started, this signal will be received
+     * Update this Component's state, so that the {@link Timetable} will begin updating
+     * @param schedule
+     */
+    onJob(schedule) {
+        console.log('STUB ON JOB', schedule.entity.scheduleId); // DEBUG
+        this.setState({
+            currentTimetableSchedule: [schedule],
+            jobRunning: undefined // FUTURE: Status updates
+        });
     }
 
     render() {
@@ -65,7 +76,109 @@ class SchedulingJobLauncher extends React.Component {
             <div>
                 <AvailableSchedulesTable loggedInUser={this.state.loggedInUser}
                                          onJob={this.onJob} />
+                <TimetableFetcher loggedInUser={this.state.loggedInUser}
+                                  schedule={this.state.currentTimetableSchedule} />
             </div>
+        );
+    }
+}
+
+// Required to deal with SchedulingJobLauncher.state.currentTimetableSchedule being able to be undefined (or, to fit this idiom, []) (unless there's a better idiom)
+class TimetableFetcher extends React.Component {
+    render() {
+        // TODO: inline timetable
+        const timetable = this.props.schedule.map(schedule => {
+                console.log('making timetable out of schedule:', schedule); // DEBUG
+                return (
+                    <Timetable key={schedule.entity._links.self.href}
+                               loggedInUser={this.props.loggedInUser}
+                               schedule={schedule} />
+                );
+            }
+        );
+
+        return (
+            <div>
+                {timetable}
+            </div>
+        );
+    }
+}
+
+class Timetable extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            scheduledModules: [],
+            loggedInUser: this.props.loggedInUser
+        };
+        this.refreshTimetableAfterEvent = this.refreshTimetableAfterEvent.bind(this);
+    }
+
+    loadFromServer() {
+        follow(client, apiRoot, [
+            'scheduledModules',
+            'search',
+            { rel: 'schedule', params: { id: this.props.schedule.entity.scheduleId } }
+        ]).then(scheduledModulesCollection => {
+            scheduledModulesCollection.entity._embedded.scheduledModules.forEach((item) => {
+                console.log('is this a scheduled module?', item);
+            });
+
+            return scheduledModulesCollection.entity._embedded.scheduledModules.map(scheduledModule => {
+                console.log(scheduledModule._links.module.href);
+                return client({
+                    method: 'GET',
+                    path: scheduledModule._links.module.href
+                });
+            });
+        }).then(promises => {
+            return when.map(promises, (x, i) => {
+                console.log('map', x, i);
+            });
+        }).done(schedules => {
+            this.setState({
+                schedules: schedules // an array: each item: obj, with obj.entity (obj.entity.scheduleId, obj.entity.master, etc). Also, obj.entity.creator (type Promise)
+            });
+        });
+    }
+
+    refreshTimetableAfterEvent(message) {
+        follow(client, apiRoot, ['schedules']).then(schedulesCollection => {
+            return schedulesCollection.entity._embedded.schedules.map(schedule => {
+                return client({
+                    method: 'GET',
+                    path: schedule._links.self.href
+                });
+            });
+        }).then(schedulesPromises => {
+            return when.all(schedulesPromises);
+        }).then(schedules => {
+            this.setState({
+                schedules: schedules
+            });
+        });
+    }
+
+    componentDidMount() {
+        // DEBUG: THIS ISN"T HOW IT SHOULD WORK: Maybe need a guard here? `if (!this.props.schedule)` then do nothing
+        this.loadFromServer();
+        // When WebSockets broker sends us back these events, then perform these callback actions
+        // This is how the data is re-loaded after an object is updated in the DB
+        // TODO: in EventHandler.java, add topics for this component
+        stompClient.register([
+            { route: '/topic/newSchedule', callback: this.refreshTimetableAfterEvent },
+            { route: '/topic/updateSchedule', callback: this.refreshTimetableAfterEvent },
+            { route: '/topic/deleteSchedule', callback: this.refreshTimetableAfterEvent }
+        ]);
+    }
+
+    render() {
+        return (
+            <div>
+                {this.state.scheduledModules}
+            </div>
+
         );
     }
 }
@@ -154,19 +267,17 @@ class RunGeneticAlgorithmDialog extends React.Component {
     handleSubmit(e) {
         e.preventDefault();
 
-        console.log(this.props, 'scheduleId=', this.props.scheduleId);
-
-        this.props.onJob(this.props.scheduleId);
-
         // Can't actually use follow.js: we're making a POST request: follow(client, apiGeneticAlgorithmRoot, ['job'])
         // TODO: Once genetic-algorithm-api root has an endpoint that returns all other endpoints, we can use follow to get the endpoint, then will still use client() to make the POST. See: https://github.com/spring-guides/tut-react-and-spring-data-rest/blob/master/security/src/main/js/app.js#L81
         client({
             method: 'POST',
             path: apiGeneticAlgorithmRoot + '/job',
-            params: { scheduleId: this.props.scheduleId }
+            params: { scheduleId: this.props.schedule.entity.scheduleId }
         }).done(response => {
-            console.log('Job submitted, response received:', response);
-            // TODO: UI Message
+            console.log('Job submitted, response received:', response); // DEBUG
+            // TODO: Do something with this job JSON object?
+            this.props.onJob(this.props.schedule);
+            // TODO: UI Message. Actually, probably not needed, since the dialog box should close and then show the <Timetable>
             window.location = '#'; // Close dialog box
         });
     }
@@ -174,14 +285,13 @@ class RunGeneticAlgorithmDialog extends React.Component {
     render() {
         return (
             <div>
-                <a href="#createJob">Start genetic algorithm</a>
-                <div id="createJob" className="modalDialog">
+                <a href={'#createJob-' + this.props.schedule.entity.scheduleId}>Start genetic algorithm</a>
+                <div id={'createJob-' + this.props.schedule.entity.scheduleId} className="modalDialog">
                     <div>
                         <a href="#" title="Close" className="close">X</a>
                         <h2>Create a genetic algorithm job</h2>
-                        <form>
-                            <button onClick={this.handleSubmit}>Create Job</button>
-                        </form>
+                        <p><em>scheduleId={this.props.schedule.entity.scheduleId}</em></p>
+                        <button onClick={this.handleSubmit}>Create Job</button>
                     </div>
                 </div>
             </div>
@@ -196,15 +306,13 @@ class ScheduleTable extends React.Component {
 
     render() {
         const schedules = this.props.schedules.map(schedule => {
-                // console.log("making a schedule row:", schedule);
-                return (
-                    <Schedule key={schedule.entity._links.self.href}
-                              loggedInUser={this.props.loggedInUser}
-                              schedule={schedule}
-                              onJob={this.props.onJob} />
-                );
-            }
-        );
+            return (
+                <Schedule key={schedule.entity.scheduleId}
+                          loggedInUser={this.props.loggedInUser}
+                          schedule={schedule}
+                          onJob={this.props.onJob} />
+            );
+        });
 
         return (
             <div>
@@ -253,11 +361,7 @@ class Schedule extends React.Component {
     }
 
     render() {
-        // this.props.schedule.entity.creator = this.props.schedule.entity.creator.done();
-        // console.log("in the row, id=", this.props.schedule.entity.scheduleId);
-
         const creationDate = new Date(this.props.schedule.entity.creationDate);
-
         return (
             <tr>
                 <td>{this.props.schedule.entity.scheduleId}</td>
@@ -267,7 +371,7 @@ class Schedule extends React.Component {
                     <RunGeneticAlgorithmDialog key={this.props.schedule.entity.scheduleId}
                                                loggedInUser={this.props.loggedInUser}
                                                onJob={this.props.onJob}
-                                               scheduleId={this.props.schedule.entity.scheduleId} />
+                                               schedule={this.props.schedule} />
                 </td>
             </tr>
         );
