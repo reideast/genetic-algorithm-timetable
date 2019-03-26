@@ -52,6 +52,7 @@ class SchedulingJobLauncher extends React.Component {
         super(props);
         this.state = {
             currentTimetableSchedule: [],
+            localDisplayedVersion: -1,
             jobRunning: undefined
         };
         this.onJob = this.onJob.bind(this);
@@ -64,10 +65,11 @@ class SchedulingJobLauncher extends React.Component {
      */
     onJob(schedule) {
         console.log('STUB ON JOB', schedule.entity.scheduleId); // DEBUG
-        this.setState({
+        this.setState(previousState => ({
             currentTimetableSchedule: [schedule],
+            localDisplayedVersion: previousState.localDisplayedVersion + 1,
             jobRunning: undefined // FUTURE: Status updates
-        });
+        }));
     }
 
     render() {
@@ -80,7 +82,8 @@ class SchedulingJobLauncher extends React.Component {
             console.log('making timetable out of schedule:', this.state.currentTimetableSchedule[0]); // DEBUG
             timetable = (
                 <Timetable loggedInUser={this.props.loggedInUser}
-                           schedule={this.state.currentTimetableSchedule[0]} />
+                           schedule={this.state.currentTimetableSchedule[0]}
+                           localDisplayedVersion={this.state.localDisplayedVersion} />
             );
         }
 
@@ -98,17 +101,30 @@ class Timetable extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            currentDisplayedVersion: -1,
             scheduledModules: [],
+            fetchDoneWhenZero: -1
         };
         this.refreshTimetableAfterEvent = this.refreshTimetableAfterEvent.bind(this);
     }
 
     loadFromServer() {
+        if (this.state.currentDisplayedVersion === this.props.localDisplayedVersion) {
+            return; // This schedule has already been fetched
+        }
+        this.setState({
+            currentDisplayedVersion: this.props.localDisplayedVersion,
+            scheduledModules: []
+        });
+
         follow(client, apiRoot, [
             'scheduledModules',
             'search',
             { rel: 'schedule', params: { id: this.props.schedule.entity.scheduleId } }
         ]).done(scheduledModulesCollection => {
+            this.setState({
+                fetchDoneWhenZero: scheduledModulesCollection.entity._embedded.scheduledModules.length
+            });
             scheduledModulesCollection.entity._embedded.scheduledModules.forEach((scheduledModule) => {
                 const needToBeFetched = [
                     { rel: 'module', href: scheduledModule._links.module.href },
@@ -128,6 +144,7 @@ class Timetable extends React.Component {
                 Promise.all(arrayOfPromises).then(() => {
                     this.setState(previousState => ({
                         scheduledModules: previousState.scheduledModules.concat(scheduledModule),
+                        fetchDoneWhenZero: previousState.fetchDoneWhenZero - 1
                     }));
                 });
             });
@@ -135,20 +152,25 @@ class Timetable extends React.Component {
     }
 
     refreshTimetableAfterEvent(message) {
-        follow(client, apiRoot, ['schedules']).then(schedulesCollection => {
-            return schedulesCollection.entity._embedded.schedules.map(schedule => {
-                return client({
-                    method: 'GET',
-                    path: schedule._links.self.href
-                });
-            });
-        }).then(schedulesPromises => {
-            return when.all(schedulesPromises);
-        }).then(schedules => {
-            this.setState({
-                schedules: schedules
-            });
-        });
+        // TODO: This event has to fire when a Job finishes (originating at the server), and then it will re-do the fetch, overriding the version guard
+        // follow(client, apiRoot, ['schedules']).then(schedulesCollection => {
+        //     return schedulesCollection.entity._embedded.schedules.map(schedule => {
+        //         return client({
+        //             method: 'GET',
+        //             path: schedule._links.self.href
+        //         });
+        //     });
+        // }).then(schedulesPromises => {
+        //     return when.all(schedulesPromises);
+        // }).then(schedules => {
+        //     this.setState({
+        //         schedules: schedules
+        //     });
+        // });
+    }
+
+    componentDidUpdate() {
+        this.loadFromServer();
     }
 
     componentDidMount() {
@@ -164,6 +186,11 @@ class Timetable extends React.Component {
     }
 
     render() {
+        // Guard against rendering the child until ALL AJAX REQUESTS RETURNED
+        if (this.state.fetchDoneWhenZero !== 0) {
+            return null;
+        }
+
         console.log('RENDERING A LIST OF SCHEDULED_MODULES');
         console.log(this.state.scheduledModules);
 
