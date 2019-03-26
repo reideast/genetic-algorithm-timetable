@@ -116,18 +116,22 @@ class Timetable extends React.Component {
                     { rel: 'timeslot', href: scheduledModule._links.timeslot.href },
                     { rel: 'venue', href: scheduledModule._links.venue.href }
                 ];
-                needToBeFetched.map(toFetch => {
+                const arrayOfPromises = needToBeFetched.map(toFetch => {
                     return client({
                         method: 'GET',
                         path: toFetch.href
-                    }).done(fetched => {
+                    }).then(fetched => {
                         console.log("sub-setting", scheduledModule, fetched);
                         scheduledModule[toFetch.rel] = fetched;
                     });
-                }).then(promises => {
+                });
+
+                console.log("arrayOfPromises", arrayOfPromises);
+
+                Promise.all(arrayOfPromises).then(promises => {
                     console.log("waiting for promises");
                     return when.all(promises);
-                }).done(result => {
+                }).then(result => {
                     console.log("result of all promises", result);
 
                     this.setState(previousState => ({
