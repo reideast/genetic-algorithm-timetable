@@ -98,10 +98,9 @@ class Timetable extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            scheduledModules: {}
+            scheduledModules: [],
         };
         this.refreshTimetableAfterEvent = this.refreshTimetableAfterEvent.bind(this);
-        this.days = ['Mon', 'Tues', 'Wed', 'Thur', 'Fri'];
     }
 
     loadFromServer() {
@@ -109,7 +108,7 @@ class Timetable extends React.Component {
             'scheduledModules',
             'search',
             { rel: 'schedule', params: { id: this.props.schedule.entity.scheduleId } }
-        ]).then(scheduledModulesCollection => {
+        ]).done(scheduledModulesCollection => {
             scheduledModulesCollection.entity._embedded.scheduledModules.forEach((scheduledModule) => {
                 const needToBeFetched = [
                     { rel: 'module', href: scheduledModule._links.module.href },
@@ -121,43 +120,17 @@ class Timetable extends React.Component {
                         method: 'GET',
                         path: toFetch.href
                     }).then(fetched => {
-                        console.log("sub-setting", scheduledModule, fetched);
                         scheduledModule[toFetch.rel] = fetched;
                     });
                 });
 
-                console.log("arrayOfPromises", arrayOfPromises);
-
-                Promise.all(arrayOfPromises).then(promises => {
-                    console.log("waiting for promises");
-                    return when.all(promises);
-                }).then(result => {
-                    console.log("result of all promises", result);
-
+                // FUTURE: This command blocks! There's no async here
+                Promise.all(arrayOfPromises).then(() => {
                     this.setState(previousState => ({
-                        scheduledModules: {
-                            ...previousState.scheduledModules,
-                            [scheduledModule.id.moduleId]: scheduledModule
-                        }
+                        scheduledModules: previousState.scheduledModules.concat(scheduledModule),
                     }));
-                })
+                });
             });
-            console.log("foreach loop finished");
-
-            return scheduledModulesCollection;
-        // }).then(promises => {
-        //     return when.map(promises, (x, i) => {
-        //         console.log('map', x, i);
-        //     });
-        }).done(scheduledModules => {
-            console.log('DONE');
-            console.log(scheduledModules);
-            // this.setState(previousState => ({
-            //     scheduledModules: {
-            //         ...previousState.scheduledModules,
-            //         woo: 'yeah'
-            //     }
-            // }))
         });
     }
 
@@ -191,27 +164,54 @@ class Timetable extends React.Component {
     }
 
     render() {
-        const modules = Object.keys(this.state.scheduledModules).map(moduleId => {
-            console.log(moduleId);
-            const scheduledModule = this.state.scheduledModules[moduleId];
-            console.log(scheduledModule);
-            console.log("Module:", scheduledModule.module.entity.name);
-            console.log("Venue:", scheduledModule.venue.entity.name);
-            console.log("Timeslot:", this.days[scheduledModule.timeslot.entity.day] + scheduledModule.timeslot.entity.time);
+        console.log('RENDERING A LIST OF SCHEDULED_MODULES');
+        console.log(this.state.scheduledModules);
+
+        return (
+            <div>
+                <ScheduledModuleList loggedInUser={this.props.loggedInUser}
+                                     scheduledModules={this.state.scheduledModules} />
+            </div>
+        );
+    }
+}
+
+class ScheduledModuleList extends React.Component {
+    render() {
+        const modules = this.props.scheduledModules.map(scheduledModule => {
             return (
-                <div>
-                    <p>Module: {scheduledModule.module.entity.name}</p>
-                    <p>Venue: {scheduledModule.venue.entity.name}</p>
-                    <p>Timeslot: {this.days[scheduledModule.timeslot.entity.day] + scheduledModule.timeslot.entity.time}</p>
-                </div>
+                <ScheduledModuleItem key={scheduledModule.id.moduleId}
+                                     loggedInUser={this.props.loggedInUser}
+                                     scheduledModule={scheduledModule} />
             );
         });
 
         return (
-            <div>
-                {modules}
-            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Module</th>
+                        <th>Venue</th>
+                        <th>Timeslot</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {modules}
+                </tbody>
+            </table>
+        );
+    }
+}
 
+class ScheduledModuleItem extends React.Component {
+    render() {
+        const days = ['Mon', 'Tues', 'Wed', 'Thur', 'Fri'];
+        return (
+            <tr>
+                <td>{this.props.scheduledModule.module.entity.name}</td>
+                <td>{this.props.scheduledModule.venue.entity.name}</td>
+                <td>{days[this.props.scheduledModule.timeslot.entity.day] + ' ' + this.props.scheduledModule.timeslot.entity.time + ':00'}</td>
+            </tr>
         );
     }
 }
