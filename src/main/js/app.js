@@ -83,22 +83,23 @@ class SchedulingJobLauncher extends React.Component {
 }
 
 // Required to deal with SchedulingJobLauncher.state.currentTimetableSchedule being able to be undefined (or, to fit this idiom, []) (unless there's a better idiom)
+// TODO: I _think_ this can be collapsed down. I'm understanding state better now
 class TimetableFetcher extends React.Component {
     render() {
-        // TODO: inline timetable
-        const timetable = this.props.schedule.map(schedule => {
-                console.log('making timetable out of schedule:', schedule); // DEBUG
-                return (
-                    <Timetable key={schedule.entity._links.self.href}
-                               loggedInUser={this.props.loggedInUser}
-                               schedule={schedule} />
-                );
-            }
-        );
+        if (this.props.schedule.length < 1) {
+            return null; // Do not render until a schedule has been given
+        }
 
+        if (this.props.scheduleId.left > 1) {
+            console.error("Assertion error: Schedule job launcher was not meant to send more than one schedule at once to show Timetable of")
+        }
+
+        // Now that schedule's length as 1 has been asserted, don't need to loop over the array
+        console.log('making timetable out of schedule:', schedule[0]); // DEBUG
         return (
             <div>
-                {timetable}
+                <Timetable loggedInUser={this.props.loggedInUser}
+                           schdule={this.props.schedule[0]} />
             </div>
         );
     }
