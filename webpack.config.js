@@ -27,6 +27,32 @@ module.exports = {
                         presets: ['@babel/preset-env', '@babel/preset-react']
                     }
                 }]
+            },
+            {
+                test: /\.scss$/,
+                exclude: /(node_modules)/,
+                // include: [
+                //     path.resolve(__dirname, 'src/main/resources/static/sass')
+                // ],
+                // test: /\.\/src\/main\/resources\/static\/sass\/style\.scss/,
+                // test: path.join(__dirname, '.'),
+                // test: path.join(__dirname, 'src/main/resources/static/sass/.'),
+                use: [{
+                    loader: 'style-loader' // inject CSS to page
+                }, {
+                    loader: 'css-loader' // translates CSS into CommonJS modules
+                }, {
+                    loader: 'postcss-loader', // Run postcss actions
+                    options: {
+                        plugins: function() { // postcss plugins, can be exported to postcss.config.js
+                            return [
+                                require('autoprefixer')
+                            ];
+                        }
+                    }
+                }, {
+                    loader: 'sass-loader' // compiles Sass to CSS
+                }]
             }
         ]
     },

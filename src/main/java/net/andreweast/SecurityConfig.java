@@ -26,7 +26,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                 // Allow all for static web content
-                .antMatchers("/built/**", "/css/**").permitAll()
+                .antMatchers("/built/**", "/img/**", "/css/**").permitAll()
                 // Require authentication for all other requests
                 .anyRequest().authenticated()
                 .and()

@@ -22,6 +22,7 @@
     },
     "homepage": "https://github.com/reideast/genetic-algorithm-timetable/",
     "dependencies": {
+        "autoprefixer": "^9.5.0",
         "bootstrap": "^4.3.1",
         "react": "^16.5.2",
         "react-bootstrap": "^1.0.0-beta.6",
@@ -39,7 +40,12 @@
         "@babel/preset-react": "^7.0.0",
         "babel-loader": "^8.0.2",
         "copy-webpack-plugin": "^5.0.2",
-        "webpack": "^4.19.1",
+        "css-loader": "^2.1.1",
+        "node-sass": "^4.11.0",
+        "postcss-loader": "^3.0.0",
+        "sass-loader": "^7.1.0",
+        "style-loader": "^0.23.1",
+        "webpack": "^4.29.6",
         "webpack-cli": "^3.1.0"
     }
 }

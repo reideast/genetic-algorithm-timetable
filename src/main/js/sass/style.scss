@@ -1,0 +1,10 @@
+// Your variable overrides
+//$body-bg: #00806b;
+/* https://www.colorhexa.com/00806b */
+//$body-color: color-yiq(#00806b); // Automatic high-contrast colour
+
+$theme-colors: (
+        "primary": #00806b
+);
+
+@import "~bootstrap/scss/bootstrap";
