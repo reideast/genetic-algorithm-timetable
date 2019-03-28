@@ -10,9 +10,10 @@ import java.util.Optional;
 
 @RepositoryRestResource(collectionResourceRel = "users", path = "users")
 public interface UserRepository extends PagingAndSortingRepository<User, Long> {
-    @RestResource(path = "username", rel = "username")
-    List<User> findByUsername(String username);
+//    @RestResource(path = "username", rel = "username")
+//    List<User> findByUsername(String username);
 
+    @RestResource(path = "username", rel = "username")
     Optional<User> findByUsernameIgnoreCase(String username);
 
     @RestResource(path = "email", rel = "email")

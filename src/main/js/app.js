@@ -25,13 +25,16 @@ const client = require('./client');
 const follow = require('./follow');
 const stompClient = require('./websocket-listener');
 
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faDna, faUser, faMicrochip} from '@fortawesome/free-solid-svg-icons';
+
 import 'react-bootstrap/dist/react-bootstrap.min.js';
+import 'bootstrap/dist/js/bootstrap.bundle.min';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Table from 'react-bootstrap/Table'
-
 import './sass/style.scss';
+// import Table from 'react-bootstrap/Table'
 
 const apiRoot = '/api';
 const apiGeneticAlgorithmRoot = '/genetic-algorithm-api';
@@ -470,6 +473,7 @@ class Schedule extends React.Component {
                 <td>{(this.state.creator.entity) ? this.state.creator.entity.displayName : null}</td>
                 <td>{creationDate.toLocaleDateString()}</td>
                 <td>
+                    <FontAwesomeIcon icon={faMicrochip}/>
                     <RunGeneticAlgorithm key={this.props.schedule.entity.scheduleId}
                                          loggedInUser={this.props.loggedInUser}
                                          onJob={this.props.onJob}
@@ -480,7 +484,55 @@ class Schedule extends React.Component {
     }
 }
 
+class DisplayName extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { displayName: '' };
+    }
+
+    loadFromServer() {
+        // Get all schedules that were created by this logged-in user
+        follow(client, apiRoot, [
+            'users',
+            'search',
+            { rel: 'username', params: { username: this.props.loggedInUser } }
+        ]).done(user => {
+            console.log('Found a user!', user);
+            this.setState({
+                displayName: user.entity.displayName
+            });
+        });
+    }
+
+    componentDidMount() {
+        this.loadFromServer();
+    }
+
+    render() {
+        return (
+            <span><FontAwesomeIcon icon={faUser} /> {this.state.displayName}</span>
+        );
+    }
+}
+
+
+class BrandIcon extends React.Component {
+    render() {
+        return (
+            <FontAwesomeIcon icon={faDna} size="lg" />
+        );
+    }
+}
+
 ReactDOM.render(
     <App loggedInUser={document.getElementById('loggedInUser').innerHTML} />,
     document.getElementById('react')
+);
+ReactDOM.render(
+    <BrandIcon />,
+    document.getElementById('brand-icon-placeholder')
+);
+ReactDOM.render(
+    <DisplayName loggedInUser={document.getElementById('loggedInUser').innerHTML} />,
+    document.getElementById('user-display-name-placeholder')
 );

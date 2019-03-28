@@ -7,4 +7,12 @@ $theme-colors: (
         "primary": #00806b
 );
 
+// Set text color for all body text
+// Also, navbar-brand text
+$body-color: #212529; // Equiv to: color-yiq(#00806b);
+
+// Page background
+$body-bg: #e2f5ff;
+
+
 @import "~bootstrap/scss/bootstrap";
