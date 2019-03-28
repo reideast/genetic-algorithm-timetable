@@ -13,7 +13,6 @@ public class Population implements Serializable {
     private final int populationSize;
 
     private Chromosome[] individuals;
-    private Boolean hasValidSolution = null;
 
     public Population(GeneticAlgorithmJobData masterData) {
         data = masterData;
@@ -55,14 +54,9 @@ public class Population implements Serializable {
         // TODO: Probably requires: Arrays.sort(individuals);
 
         // Determine sum total of all individuals' fitness s.t. roulette wheel can select from them
-        // Also, determine if any of the chromosomes represents a valid solution
         int totalFitness = 0;
-        hasValidSolution = false;
         for (int i = 0; i < populationSize; ++i) {
             totalFitness += individuals[i].getCachedFitness();
-            if (individuals[i].isValidSolution()) {
-                hasValidSolution = true;
-            }
         }
 
         // Select a whole new population
@@ -79,13 +73,6 @@ public class Population implements Serializable {
                     break;
                 }
 
-            }
-        }
-
-        // DEBUG: an assertion
-        for (int i = 0; i < populationSize; ++i) {
-            if (nextPopulation[i] == null) {
-                throw new RuntimeException("ERROR: individual #" + i + " was null!");
             }
         }
 
@@ -115,9 +102,6 @@ public class Population implements Serializable {
 
             // replace lowest individual with new offspring
             individuals[individuals.length - 1] = offspring;
-
-            // Since population has changed, invalidate cached hasValidSolution
-            hasValidSolution = null;
         }
     }
 
@@ -129,20 +113,19 @@ public class Population implements Serializable {
     public void mutate(int mutateRate) {
         if (random.nextInt(100) < mutateRate) { // TODO: hardcoded 90% mutate. See (Cekała et all 2015) and/or my lit review for suggested %
             individuals[random.nextInt(populationSize)].mutate();
-
-            // Since population has changed, invalidate cached hasValidSolution
-            hasValidSolution = null;
         }
 
     }
 
     public Boolean hasValidSolution() {
-        if (hasValidSolution != null) {
-            return hasValidSolution;
-        } else {
-            // Enforces contract for this method: cannot get unless have recently found hasValidSolution
-            throw new IllegalStateException("Population individuals have been changed since hasValidSolution was last calculated");
+        // Determine if any of the chromosomes represents a valid solution
+        boolean hasValidSolution = false;
+        for (int i = 0; i < populationSize; ++i) {
+            if (individuals[i].isValidSolution()) {
+                hasValidSolution = true;
+            }
         }
+        return hasValidSolution;
     }
 
     @Override
@@ -163,34 +146,28 @@ public class Population implements Serializable {
         return fitnessValues;
     }
 
+    private Chromosome getBestChromosome() {
+        Arrays.sort(individuals);
+        System.out.println("Getting best gene out of chromosome: " + this.toFitnessList()); // FUTURE: Logger
+
+        // Go through list and return the FIRST valid one, which will be best since list is sorted DESC
+        for (Chromosome individual : individuals) {
+            if (individual.isValidSolution()) {
+                return individual;
+            }
+        }
+        // None of valid, so just return the best of the bunch
+        return individuals[0];
+    }
+
     /**
      * Used after the algorithm runs to get the best chromosome for saving to the database
      * If there is at least one valid solution (i.e. has no violated hard constraints), this will return the BEST VALID individual
      * If there isn't a valid solution, this will return the BEST individual
      *
-     * @return The best individual in the population
+     * @return The best individual in the population, as a List of ScheduledModules
      */
-    public Chromosome getBestChromosome() {
-        System.out.println("Getting best chromosome:");
-        Arrays.sort(individuals);
-        System.out.print("Sorted individuals (fitness values): ");
-        System.out.println(this.toFitnessList());
-
-        if (this.hasValidSolution) {
-            // Go through list and return the FIRST valid one, which will be best since list is sorted DESC
-            for (Chromosome individual : individuals) {
-                if (individual.isValidSolution()) {
-                    return individual;
-                }
-            }
-            throw new IllegalStateException("No individuals were a valid solution, but hasValidSolution thought one was!");
-        } else {
-            // None of valid, so just return the best of the bunch
-            return individuals[0];
-        }
-    }
-
     public List<ScheduledModule> getBestChromosomeScheduledModule() {
-        return Arrays.asList(this.getBestChromosome().getGenes());
+        return Arrays.asList(getBestChromosome().getGenes());
     }
 }

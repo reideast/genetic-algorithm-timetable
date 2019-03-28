@@ -121,17 +121,17 @@ public class GeneticAlgorithmJob implements Runnable {
             } else if (currentGeneration.get() > tentativeGenLimit) {
                 if (population.hasValidSolution()) {
                     isRunning.set(false); // Can quit early! We had found a solution, ran some more generations as a "run down", and now we still have a solution
-                    System.out.println("Found a valid solution and ran for several more generations. QUITTING EARLY!"); // DEBUG
+                    System.out.println("Found a valid solution and ran for several more generations. Quitting early!"); // FUTURE: Logger
                 } else {
                     tentativeGenLimit = numGenerationsMaximum; // Ran several more generations, but have now LOST the valid solution. Go some more
                     isDoingFinalRunDown = false;
-                    System.out.println("During the run down, the valid solution was lost. Population needs more more!"); // DEBUG
+                    System.out.println("During the run down, the valid solution was lost. Population needs more more!"); // FUTURE: Logger
                 }
             } else if (!isDoingFinalRunDown) {
                 if (population.hasValidSolution()) {
                     tentativeGenLimit = currentGeneration.get() + RUN_DOWN_NUM_GENERATIONS;
                     isDoingFinalRunDown = true;
-                    System.out.println("Found a valid solution! Doing a final run down now for " + RUN_DOWN_NUM_GENERATIONS + " generations"); // DEBUG
+                    System.out.println("Found a valid solution! Doing a final run down now for " + RUN_DOWN_NUM_GENERATIONS + " generations"); // FUTURE: Logger
                 }
                 // else: There's no valid solution. Continue running the algorithm as normal
             } // else: Already doing a final run down, don't check if the valid solution still exists until we're done
