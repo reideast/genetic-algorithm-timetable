@@ -12,7 +12,8 @@ $theme-colors: (
 $body-color: #212529; // Equiv to: color-yiq(#00806b);
 
 // Page background
-$body-bg: #e2f5ff;
-
+//$body-bg: #e2f5ff;
+//$body-bg: theme-color("primary");
+//$body-bg: map-get($theme-colors, "primary");
 
 @import "~bootstrap/scss/bootstrap";

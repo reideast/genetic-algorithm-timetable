@@ -34,7 +34,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import './sass/style.scss';
-// import Table from 'react-bootstrap/Table'
+import Table from 'react-bootstrap/Table';
 
 const apiRoot = '/api';
 const apiGeneticAlgorithmRoot = '/genetic-algorithm-api';
@@ -51,12 +51,11 @@ class App extends React.Component {
 
     render() {
         return (
-            <Container>
-                <Row>
-                    <Col>
-                        <SchedulingJobLauncher loggedInUser={this.props.loggedInUser} />
-                    </Col>
-                </Row>
+            <Container className="bg-white">
+                    <div className="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+                        <h1>Run Genetic Algorithm</h1>
+                    </div>
+                <SchedulingJobLauncher loggedInUser={this.props.loggedInUser} />
             </Container>
         );
     }
@@ -422,7 +421,7 @@ class ScheduleTable extends React.Component {
 
         return (
             <div>
-                <table>
+                <Table hover bordered>
                     <thead>
                         <tr>
                             <th>ScheduleId</th>
@@ -434,7 +433,7 @@ class ScheduleTable extends React.Component {
                     <tbody>
                         {schedules}
                     </tbody>
-                </table>
+                </Table>
             </div>
         );
     }
@@ -473,7 +472,7 @@ class Schedule extends React.Component {
                 <td>{(this.state.creator.entity) ? this.state.creator.entity.displayName : null}</td>
                 <td>{creationDate.toLocaleDateString()}</td>
                 <td>
-                    <FontAwesomeIcon icon={faMicrochip}/>
+                    <FontAwesomeIcon icon={faMicrochip} />
                     <RunGeneticAlgorithm key={this.props.schedule.entity.scheduleId}
                                          loggedInUser={this.props.loggedInUser}
                                          onJob={this.props.onJob}
