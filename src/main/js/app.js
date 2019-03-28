@@ -28,14 +28,15 @@ const stompClient = require('./websocket-listener');
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faDna, faUser, faMicrochip, faSpinner} from '@fortawesome/free-solid-svg-icons';
 
+import './sass/style.scss';
 import 'react-bootstrap/dist/react-bootstrap.min.js';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
-import './sass/style.scss';
 import Table from 'react-bootstrap/Table';
+import Tabs from 'react-bootstrap/Tabs';
 
 const apiRoot = '/api';
 const apiGeneticAlgorithmRoot = '/genetic-algorithm-api';
@@ -116,7 +117,8 @@ class Timetable extends React.Component {
         this.state = {
             currentDisplayedVersion: -1,
             scheduledModules: [],
-            fetchDoneWhenZero: -1
+            fetchDoneWhenZero: -1,
+            visibleTimetable: -1
         };
         this.refreshTimetableAfterEvent = this.refreshTimetableAfterEvent.bind(this);
     }
@@ -198,6 +200,12 @@ class Timetable extends React.Component {
         // ]);
     }
 
+    setVisibleTimetableForCourse(course) {
+        this.setState({
+            visibleTimetable: course
+        })
+    }
+
     render() {
         // Guard against rendering the child until ALL AJAX REQUESTS RETURNED
         if (this.state.fetchDoneWhenZero !== 0) {
@@ -207,11 +215,46 @@ class Timetable extends React.Component {
         console.log('RENDERING A LIST OF SCHEDULED_MODULES');
         console.log(this.state.scheduledModules);
 
+        // Look through all the scheduled modules for this schedule,
+        // and create a list of courses, where each course has every scheduled module that belongs to it
+        let courses = [];
+        this.state.scheduledModules.forEach((scheduledModule, index) => {
+            // console.log('looking at module #' + index); // DEBUG
+            // Look through each course for this scheduled module
+            // console.log('this module has no. of courseModules:', scheduledModule.module.entity.courseModules.length); // DEBUG
+            scheduledModule.module.entity.courseModules.forEach((courseModule, i) => {
+                // console.log('looking at module #', i); // DEBUG
+                if (!courses[courseModule.id.courseId]) {
+                    // console.log("making a new array for courseId=", courseModule.id.courseId); // DEBUG
+                    courses[courseModule.id.courseId] = [];
+                }
+                courses[courseModule.id.courseId].push(scheduledModule);
+                // console.log("array is now:", courses[courseModule.id.courseId]); // DEBUG
+            });
+        });
+        console.log('sorted by courses', courses);
+
+        const courseLinks = [], courseTimetables = [];
+        courses.forEach((scheduledModule, index) => {
+            courseLinks.push((
+                <div>course</div>
+            ));
+            courseTimetables.push((
+                <div>week</div>
+            //     <ScheduledModuleList loggedInUser={this.props.loggedInUser}
+            // scheduledModules={this.state.scheduledModules} />
+            ))
+        });
+
         return (
-            <div>
-                <ScheduledModuleList loggedInUser={this.props.loggedInUser}
-                                     scheduledModules={this.state.scheduledModules} />
-            </div>
+            <Container>
+                <Row>
+                    {courseLinks}
+                </Row>
+                <Row>
+                    {courseTimetables}
+                </Row>
+            </Container>
         );
     }
 }
@@ -378,7 +421,7 @@ class RunGeneticAlgorithm extends React.Component {
                 <Button className="jobRunnerButton" ref="jobRunner"
                         onClick={this.handleClick}
                         variant="primary"
-                        disabled={this.state.disabled} >
+                        disabled={this.state.disabled}>
                     <FontAwesomeIcon icon={this.state.icon} spin={this.state.spin} /> {this.state.buttonText}
                 </Button>
             </div>
@@ -408,7 +451,8 @@ class ScheduleTable extends React.Component {
                         <tr>
                             <th>ID</th>
                             <th>Creator</th>
-                            <th>Is New Job</th>{/*TODO*/}
+                            <th>Is New Job</th>
+                            {/*TODO*/}
                             <th>Created On</th>
                             <th></th>
                         </tr>
