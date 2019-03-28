@@ -26,13 +26,14 @@ const follow = require('./follow');
 const stompClient = require('./websocket-listener');
 
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faDna, faUser, faMicrochip} from '@fortawesome/free-solid-svg-icons';
+import {faDna, faUser, faMicrochip, faSpinner} from '@fortawesome/free-solid-svg-icons';
 
 import 'react-bootstrap/dist/react-bootstrap.min.js';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
 import './sass/style.scss';
 import Table from 'react-bootstrap/Table';
 
@@ -44,17 +45,14 @@ const apiGeneticAlgorithmRoot = '/genetic-algorithm-api';
 class App extends React.Component {
     constructor(props) {
         super(props);
-        // this.state = {
-        // loggedInUser: this.props.loggedInUser // Note: using this.props to set initial state in the constructor can be an anti-pattern: since the constructor is only called ONCE but the Component can be re-rendered with different props, must make sure that any props saved here are meant to be UNCHANGEABLE
-        // };
     }
 
     render() {
         return (
             <Container className="bg-white">
-                    <div className="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-                        <h1>Run Genetic Algorithm</h1>
-                    </div>
+                <div className="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+                    <h1>Run Genetic Algorithm</h1>
+                </div>
                 <SchedulingJobLauncher loggedInUser={this.props.loggedInUser} />
             </Container>
         );
@@ -77,7 +75,8 @@ class SchedulingJobLauncher extends React.Component {
      * Update this Component's state, so that the {@link Timetable} will begin updating
      * @param schedule
      */
-    onJob(schedule) {
+    onJob(jobId, totalGenerations, startDateString, schedule) {
+        // TODO: have gotten jobId, generations, and start date. Display them!
         console.log('STUB ON JOB', schedule.entity.scheduleId); // DEBUG
         this.setState(previousState => ({
             currentTimetableSchedule: [schedule],
@@ -335,16 +334,26 @@ class RunGeneticAlgorithm extends React.Component {
     constructor(props) {
         super(props);
         this.handleClick = this.handleClick.bind(this);
+        this.state = {
+            icon: faMicrochip,
+            spin: false,
+            disabled: false,
+            buttonText: 'Start genetic algorithm'
+        };
     }
 
     handleClick(e) {
-        // e.preventDefault();
+        e.preventDefault();
+        this.setState({
+            icon: faSpinner,
+            spin: true,
+            disabled: true,
+            buttonText: 'Starting job on server'
+        });
+
         // Can't actually use follow.js: we're making a POST request: follow(client, apiGeneticAlgorithmRoot, ['job'])
         // TODO: Once genetic-algorithm-api root has an endpoint that returns all other endpoints, we can use follow to get the endpoint, then will still use client() to make the POST. See: https://github.com/spring-guides/tut-react-and-spring-data-rest/blob/master/security/src/main/js/app.js#L81
         // Create a Genetic Algorithm Job through the GA API
-        this.refs.jobRunner.originalText = this.refs.jobRunner.innerText;
-        this.refs.jobRunner.innerText = 'Starting';
-        this.refs.jobRunner.disabled = true;
         client({
             method: 'POST',
             path: apiGeneticAlgorithmRoot + '/job',
@@ -352,57 +361,30 @@ class RunGeneticAlgorithm extends React.Component {
         }).done(response => {
             console.log('Job submitted, response received:', response); // DEBUG
             // TODO: Do something with this job JSON object?
+            this.setState({
+                icon: faMicrochip,
+                spin: false,
+                disabled: false,
+                buttonText: 'Start genetic algorithm'
+            });
 
-            this.refs.jobRunner.disabled = false;
-            this.refs.jobRunner.innerText = this.refs.jobRunner.originalText;
-
-            this.props.onJob(this.props.schedule);
+            this.props.onJob(response.entity.jobId, response.entity.totalGenerations, response.entity.startDate, this.props.schedule); // Inform UP the hierarchy that a new job has been submitted
         });
     }
 
     render() {
         return (
             <div>
-                <button className="jobRunnerButton" ref="jobRunner" onClick={this.handleClick}>Start genetic algorithm</button>
+                <Button className="jobRunnerButton" ref="jobRunner"
+                        onClick={this.handleClick}
+                        variant="primary"
+                        disabled={this.state.disabled} >
+                    <FontAwesomeIcon icon={this.state.icon} spin={this.state.spin} /> {this.state.buttonText}
+                </Button>
             </div>
         );
     }
 }
-
-// class RunGeneticAlgorithmDialog extends React.Component {
-//     constructor(props) {
-//         super(props);
-//         this.handleSubmit = this.handleSubmit.bind(this);
-//     }
-//
-//     handleSubmit(e) {
-//         e.preventDefault();
-//         client({
-//             method: 'POST',
-//             path: apiGeneticAlgorithmRoot + '/job',
-//             params: { scheduleId: this.props.schedule.entity.scheduleId }
-//         }).done(response => {
-//             this.props.onJob(this.props.schedule);
-//             window.location = '#'; // Close dialog box
-//         });
-//     }
-//
-//     render() {
-//         return (
-//             <div>
-//                 <a href={'#createJob-' + this.props.schedule.entity.scheduleId}>Start genetic algorithm</a>
-//                 <div id={'createJob-' + this.props.schedule.entity.scheduleId} className="modalDialog">
-//                     <div>
-//                         <a href="#" title="Close" className="close">X</a>
-//                         <h2>Create a genetic algorithm job</h2>
-//                         <p><em>scheduleId={this.props.schedule.entity.scheduleId}</em></p>
-//                         <button onClick={this.handleSubmit}>Create Job</button>
-//                     </div>
-//                 </div>
-//             </div>
-//         );
-//     }
-// }
 
 class ScheduleTable extends React.Component {
     constructor(props) {
@@ -424,8 +406,9 @@ class ScheduleTable extends React.Component {
                 <Table hover bordered>
                     <thead>
                         <tr>
-                            <th>ScheduleId</th>
+                            <th>ID</th>
                             <th>Creator</th>
+                            <th>Is New Job</th>{/*TODO*/}
                             <th>Created On</th>
                             <th></th>
                         </tr>
@@ -470,9 +453,9 @@ class Schedule extends React.Component {
             <tr>
                 <td>{this.props.schedule.entity.scheduleId}</td>
                 <td>{(this.state.creator.entity) ? this.state.creator.entity.displayName : null}</td>
+                <td></td>
                 <td>{creationDate.toLocaleDateString()}</td>
                 <td>
-                    <FontAwesomeIcon icon={faMicrochip} />
                     <RunGeneticAlgorithm key={this.props.schedule.entity.scheduleId}
                                          loggedInUser={this.props.loggedInUser}
                                          onJob={this.props.onJob}
@@ -496,7 +479,6 @@ class DisplayName extends React.Component {
             'search',
             { rel: 'username', params: { username: this.props.loggedInUser } }
         ]).done(user => {
-            console.log('Found a user!', user);
             this.setState({
                 displayName: user.entity.displayName
             });
