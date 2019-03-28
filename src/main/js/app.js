@@ -25,6 +25,12 @@ const client = require('./client');
 const follow = require('./follow');
 const stompClient = require('./websocket-listener');
 
+import 'react-bootstrap/dist/react-bootstrap.min.js';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Table from 'react-bootstrap/Table'
+
 const apiRoot = '/api';
 const apiGeneticAlgorithmRoot = '/genetic-algorithm-api';
 
@@ -40,9 +46,13 @@ class App extends React.Component {
 
     render() {
         return (
-            <div>
-                <SchedulingJobLauncher loggedInUser={this.props.loggedInUser} />
-            </div>
+            <Container>
+                <Row>
+                    <Col>
+                        <SchedulingJobLauncher loggedInUser={this.props.loggedInUser} />
+                    </Col>
+                </Row>
+            </Container>
         );
     }
 }
