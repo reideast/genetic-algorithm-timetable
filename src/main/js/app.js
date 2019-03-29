@@ -42,6 +42,10 @@ import Tab from 'react-bootstrap/Tab';
 const apiRoot = '/api';
 const apiGeneticAlgorithmRoot = '/genetic-algorithm-api';
 
+// FUTURE: This information shouldbe fetch from the database
+const days = ['Mon', 'Tues', 'Wed', 'Thur', 'Fri'];
+const hours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+
 // TODO: need a REST controller for the root of /genetic-algorithm-api, which returns metadata for all possible endpoints. How does spring-data do it?
 
 class App extends React.Component {
@@ -79,6 +83,7 @@ class SchedulingJobLauncher extends React.Component {
      */
     onJob(jobId, totalGenerations, startDateString, schedule) {
         // TODO: have gotten jobId, generations, and start date. Display them!
+        // SEE: https://getbootstrap.com/docs/4.3/components/progress/
         console.log('STUB ON JOB', schedule.entity.scheduleId); // DEBUG
         this.setState(previousState => ({
             currentTimetableSchedule: [schedule],
@@ -117,6 +122,7 @@ class Timetable extends React.Component {
         super(props);
         this.state = {
             currentDisplayedVersion: -1,
+            courses: [],
             scheduledModules: [],
             fetchDoneWhenZero: -1,
             visibleTimetable: -1
@@ -130,16 +136,19 @@ class Timetable extends React.Component {
         }
         this.setState({
             currentDisplayedVersion: this.props.localDisplayedVersion,
-            scheduledModules: []
+            scheduledModules: [],
+            courses: null
         });
 
+        let courses = [];
+        const coursesWithFetchStartedOrDone = {};
         follow(client, apiRoot, [
             'scheduledModules',
             'search',
             { rel: 'schedule', params: { id: this.props.schedule.entity.scheduleId } }
-        ]).done(scheduledModulesCollection => {
+        ]).then(scheduledModulesCollection => {
             this.setState({
-                fetchDoneWhenZero: scheduledModulesCollection.entity._embedded.scheduledModules.length
+                fetchDoneWhenZero: scheduledModulesCollection.entity._embedded.scheduledModules.length + 1
             });
             scheduledModulesCollection.entity._embedded.scheduledModules.forEach((scheduledModule) => {
                 const needToBeFetched = [
@@ -156,14 +165,60 @@ class Timetable extends React.Component {
                     });
                 });
 
+                // Look through all the scheduled modules for this schedule,
+                // and create a list of courses, where each course has every scheduled module that belongs to it
                 // FUTURE: This command blocks! There's no async here
                 Promise.all(arrayOfPromises).then(() => {
-                    this.setState(previousState => ({
-                        scheduledModules: previousState.scheduledModules.concat(scheduledModule),
-                        fetchDoneWhenZero: previousState.fetchDoneWhenZero - 1
-                    }));
+                    const arrayOfCoursePromises = [];
+                    scheduledModule.module.entity.courseModules.forEach((courseModule) => {
+                        if (!courses[courseModule.id.courseId]){
+                            courses[courseModule.id.courseId] = {
+                                courseId: courseModule.id.courseId,
+                                courseName: courseModule.id.courseId, // Temporarily just use ID no.
+                                scheduledModules: []
+                            };
+                        }
+                        console.log('making a new course array entry for courseId=', courseModule.id.courseId); // DEBUG
+                        if (!coursesWithFetchStartedOrDone[courseModule.id.courseId]) {
+                            coursesWithFetchStartedOrDone[courseModule.id.courseId] = true;
+                            arrayOfCoursePromises.push(client({
+                                method: 'GET',
+                                path: courseModule._links.course.href
+                            }).then(course => {
+                                courses[courseModule.id.courseId].courseName = course.entity.name;
+                            }));
+                        }
+                    });
+                    // Block until any possible ajax calls come back
+                    Promise.all(arrayOfCoursePromises).then(() => {
+                        console.log('All courses (needed to fetch n=' + arrayOfCoursePromises.length + ')');
+
+                        // console.log('looking at module #' + index); // DEBUG
+                        // Look through each course for this scheduled module
+                        // console.log('this module has no. of courseModules:', scheduledModule.module.entity.courseModules.length); // DEBUG
+                        scheduledModule.module.entity.courseModules.forEach((courseModule) => {
+                            // console.log('looking at module #', i); // DEBUG
+                            if (!courses[courseModule.id.courseId]) {
+                                console.error('Assertion error: Course with id=' + courseModule.id.courseId + ' was not fetched in the sub-ajax call above');
+                            }
+                            courses[courseModule.id.courseId].scheduledModules.push(scheduledModule);
+                            // console.log("array is now:", courses[courseModule.id.courseId]); // DEBUG
+                        });
+
+                        this.setState(previousState => ({
+                            scheduledModules: previousState.scheduledModules.concat(scheduledModule),
+                            fetchDoneWhenZero: previousState.fetchDoneWhenZero - 1
+                        }));
+                    });
                 });
             });
+            return scheduledModulesCollection;
+        }).done(scheduledModulesCollection => {
+            console.log('sorted by courses', courses);
+            this.setState(previousState => ({
+                courses: courses,
+                fetchDoneWhenZero: previousState.fetchDoneWhenZero - 1
+            }));
         });
     }
 
@@ -201,6 +256,7 @@ class Timetable extends React.Component {
         // ]);
     }
 
+    // DEBUG: this is now being done by a Bootstrap Tab group
     setVisibleTimetableForCourse(course) {
         this.setState({
             visibleTimetable: course
@@ -216,37 +272,19 @@ class Timetable extends React.Component {
         console.log('RENDERING A LIST OF SCHEDULED_MODULES');
         console.log(this.state.scheduledModules);
 
-        // Look through all the scheduled modules for this schedule,
-        // and create a list of courses, where each course has every scheduled module that belongs to it
-        let courses = [];
-        this.state.scheduledModules.forEach((scheduledModule, index) => {
-            // console.log('looking at module #' + index); // DEBUG
-            // Look through each course for this scheduled module
-            // console.log('this module has no. of courseModules:', scheduledModule.module.entity.courseModules.length); // DEBUG
-            scheduledModule.module.entity.courseModules.forEach((courseModule, i) => {
-                // console.log('looking at module #', i); // DEBUG
-                if (!courses[courseModule.id.courseId]) {
-                    // console.log("making a new array for courseId=", courseModule.id.courseId); // DEBUG
-                    courses[courseModule.id.courseId] = {
-                        courseId: courseModule.id.courseId,
-                        courseName: 'name' + courseModule.id.courseId, // TODO: need to fetch from db
-                        scheduledModules: []
-                    };
-                }
-                courses[courseModule.id.courseId].scheduledModules.push(scheduledModule);
-                // console.log("array is now:", courses[courseModule.id.courseId]); // DEBUG
-            });
-        });
-        console.log('sorted by courses', courses);
-
-        const courseTabs = courses.map((course, index) => {
+        // This tab layout can be moved to the side: Custom Tab Layout: https://react-bootstrap.github.io/components/tabs/#tabs-custom-layout
+        // This may be necessary when there are a lot of courses
+        const courseTabs = this.state.courses.map((course, index) => {
             return (
                 <Tab eventKey={course.courseId} title={course.courseName} key={course.courseId}>
-                    <WeekView modules={course.scheduledModules} key={course.courseId} />
+                    <WeekView key={course.courseId}
+                              loggedInUser={this.props.loggedInUser}
+                              modules={course.scheduledModules}
+                              days={days}
+                              hours={hours}
+                    />
                 </Tab>
             );
-            //     <ScheduledModuleList loggedInUser={this.props.loggedInUser}
-            // scheduledModules={this.state.scheduledModules} />
         });
 
         return (
@@ -258,6 +296,7 @@ class Timetable extends React.Component {
 }
 
 class WeekView extends React.Component {
+
     render() {
         return (
             <div>
@@ -370,6 +409,7 @@ class AvailableSchedulesTable extends React.Component {
     }
 
     render() {
+        // TODO: Make this table into Cards (perhaps) instead
         return (
             <div>
                 <ScheduleTable loggedInUser={this.props.loggedInUser}
