@@ -87,7 +87,7 @@ class SchedulingJobLauncher extends React.Component {
     onJob(jobId, totalGenerations, startDateString, schedule) {
         // TODO: have gotten jobId, generations, and start date. Display them!
         // SEE: https://getbootstrap.com/docs/4.3/components/progress/
-        console.log('STUB ON JOB', schedule.entity.scheduleId); // DEBUG
+        // console.log('STUB ON JOB', schedule.entity.scheduleId); // DEBUG
         this.setState(previousState => ({
             currentTimetableSchedule: [schedule],
             localDisplayedVersion: previousState.localDisplayedVersion + 1,
@@ -102,7 +102,7 @@ class SchedulingJobLauncher extends React.Component {
                 console.error('Assertion error: Schedule job launcher was not meant to create more than one schedule at once, and only the first one will be displayed');
             }
             // Now that schedule's length as 1 has been asserted, don't need to loop over the array
-            console.log('making timetable out of schedule:', this.state.currentTimetableSchedule[0]); // DEBUG
+            // console.log('making timetable out of schedule:', this.state.currentTimetableSchedule[0]); // DEBUG
             timetable = (
                 <Timetable loggedInUser={this.props.loggedInUser}
                            schedule={this.state.currentTimetableSchedule[0]}
@@ -209,10 +209,20 @@ class Timetable extends React.Component {
                             // console.log("array is now:", courses[courseModule.id.courseId]); // DEBUG
                         });
 
-                        this.setState(previousState => ({
-                            scheduledModules: previousState.scheduledModules.concat(scheduledModule),
-                            fetchDoneWhenZero: previousState.fetchDoneWhenZero - 1
-                        }));
+                        // console.log('SCHEDULED MODULE', scheduledModule.id.moduleId, scheduledModule); // DEBUG
+                        client({
+                            method: 'GET',
+                            path: scheduledModule.module.entity._links.lecturer.href
+                        }).then(lecturer => {
+                            // console.log('lecturer', lecturer); // DEBUG
+                            scheduledModule.lecturer = lecturer;
+
+                            this.setState(previousState => ({
+                                scheduledModules: previousState.scheduledModules.concat(scheduledModule),
+                                fetchDoneWhenZero: previousState.fetchDoneWhenZero - 1
+                            }));
+                            // console.log('LECTURER FILLED IN MODULE', scheduledModule.id.moduleId, scheduledModule); // DEBUG
+                        });
                     });
                 });
             });
@@ -272,13 +282,12 @@ class Timetable extends React.Component {
             return null;
         }
 
-        console.log('RENDERING A LIST OF SCHEDULED_MODULES');
-        console.log(this.state.scheduledModules);
-        console.log('SORTED BY COURSES', this.state.courses);
+        // console.log('RENDERING A LIST OF SCHEDULED_MODULES', this.state.scheduledModules); // DEBUG
+        console.log('Rendering a list of scheduled modules, put in buckets by course ID', this.state.courses); // DEBUG
 
         // This tab layout can be moved to the side: Custom Tab Layout: https://react-bootstrap.github.io/components/tabs/#tabs-custom-layout
         // This may be necessary when there are a lot of courses
-        const courseTabs = this.state.courses.map((course, index) => {
+        const courseTabs = this.state.courses.map((course) => {
             return (
                 <Tab eventKey={course.courseId}
                      title={course.courseName}
@@ -326,6 +335,7 @@ class WeekView extends React.Component {
             return (
                 <WeekRow key={hourNum}
                          hour={hourNum}
+                         courseId={this.props.courseId}
                          modulesByDays={row}
                          days={this.props.days} />
             );
@@ -356,12 +366,16 @@ class WeekView extends React.Component {
 
 class WeekRow extends React.Component {
     render() {
-        // console.log('rendering hour=' + this.props.hour, this.props.modulesByDays, this.props.days);
+        // console.log('rendering hour=' + this.props.hour, this.props.modulesByDays, this.props.days); // DEBUG
+        const timeName = this.props.hour + ':00';
         const dayColumns = this.props.days.map(day => {
             if (this.props.modulesByDays[day]) {
                 return (
                     <Col key={day} className="timetableCell scheduledCell border border-primary">
                         <TimetableCell key={day}
+                                       courseId={this.props.courseId}
+                                       dayName={dayNames[day]}
+                                       timeName={timeName}
                                        module={this.props.modulesByDays[day]} />
                     </Col>
                 );
@@ -376,7 +390,7 @@ class WeekRow extends React.Component {
 
         return (
             <Row>
-                <Col xs={1} className="text-right pl-0 ml-0">{this.props.hour + ':00'}</Col>
+                <Col xs={1} className="text-right pl-0 ml-0">{timeName}</Col>
                 {dayColumns}
             </Row>
         );
@@ -386,17 +400,23 @@ class WeekRow extends React.Component {
 class TimetableCell extends React.Component {
     render() {
         const scheduledModule = this.props.module;
+        // console.log("A cells's scheduled module: ", scheduledModule);
+        const courseCodeFromCourseModule = scheduledModule.module.entity.courseModules.find(courseModule =>
+            courseModule.id.courseId === this.props.courseId
+        ).code;
+        const lecturerName = scheduledModule.lecturer.entity.name;
         return (
             <OverlayTrigger placement="top"
                             overlay={(
-                                <Popover title={scheduledModule.module.entity.name}>
-                                    Contents: Lecturer, Day, Time
+                                <Popover title={`${courseCodeFromCourseModule} ${scheduledModule.module.entity.name}`}>
+                                    {scheduledModule.venue.entity.name}<br />
+                                    ({lecturerName})<br />
+                                    {`${this.props.dayName} ${this.props.timeName}`}
                                 </Popover>
                             )}>
                 <div>
                     <span className="align-middle">
-                        course_module.code {/*TODO*/}
-                        <br />
+                        {courseCodeFromCourseModule}<br />
                         <small>
                             {scheduledModule.venue.entity.name}
                         </small>
