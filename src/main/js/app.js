@@ -42,8 +42,9 @@ import Tab from 'react-bootstrap/Tab';
 const apiRoot = '/api';
 const apiGeneticAlgorithmRoot = '/genetic-algorithm-api';
 
-// FUTURE: This information shouldbe fetch from the database
-const days = ['Mon', 'Tues', 'Wed', 'Thur', 'Fri'];
+// FUTURE: This information should be fetched from the database, perhaps on app load
+const dayNames = ['Mon', 'Tues', 'Wed', 'Thur', 'Fri'];
+const days = [0, 1, 2, 3, 4];
 const hours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
 
 // TODO: need a REST controller for the root of /genetic-algorithm-api, which returns metadata for all possible endpoints. How does spring-data do it?
@@ -171,14 +172,14 @@ class Timetable extends React.Component {
                 Promise.all(arrayOfPromises).then(() => {
                     const arrayOfCoursePromises = [];
                     scheduledModule.module.entity.courseModules.forEach((courseModule) => {
-                        if (!courses[courseModule.id.courseId]){
+                        if (!courses[courseModule.id.courseId]) {
                             courses[courseModule.id.courseId] = {
                                 courseId: courseModule.id.courseId,
                                 courseName: courseModule.id.courseId, // Temporarily just use ID no.
                                 scheduledModules: []
                             };
                         }
-                        console.log('making a new course array entry for courseId=', courseModule.id.courseId); // DEBUG
+                        // console.log('making a new course array entry for courseId=', courseModule.id.courseId); // DEBUG
                         if (!coursesWithFetchStartedOrDone[courseModule.id.courseId]) {
                             coursesWithFetchStartedOrDone[courseModule.id.courseId] = true;
                             arrayOfCoursePromises.push(client({
@@ -191,7 +192,7 @@ class Timetable extends React.Component {
                     });
                     // Block until any possible ajax calls come back
                     Promise.all(arrayOfCoursePromises).then(() => {
-                        console.log('All courses (needed to fetch n=' + arrayOfCoursePromises.length + ')');
+                        // console.log('All courses (needed to fetch n=' + arrayOfCoursePromises.length + ')');
 
                         // console.log('looking at module #' + index); // DEBUG
                         // Look through each course for this scheduled module
@@ -214,7 +215,6 @@ class Timetable extends React.Component {
             });
             return scheduledModulesCollection;
         }).done(scheduledModulesCollection => {
-            console.log('sorted by courses', courses);
             this.setState(previousState => ({
                 courses: courses,
                 fetchDoneWhenZero: previousState.fetchDoneWhenZero - 1
@@ -271,6 +271,7 @@ class Timetable extends React.Component {
 
         console.log('RENDERING A LIST OF SCHEDULED_MODULES');
         console.log(this.state.scheduledModules);
+        console.log('SORTED BY COURSES', this.state.courses);
 
         // This tab layout can be moved to the side: Custom Tab Layout: https://react-bootstrap.github.io/components/tabs/#tabs-custom-layout
         // This may be necessary when there are a lot of courses
@@ -279,7 +280,10 @@ class Timetable extends React.Component {
                 <Tab eventKey={course.courseId} title={course.courseName} key={course.courseId}>
                     <WeekView key={course.courseId}
                               loggedInUser={this.props.loggedInUser}
+                              courseId={course.courseId}
+                              courseName={course.courseName}
                               modules={course.scheduledModules}
+                              dayNames={dayNames}
                               days={days}
                               hours={hours}
                     />
@@ -296,52 +300,91 @@ class Timetable extends React.Component {
 }
 
 class WeekView extends React.Component {
-
     render() {
-        return (
-            <div>
-                {this.props.modules.length}
-            </div>
-        );
-    }
-}
+        // Make row data structures, one for each hour
+        const rows = [];
+        this.props.hours.forEach(hourNum => {
+            rows[hourNum] = {};
+        });
 
-class ScheduledModuleList extends React.Component {
-    render() {
-        const modules = this.props.scheduledModules.map(scheduledModule => {
+        // Fill that in with modules for that hour
+        this.props.modules.forEach(module => {
+            rows[module.timeslot.entity.time][module.timeslot.entity.day] = module;
+        });
+        // console.log('rows', rows);
+
+        // Make the actual JSX elements for those rows
+        const hourRows = rows.map((row, hourNum) => {
             return (
-                <ScheduledModuleItem key={scheduledModule.id.moduleId}
-                                     loggedInUser={this.props.loggedInUser}
-                                     scheduledModule={scheduledModule} />
+                <Row key={hourNum}>
+                    <WeekRow key={hourNum}
+                             hour={hourNum}
+                             modulesByDays={row}
+                             days={this.props.days} />
+                </Row>
             );
         });
 
+        // TODO: make the header row BOLD
+        // FUTURE: dayNames.reduce --> row of headers COULD be its own component, s.t. it's only done once. Wait...would react only make one copy of it?? Research first
         return (
-            <table>
-                <thead>
-                    <tr>
-                        <th>Module</th>
-                        <th>Venue</th>
-                        <th>Timeslot</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {modules}
-                </tbody>
-            </table>
+            <Container>
+                <Row key={'headerRow'}>
+                    {/*{dayNames.reduce((day => (*/}
+                    {/*<Col key={day}>{day}</Col>*/}
+                    {/*)), (*/}
+                    {/*<Col key={'timeColumn'}>Time</Col>*/}
+                    {/*))}*/}
+                    <Col key={'times'}>Time</Col>
+                    <Col key={'Mon'}>Mon</Col>
+                    <Col key={'Tues'}>Tues</Col>
+                    <Col key={'Wed'}>Wed</Col>
+                    <Col key={'Thur'}>Thur</Col>
+                    <Col key={'Fri'}>Fri</Col>
+                </Row>
+                {hourRows}
+            </Container>
         );
     }
 }
 
-class ScheduledModuleItem extends React.Component {
+class WeekRow extends React.Component {
     render() {
-        const days = ['Mon', 'Tues', 'Wed', 'Thur', 'Fri'];
+        console.log('rendering hour=' + this.props.hour, this.props.modulesByDays, this.props.days);
+        const dayColumns = this.props.days.map(day => (
+            <Col key={day}>
+                {this.props.modulesByDays[day] ?
+                    <TimetableCell key={day}
+                                   module={this.props.modulesByDays[day]} />
+                    : null
+                }
+            </Col>
+        ));
+
         return (
-            <tr>
-                <td>{this.props.scheduledModule.module.entity.name}</td>
-                <td>{this.props.scheduledModule.venue.entity.name}</td>
-                <td>{days[this.props.scheduledModule.timeslot.entity.day] + ' ' + this.props.scheduledModule.timeslot.entity.time + ':00'}</td>
-            </tr>
+            <Row>
+                <Col>{this.props.hour + ':00'}</Col>
+                {dayColumns}
+            </Row>
+        );
+    }
+}
+
+class TimetableCell extends React.Component {
+    render() {
+        // if (!this.props.module) {
+        //     return null; // Don't render this component. Empty cell. DEBUG: move this check upward, s.t. another object isn't made?
+        // }
+        const scheduledModule = this.props.module;
+        return (
+            <div>
+                <div>
+                    {scheduledModule.module.entity.name}
+                </div>
+                <div>
+                    {scheduledModule.venue.entity.name}
+                </div>
+            </div>
         );
     }
 }
