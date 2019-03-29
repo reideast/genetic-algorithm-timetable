@@ -22,6 +22,10 @@ $body-color: #212529; // Equiv to: color-yiq(#00806b);
         border-bottom-width: 2px;
         border-bottom-style: solid;
         border-bottom-color: map-get($theme-colors, "primary");
+
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: clip;
     }
 
     .timetableHeaderTimeCell {
@@ -39,6 +43,10 @@ $body-color: #212529; // Equiv to: color-yiq(#00806b);
 .scheduledCell {
     background-color: map-get($theme-colors, "primary");
     color: white;
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: clip;
 }
 
 // Page background

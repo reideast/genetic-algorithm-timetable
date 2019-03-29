@@ -59,8 +59,8 @@ class App extends React.Component {
     render() {
         return (
             <Container className="bg-white">
-                <div className="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-                    <h3 className="display-3">Run Genetic Algorithm</h3>
+                <div className="py-3 pt-md-5 pb-md-4 mx-auto text-center">
+                    <h4 className="display-4">Run Genetic Algorithm</h4>
                 </div>
                 <SchedulingJobLauncher loggedInUser={this.props.loggedInUser} />
             </Container>
@@ -351,12 +351,20 @@ class WeekView extends React.Component {
                     {/*)), (*/}
                     {/*<Col key={'timeColumn'}>Time</Col>*/}
                     {/*))}*/}
-                    <Col xs={1} key={'times'} className="timetableHeaderTimeCell">Time</Col>
-                    <Col key={'Mon'}>Mon</Col>
-                    <Col key={'Tues'}>Tues</Col>
-                    <Col key={'Wed'}>Wed</Col>
-                    <Col key={'Thur'}>Thur</Col>
-                    <Col key={'Fri'}>Fri</Col>
+                    <Col xs={1} key={'times'} className="timetableHeaderTimeCell"><span className="d-none d-md-inline">Time</span></Col>
+                    {
+                        dayNames.map(dayName => (
+                            <Col key={dayName}>
+                                <span className="d-none d-md-inline">{dayName}</span>
+                                <span className="d-md-none">{dayName.charAt(0)}</span>
+                            </Col>
+                        ))
+                    }
+                    {/*<Col key={'Mon'}>Mon</Col>*/}
+                    {/*<Col key={'Tues'}>Tues</Col>*/}
+                    {/*<Col key={'Wed'}>Wed</Col>*/}
+                    {/*<Col key={'Thur'}>Thur</Col>*/}
+                    {/*<Col key={'Fri'}>Fri</Col>*/}
                 </Row>
                 {hourRows}
             </Container>
@@ -390,7 +398,10 @@ class WeekRow extends React.Component {
 
         return (
             <Row>
-                <Col xs={1} className="text-right pl-0 ml-0">{timeName}</Col>
+                <Col xs={1} className="text-right my-auto pl-0 ml-0">
+                    <span className="d-none d-md-inline">{timeName}</span>
+                    <span className="d-md-none">{this.props.hour}</span>
+                </Col>
                 {dayColumns}
             </Row>
         );
