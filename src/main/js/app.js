@@ -38,6 +38,8 @@ import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 
 const apiRoot = '/api';
 const apiGeneticAlgorithmRoot = '/genetic-algorithm-api';
@@ -58,7 +60,7 @@ class App extends React.Component {
         return (
             <Container className="bg-white">
                 <div className="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-                    <h1>Run Genetic Algorithm</h1>
+                    <h3 className="display-3">Run Genetic Algorithm</h3>
                 </div>
                 <SchedulingJobLauncher loggedInUser={this.props.loggedInUser} />
             </Container>
@@ -278,7 +280,10 @@ class Timetable extends React.Component {
         // This may be necessary when there are a lot of courses
         const courseTabs = this.state.courses.map((course, index) => {
             return (
-                <Tab eventKey={course.courseId} title={course.courseName} key={course.courseId}>
+                <Tab eventKey={course.courseId}
+                     title={course.courseName}
+                     key={course.courseId}
+                     className="pb-3">
                     <WeekView key={course.courseId}
                               loggedInUser={this.props.loggedInUser}
                               courseId={course.courseId}
@@ -294,7 +299,8 @@ class Timetable extends React.Component {
         });
 
         return (
-            <Tabs>
+            <Tabs variant="pills"
+                  transition={false}>
                 {courseTabs}
             </Tabs>
         );
@@ -318,28 +324,24 @@ class WeekView extends React.Component {
         // Make the actual JSX elements for those rows
         const hourRows = rows.map((row, hourNum) => {
             return (
-                <Row key={hourNum}
-                     style={{ height: this.props.numRowsPerCell + 'em' }}
-                >
-                    <WeekRow key={hourNum}
-                             hour={hourNum}
-                             modulesByDays={row}
-                             days={this.props.days} />
-                </Row>
+                <WeekRow key={hourNum}
+                         hour={hourNum}
+                         modulesByDays={row}
+                         days={this.props.days} />
             );
         });
 
         // TODO: make the header row BOLD
         // FUTURE: dayNames.reduce --> row of headers COULD be its own component, s.t. it's only done once. Wait...would react only make one copy of it?? Research first
         return (
-            <Container className="timetableContainer">
-                <Row key={'headerRow'}>
+            <Container fluid={true} className="timetableContainer">
+                <Row key={'headerRow'} className="timetableHeaderRow">
                     {/*{dayNames.reduce((day => (*/}
                     {/*<Col key={day}>{day}</Col>*/}
                     {/*)), (*/}
                     {/*<Col key={'timeColumn'}>Time</Col>*/}
                     {/*))}*/}
-                    <Col key={'times'}>Time</Col>
+                    <Col xs={1} key={'times'} className="timetableHeaderTimeCell">Time</Col>
                     <Col key={'Mon'}>Mon</Col>
                     <Col key={'Tues'}>Tues</Col>
                     <Col key={'Wed'}>Wed</Col>
@@ -354,21 +356,27 @@ class WeekView extends React.Component {
 
 class WeekRow extends React.Component {
     render() {
-        console.log('rendering hour=' + this.props.hour, this.props.modulesByDays, this.props.days);
-        const dayColumns = this.props.days.map(day => (
-            <Col key={day}
-                 className="border border-primary h-100">
-                {this.props.modulesByDays[day] ?
-                    <TimetableCell key={day}
-                                   module={this.props.modulesByDays[day]} />
-                    : null
-                }
-            </Col>
-        ));
+        // console.log('rendering hour=' + this.props.hour, this.props.modulesByDays, this.props.days);
+        const dayColumns = this.props.days.map(day => {
+            if (this.props.modulesByDays[day]) {
+                return (
+                    <Col key={day} className="timetableCell scheduledCell border border-primary">
+                        <TimetableCell key={day}
+                                       module={this.props.modulesByDays[day]} />
+                    </Col>
+                );
+            } else {
+                return (
+                    <Col key={day} className="timetableCell border border-primary h-100">
+                        <div></div>
+                    </Col>
+                );
+            }
+        });
 
         return (
             <Row>
-                <Col className="text-right">{this.props.hour + ':00'}</Col>
+                <Col xs={1} className="text-right pl-0 ml-0">{this.props.hour + ':00'}</Col>
                 {dayColumns}
             </Row>
         );
@@ -377,19 +385,24 @@ class WeekRow extends React.Component {
 
 class TimetableCell extends React.Component {
     render() {
-        // if (!this.props.module) {
-        //     return null; // Don't render this component. Empty cell. DEBUG: move this check upward, s.t. another object isn't made?
-        // }
         const scheduledModule = this.props.module;
         return (
-            <div className="timetableCell">
+            <OverlayTrigger placement="top"
+                            overlay={(
+                                <Popover title={scheduledModule.module.entity.name}>
+                                    Contents: Lecturer, Day, Time
+                                </Popover>
+                            )}>
                 <div>
-                    {scheduledModule.module.entity.name}
+                    <span className="align-middle">
+                        course_module.code {/*TODO*/}
+                        <br />
+                        <small>
+                            {scheduledModule.venue.entity.name}
+                        </small>
+                    </span>
                 </div>
-                <div>
-                    {scheduledModule.venue.entity.name}
-                </div>
-            </div>
+            </OverlayTrigger>
         );
     }
 }
