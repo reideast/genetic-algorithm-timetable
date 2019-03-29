@@ -52,6 +52,30 @@ $body-color: #212529; // Equiv to: color-yiq(#00806b);
     text-overflow: clip;
 }
 
+.float-spinner-center {
+    position: absolute;
+    z-index: 2010; // Bootstrap places its floating elements at z 1000
+    height: 3em;
+    width: 3em;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.fade-out-mask {
+    background-color: black;
+    opacity: 0.2;
+    border-radius: 1em;
+    position: absolute;
+    z-index: 2000; // Bootstrap places its floating elements at z 1000
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
 // Page background
 //$body-bg: #e2f5ff;
 //$body-bg: theme-color("primary");

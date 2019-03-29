@@ -59,10 +59,14 @@ class App extends React.Component {
     render() {
         return (
             <Container className="bg-white">
-                <div className="py-3 pt-md-5 pb-md-4 mx-auto text-center">
-                    <h4 className="display-4">Run Genetic Algorithm</h4>
-                </div>
-                <SchedulingJobLauncher loggedInUser={this.props.loggedInUser} />
+                <Row>
+                    <Col className="py-3 pt-md-5 pb-md-4 mx-auto text-center">
+                        <h4 className="display-4">Run Genetic Algorithm</h4>
+                    </Col>
+                </Row>
+                <Row>
+                    <SchedulingJobLauncher loggedInUser={this.props.loggedInUser} />
+                </Row>
             </Container>
         );
     }
@@ -72,8 +76,7 @@ class SchedulingJobLauncher extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            currentTimetableSchedule: [],
-            localDisplayedVersion: -1,
+            currentTimetableScheduleId: -1,
             jobRunning: undefined
         };
         this.onJob = this.onJob.bind(this);
@@ -82,40 +85,37 @@ class SchedulingJobLauncher extends React.Component {
     /**
      * After a job has been started, this signal will be received
      * Update this Component's state, so that the {@link Timetable} will begin updating
-     * @param schedule
+     * @param scheduleId
      */
-    onJob(jobId, totalGenerations, startDateString, schedule) {
+    onJob(jobId, totalGenerations, startDateString, scheduleId) {
         // TODO: have gotten jobId, generations, and start date. Display them!
         // SEE: https://getbootstrap.com/docs/4.3/components/progress/
         // console.log('STUB ON JOB', schedule.entity.scheduleId); // DEBUG
         this.setState(previousState => ({
-            currentTimetableSchedule: [schedule],
-            localDisplayedVersion: previousState.localDisplayedVersion + 1,
-            jobRunning: undefined // FUTURE: Status updates
+            currentTimetableScheduleId: scheduleId,
+            jobRunning: jobId
         }));
     }
 
-    render() {
-        let timetable = null;
-        if (this.state.currentTimetableSchedule.length > 0) { // Do not render until a schedule has been given
-            if (this.state.currentTimetableSchedule.length > 1) {
-                console.error('Assertion error: Schedule job launcher was not meant to create more than one schedule at once, and only the first one will be displayed');
-            }
-            // Now that schedule's length as 1 has been asserted, don't need to loop over the array
-            // console.log('making timetable out of schedule:', this.state.currentTimetableSchedule[0]); // DEBUG
-            timetable = (
-                <Timetable loggedInUser={this.props.loggedInUser}
-                           schedule={this.state.currentTimetableSchedule[0]}
-                           localDisplayedVersion={this.state.localDisplayedVersion} />
-            );
-        }
+    // FUTURE: make an onShowSchedule and have AvailableSchedulesTable be able to call it to show different ones (without having to start a new job)
 
+    render() {
         return (
-            <div>
-                <AvailableSchedulesTable loggedInUser={this.props.loggedInUser}
-                                         onJob={this.onJob} />
-                {timetable}
-            </div>
+            <Col>
+                <Row>
+                    <Col>
+                        <AvailableSchedulesTable loggedInUser={this.props.loggedInUser}
+                                                 onJob={this.onJob} />
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        <Timetable loggedInUser={this.props.loggedInUser}
+                                   jobRunning={this.state.jobRunning}
+                                   scheduleId={this.state.currentTimetableScheduleId} />
+                    </Col>
+                </Row>
+            </Col>
         );
     }
 }
@@ -124,9 +124,13 @@ class Timetable extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            currentDisplayedVersion: -1,
-            courses: [],
-            scheduledModules: [],
+            currentScheduleId: -1,
+            currentFetchVersionDisplayed: undefined,
+            fetchVersionDesired: undefined,
+            fetchVersionInProgress: undefined,
+            isLoading: false,
+            courses: undefined,
+            // scheduledModules: undefined,
             fetchDoneWhenZero: -1,
             visibleTimetable: -1
         };
@@ -135,14 +139,50 @@ class Timetable extends React.Component {
     }
 
     loadFromServer() {
-        if (this.state.currentDisplayedVersion === this.props.localDisplayedVersion) {
-            return; // This schedule has already been fetched
+        if (this.props.scheduleId < 0) {
+            console.log('didUpdate: No scheduleId, not loading'); // DEBUG
+            return; // No schedule has been provided to this component yet
         }
+        if (this.props.scheduleId !== this.state.currentScheduleId) {
+            console.log('didUpdate: New schedule! Starting versions over from 0'); // DEBUG
+            // This is a different schedule to get from the server! Discard old fetch versions
+            this.setState({
+                fetchVersionInProgress: 0, // This current fetch action is what will become version 0
+                currentScheduleId: this.props.scheduleId,
+                currentFetchVersionDisplayed: -1,
+                fetchVersionDesired: 0
+            });
+            // And now, start the fetch of this new version
+        } else if (this.state.fetchVersionDesired === this.state.fetchVersionInProgress) {
+            console.log('didUpdate: desired version already being fetched', this.state.fetchVersionDesired, this.state.fetchVersionInProgress); // DEBUG
+            // A fetch of the desired new version has already begun. Don't start again
+            return;
+        } else if (this.state.currentFetchVersionDisplayed === this.state.fetchVersionDesired) {
+            console.log('didUpdate: desired version has already been fetched&displayed', this.state.fetchVersionDesired, this.state.currentFetchVersionDisplayed);
+            // The version desired has already been displayed. Don't fetch again
+            return;
+        } else {
+            // This is a new fetch job to get a newly desired version. Tag which version we're getting
+            console.log('didUpdate: starting a new version fetch job. fetch version in progress := desired version', this.state.fetchVersionDesired);
+            this.setState({
+                fetchVersionInProgress: this.state.fetchVersionDesired
+            });
+        }
+
+        // } else if (this.state.fetchVersionInProgress <= this.state.currentFetchVersionDisplayed) {
+        //     // The displayed version has not yet been updated; the version we're attempting to get is a newer version
+        //     return; // Don't start a new fetch, one to get a newer version is still in progress
+        // }
+
+        // if (this.state.currentFetchVersionDisplayed === this.props.localDisplayedVersion) {
+        //     return; // This schedule has already been fetched
+        // }
+
         this.setState({
             fetchDoneWhenZero: -1,
-            currentDisplayedVersion: this.props.localDisplayedVersion,
-            scheduledModules: [],
-            courses: []
+            isLoading: true
+            // scheduledModules: [],
+            // courses: []
         });
 
         let courses = [];
@@ -150,7 +190,7 @@ class Timetable extends React.Component {
         follow(client, apiRoot, [
             'scheduledModules',
             'search',
-            { rel: 'schedule', params: { id: this.props.schedule.entity.scheduleId } }
+            { rel: 'schedule', params: { id: this.props.scheduleId } }
         ]).then(scheduledModulesCollection => {
             this.setState({
                 fetchDoneWhenZero: scheduledModulesCollection.entity._embedded.scheduledModules.length + 1
@@ -218,10 +258,23 @@ class Timetable extends React.Component {
                             // console.log('lecturer', lecturer); // DEBUG
                             scheduledModule.lecturer = lecturer;
 
-                            this.setState(previousState => ({
-                                scheduledModules: previousState.scheduledModules.concat(scheduledModule),
-                                fetchDoneWhenZero: previousState.fetchDoneWhenZero - 1
-                            }));
+                            this.setState(previousState => {
+                                if (previousState.fetchDoneWhenZero === 1) {
+                                    // This is the last pending ajax request!
+                                    // In this state update, swap courses to the new version. (Hey, this is like graphics double buffering! ^_^
+                                    return {
+                                        courses: courses,
+                                        fetchVersionInProgress: undefined,
+                                        isLoading: false,
+                                        fetchDoneWhenZero: 0 // Cheaper to just say one, rather than doing 1 - 1 = 0....
+                                    };
+                                } else {
+                                    return {
+                                        // scheduledModules: previousState.scheduledModules.concat(scheduledModule),
+                                        fetchDoneWhenZero: previousState.fetchDoneWhenZero - 1
+                                    };
+                                }
+                            });
                             // console.log('LECTURER FILLED IN MODULE', scheduledModule.id.moduleId, scheduledModule); // DEBUG
                         });
                     });
@@ -229,29 +282,28 @@ class Timetable extends React.Component {
             });
             return scheduledModulesCollection;
         }).done(scheduledModulesCollection => {
+            // Note: This will be reached BEFORE the "inner" arrays of ajax calls are done, above
             this.setState(previousState => ({
-                courses: courses,
-                fetchDoneWhenZero: previousState.fetchDoneWhenZero - 1
+                fetchDoneWhenZero: previousState.fetchDoneWhenZero - 1,
+                currentFetchVersionDisplayed: previousState.currentFetchVersionDisplayed + 1
             }));
         });
     }
 
+    // TODO: This event has to fire when a Job finishes (originating at the server), and then it will re-do the fetch, overriding the version guard
     refreshTimetableAfterEvent(message) {
-        // TODO: This event has to fire when a Job finishes (originating at the server), and then it will re-do the fetch, overriding the version guard
-        // follow(client, apiRoot, ['schedules']).then(schedulesCollection => {
-        //     return schedulesCollection.entity._embedded.schedules.map(schedule => {
-        //         return client({
-        //             method: 'GET',
-        //             path: schedule._links.self.href
-        //         });
-        //     });
-        // }).then(schedulesPromises => {
-        //     return when.all(schedulesPromises);
-        // }).then(schedules => {
-        //     this.setState({
-        //         schedules: schedules
-        //     });
-        // });
+        const body = JSON.parse(message.body);
+        console.log('STOMP MESSAGE RECEIVED', 'json of payload', body); // DEBUG
+
+        if (this.state.currentScheduleId === body.scheduleId) {
+            // 1. Set state  . fetchVersionDesired += 1
+            this.setState(previousState => ({
+                fetchVersionDesired: previousState.fetchVersionDesired + 1
+            }));
+            // 2. Call this.loadFromServer();
+            this.loadFromServer();
+        }
+        // else, this component has changed to a new schedule, so should NOT refresh it!
     }
 
     componentDidUpdate() {
@@ -262,12 +314,9 @@ class Timetable extends React.Component {
         this.loadFromServer();
         // When WebSockets broker sends us back these events, then perform these callback actions
         // This is how the data is re-loaded after an object is updated in the DB
-        // TODO: in EventHandler.java, add topics for this component
-        // stompClient.register([
-        //     { route: '/topic/newSchedule', callback: this.refreshTimetableAfterEvent },
-        //     { route: '/topic/updateSchedule', callback: this.refreshTimetableAfterEvent },
-        //     { route: '/topic/deleteSchedule', callback: this.refreshTimetableAfterEvent }
-        // ]);
+        stompClient.register([
+            { route: '/topic/jobComplete', callback: this.refreshTimetableAfterEvent }
+        ]);
     }
 
     // DEBUG: this is now being done by a Bootstrap Tab group
@@ -278,13 +327,20 @@ class Timetable extends React.Component {
     }
 
     render() {
-        // Guard against rendering the child until ALL AJAX REQUESTS RETURNED
-        if (this.state.fetchDoneWhenZero !== 0) {
+        // Guard against rendering before a scheduleId has been set
+        if (this.state.currentScheduleId < 0) {
+            return null;
+        }
+        // When switching scheduleIDs, guard against rendering the child until ALL ajax requests returned
+        if (this.state.fetchVersionDesired === 0 && this.state.fetchDoneWhenZero !== 0) {
+            // The FIRST fetch job after switching to a new scheduleId (or the first scheduleId ever)
+            // So, it is appropriate to clear away the DOM elements until the fetch has finished
+            // (at which point, fetchVersionInProgress will go back to being undefined
             return null;
         }
 
         // console.log('RENDERING A LIST OF SCHEDULED_MODULES', this.state.scheduledModules); // DEBUG
-        console.log('Rendering a list of scheduled modules, put in buckets by course ID', this.state.courses); // DEBUG
+        // console.log('Rendering a list of scheduled modules, put in buckets by course ID', this.state.courses); // DEBUG
 
         // This tab layout can be moved to the side: Custom Tab Layout: https://react-bootstrap.github.io/components/tabs/#tabs-custom-layout
         // This may be necessary when there are a lot of courses
@@ -309,11 +365,32 @@ class Timetable extends React.Component {
         });
 
         return (
-            <Tabs variant="pills"
-                  transition={false}>
-                {courseTabs}
-            </Tabs>
+            <Container>
+                <Row>
+                    <JobInProgressBar />
+                </Row>
+                <Row>
+                    <Col style={this.state.isLoading ? {opacity: 0.3} : {}}>
+                        <Tabs variant="pills"
+                              transition={false}>
+                            {courseTabs}
+                        </Tabs>
+                    </Col>
+                    <div style={this.state.isLoading ? {display: "block"} : {display: "none"}}>
+                        <div className="fade-out-mask"></div>
+                        <div className="float-spinner-center spinner-border text-primary" role="status">
+                            <span className="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                </Row>
+            </Container>
         );
+    }
+}
+
+class JobInProgressBar extends React.Component {
+    render() {
+        return null;
     }
 }
 
@@ -342,8 +419,8 @@ class WeekView extends React.Component {
             );
         });
 
-        // TODO: make the header row BOLD
         // FUTURE: dayNames.reduce --> row of headers COULD be its own component, s.t. it's only done once. Wait...would react only make one copy of it?? Research first
+        // FUTURE: Or, just make it global constant
         return (
             <Container fluid={true} className="timetableContainer">
                 <Row key={'headerRow'} className="timetableHeaderRow">
@@ -412,7 +489,6 @@ class WeekRow extends React.Component {
 class TimetableCell extends React.Component {
     render() {
         const scheduledModule = this.props.module;
-        // console.log("A cells's scheduled module: ", scheduledModule);
         const courseCodeFromCourseModule = scheduledModule.module.entity.courseModules.find(courseModule =>
             courseModule.id.courseId === this.props.courseId
         ).code;
@@ -474,6 +550,8 @@ class AvailableSchedulesTable extends React.Component {
     }
 
     refreshPageOfSchedules(message) {
+        // console.log("STOMP RECEIVED - UPDATING SCHEDULE TABLE"); // DEBUG
+        // TODO: this is not correct anymore: it doesn't filter by USERNAME
         follow(client, apiRoot, ['schedules']).then(schedulesCollection => {
             return schedulesCollection.entity._embedded.schedules.map(schedule => {
                 return client({
@@ -503,6 +581,7 @@ class AvailableSchedulesTable extends React.Component {
 
     render() {
         // TODO: Make this table into Cards (perhaps) instead
+        // DEBUG: note that the parent HTML object is <Row>
         return (
             <div>
                 <ScheduleTable loggedInUser={this.props.loggedInUser}
@@ -552,7 +631,8 @@ class RunGeneticAlgorithm extends React.Component {
                 buttonText: 'Start genetic algorithm'
             });
 
-            this.props.onJob(response.entity.jobId, response.entity.totalGenerations, response.entity.startDate, this.props.schedule); // Inform UP the hierarchy that a new job has been submitted
+            // Inform UP the hierarchy that a new job has been submitted
+            this.props.onJob(response.entity.jobId, response.entity.totalGenerations, response.entity.startDate, this.props.schedule.entity.scheduleId);
         }, error => {
             if (error.status.code === 409) {
                 alert('A Genetic Algorithm job for schedule ID #' + this.props.schedule.entity.scheduleId + ' has already been started on the server!'); // FUTURE: More elegant error handling. Toast? Popover on button
