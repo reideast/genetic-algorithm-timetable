@@ -102,3 +102,5 @@ logs/
 node_modules/
 *bundle.js
 *bundle.js.map
+*main.css
+*main.css.map

@@ -1,6 +1,7 @@
 // Webpack config was written by: https://spring.io/guides/tutorials/react-and-spring-data-rest/
 var path = require('path');
 var CopyPlugin = require('copy-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
     entry: './src/main/js/app.js',
@@ -38,7 +39,9 @@ module.exports = {
                 // test: path.join(__dirname, '.'),
                 // test: path.join(__dirname, 'src/main/resources/static/sass/.'),
                 use: [{
-                    loader: 'style-loader' // inject CSS to page
+                    loader: MiniCssExtractPlugin.loader // See: https://github.com/webpack-contrib/sass-loader and https://github.com/webpack-contrib/mini-css-extract-plugin
+                // }, { // 'style-loader' is not used with MiniCssExtractPlugin
+                    // loader: 'style-loader' // inject CSS to page
                 }, {
                     loader: 'css-loader' // translates CSS into CommonJS modules
                 }, {
@@ -52,7 +55,8 @@ module.exports = {
                     }
                 }, {
                     loader: 'sass-loader' // compiles Sass to CSS
-                }]
+                }
+                ]
             }
         ]
     },
@@ -62,6 +66,10 @@ module.exports = {
             {
                 from: './src/main/resources/static/built/bundle.js',
                 to: './build/resources/main/static/built/bundle.js'
+            },
+            {
+                from: './src/main/resources/static/css/main.css',
+                to: './build/resources/main/static/css/main.css'
             },
             {
                 from: './node_modules/bootstrap/dist/css/bootstrap.min.css',
@@ -79,6 +87,12 @@ module.exports = {
             // {
             //     from: './node_modules/react-bootstrap/dist/react-bootstrap.min.js',
             //     to: './src/main/resources/static/js/react-bootstrap.min.js'
-        ])
+        ]),
+        new MiniCssExtractPlugin({
+            // Options similar to the same options in webpackOptions.output
+            // both options are optional
+            filename: './src/main/resources/static/css/[name].css',
+            chunkFilename: './src/main/resources/static/css/[id].css'
+        })
     ]
 };
