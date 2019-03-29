@@ -139,9 +139,10 @@ class Timetable extends React.Component {
             return; // This schedule has already been fetched
         }
         this.setState({
+            fetchDoneWhenZero: -1,
             currentDisplayedVersion: this.props.localDisplayedVersion,
             scheduledModules: [],
-            courses: null
+            courses: []
         });
 
         let courses = [];
