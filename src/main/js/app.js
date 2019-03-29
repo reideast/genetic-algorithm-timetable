@@ -542,7 +542,7 @@ class RunGeneticAlgorithm extends React.Component {
             method: 'POST',
             path: apiGeneticAlgorithmRoot + '/job',
             params: { scheduleId: this.props.schedule.entity.scheduleId }
-        }).done(response => {
+        }).then(response => {
             console.log('Job submitted, response received:', response); // DEBUG
             // TODO: Do something with this job JSON object?
             this.setState({
@@ -553,6 +553,17 @@ class RunGeneticAlgorithm extends React.Component {
             });
 
             this.props.onJob(response.entity.jobId, response.entity.totalGenerations, response.entity.startDate, this.props.schedule); // Inform UP the hierarchy that a new job has been submitted
+        }, error => {
+            if (error.status.code === 409) {
+                alert('A Genetic Algorithm job for schedule ID #' + this.props.schedule.entity.scheduleId + ' has already been started on the server!'); // FUTURE: More elegant error handling. Toast? Popover on button
+
+                this.setState({
+                    icon: faMicrochip,
+                    spin: false,
+                    disabled: false,
+                    buttonText: 'Start genetic algorithm'
+                });
+            }
         });
     }
 
