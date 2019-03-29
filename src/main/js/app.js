@@ -128,6 +128,7 @@ class Timetable extends React.Component {
             fetchDoneWhenZero: -1,
             visibleTimetable: -1
         };
+        this.numRowsPerCell = 2;
         this.refreshTimetableAfterEvent = this.refreshTimetableAfterEvent.bind(this);
     }
 
@@ -286,6 +287,7 @@ class Timetable extends React.Component {
                               dayNames={dayNames}
                               days={days}
                               hours={hours}
+                              numRowsPerCell={this.numRowsPerCell}
                     />
                 </Tab>
             );
@@ -316,7 +318,9 @@ class WeekView extends React.Component {
         // Make the actual JSX elements for those rows
         const hourRows = rows.map((row, hourNum) => {
             return (
-                <Row key={hourNum}>
+                <Row key={hourNum}
+                     style={{ height: this.props.numRowsPerCell + 'em' }}
+                >
                     <WeekRow key={hourNum}
                              hour={hourNum}
                              modulesByDays={row}
@@ -328,7 +332,7 @@ class WeekView extends React.Component {
         // TODO: make the header row BOLD
         // FUTURE: dayNames.reduce --> row of headers COULD be its own component, s.t. it's only done once. Wait...would react only make one copy of it?? Research first
         return (
-            <Container>
+            <Container className="timetableContainer">
                 <Row key={'headerRow'}>
                     {/*{dayNames.reduce((day => (*/}
                     {/*<Col key={day}>{day}</Col>*/}
@@ -352,7 +356,8 @@ class WeekRow extends React.Component {
     render() {
         console.log('rendering hour=' + this.props.hour, this.props.modulesByDays, this.props.days);
         const dayColumns = this.props.days.map(day => (
-            <Col key={day}>
+            <Col key={day}
+                 className="border border-primary h-100">
                 {this.props.modulesByDays[day] ?
                     <TimetableCell key={day}
                                    module={this.props.modulesByDays[day]} />
@@ -363,7 +368,7 @@ class WeekRow extends React.Component {
 
         return (
             <Row>
-                <Col>{this.props.hour + ':00'}</Col>
+                <Col className="text-right">{this.props.hour + ':00'}</Col>
                 {dayColumns}
             </Row>
         );
@@ -377,7 +382,7 @@ class TimetableCell extends React.Component {
         // }
         const scheduledModule = this.props.module;
         return (
-            <div>
+            <div className="timetableCell">
                 <div>
                     {scheduledModule.module.entity.name}
                 </div>

@@ -15,6 +15,10 @@ $body-color: #212529; // Equiv to: color-yiq(#00806b);
     color: white;
 }
 
+.timetableCell {
+    font-size: 0.7em; // Using relative font size: fonts in table are a fraction of the size as out
+}
+
 // Page background
 //$body-bg: #e2f5ff;
 //$body-bg: theme-color("primary");
