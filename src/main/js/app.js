@@ -37,6 +37,7 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 import Tabs from 'react-bootstrap/Tabs';
+import Tab from 'react-bootstrap/Tab';
 
 const apiRoot = '/api';
 const apiGeneticAlgorithmRoot = '/genetic-algorithm-api';
@@ -203,7 +204,7 @@ class Timetable extends React.Component {
     setVisibleTimetableForCourse(course) {
         this.setState({
             visibleTimetable: course
-        })
+        });
     }
 
     render() {
@@ -226,35 +227,42 @@ class Timetable extends React.Component {
                 // console.log('looking at module #', i); // DEBUG
                 if (!courses[courseModule.id.courseId]) {
                     // console.log("making a new array for courseId=", courseModule.id.courseId); // DEBUG
-                    courses[courseModule.id.courseId] = [];
+                    courses[courseModule.id.courseId] = {
+                        courseId: courseModule.id.courseId,
+                        courseName: 'name' + courseModule.id.courseId, // TODO: need to fetch from db
+                        scheduledModules: []
+                    };
                 }
-                courses[courseModule.id.courseId].push(scheduledModule);
+                courses[courseModule.id.courseId].scheduledModules.push(scheduledModule);
                 // console.log("array is now:", courses[courseModule.id.courseId]); // DEBUG
             });
         });
         console.log('sorted by courses', courses);
 
-        const courseLinks = [], courseTimetables = [];
-        courses.forEach((scheduledModule, index) => {
-            courseLinks.push((
-                <div>course</div>
-            ));
-            courseTimetables.push((
-                <div>week</div>
+        const courseTabs = courses.map((course, index) => {
+            return (
+                <Tab eventKey={course.courseId} title={course.courseName} key={course.courseId}>
+                    <WeekView modules={course.scheduledModules} key={course.courseId} />
+                </Tab>
+            );
             //     <ScheduledModuleList loggedInUser={this.props.loggedInUser}
             // scheduledModules={this.state.scheduledModules} />
-            ))
         });
 
         return (
-            <Container>
-                <Row>
-                    {courseLinks}
-                </Row>
-                <Row>
-                    {courseTimetables}
-                </Row>
-            </Container>
+            <Tabs>
+                {courseTabs}
+            </Tabs>
+        );
+    }
+}
+
+class WeekView extends React.Component {
+    render() {
+        return (
+            <div>
+                {this.props.modules.length}
+            </div>
         );
     }
 }
