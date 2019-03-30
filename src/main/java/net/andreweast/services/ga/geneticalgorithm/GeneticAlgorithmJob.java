@@ -3,9 +3,12 @@ package net.andreweast.services.ga.geneticalgorithm;
 import net.andreweast.BeanUtil;
 import net.andreweast.services.ga.service.Dispatcher;
 import net.andreweast.services.ga.service.GaToDbSerializer;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static net.andreweast.WebSocketConfiguration.MESSAGE_PREFIX;
 
 
 public class GeneticAlgorithmJob implements Runnable {
@@ -21,7 +24,7 @@ public class GeneticAlgorithmJob implements Runnable {
     private static final int ELITE_SURVIVORS = 1;
 
     // How often to send reports back to the database, in percentage of job done
-    private static final float QUERY_RATE = 0.20f;
+    private static final float QUERY_RATE = 0.05f;
 
     // To control the thread, change this atomic (i.e. thread-safe) boolean. The thread will stop itself after the next generation
     private AtomicBoolean isRunning;
@@ -31,6 +34,7 @@ public class GeneticAlgorithmJob implements Runnable {
     // but the lifecycle of this class is managed as a Thread
     private final GaToDbSerializer gaToDbSerializer;
     private final Dispatcher dispatcher;
+    private SimpMessagingTemplate websocket;
 
     // Data on this job:
     // Master data is all the metadata the GA needs to run
@@ -50,6 +54,7 @@ public class GeneticAlgorithmJob implements Runnable {
         // Directly get Spring @Services via a context-aware utility class
         gaToDbSerializer = BeanUtil.getBean(GaToDbSerializer.class);
         dispatcher = BeanUtil.getBean(Dispatcher.class);
+        websocket = BeanUtil.getBean(SimpMessagingTemplate.class);
 
         numGenerationsMaximum = masterData.getNumGenerations();
         currentGeneration = new AtomicInteger(0);
@@ -118,9 +123,14 @@ public class GeneticAlgorithmJob implements Runnable {
                 runningAverage += ((System.nanoTime() - generationTime) - runningAverage) / ((double) (currentGeneration.get() + 1));
             }
 
-            // Every 1/10 of the way through the job (config by QUERY_RATE), inform the Dispatcher that the job status should be updated
+            // Every 5% of the way through the job (config by QUERY_RATE), inform the frontend that the job status should be updated
             if (currentGeneration.get() % queryGenerationModulus == 0) {
-                dispatcher.getStatusForJob(masterData.getJobId()); // FUTURE: Slight hack: Dispatcher#getStatusForJob should really have its functionality moved into THIS class
+                // Send a WebSocket publication to subscribers on the frontend web app, notifying of progress of this job
+                this.websocket.convertAndSend(MESSAGE_PREFIX + "/jobStatus",
+                        "{\"jobId\":" + masterData.getJobId() +
+                                ",\"progressPercent\":" +
+                                ((float) currentGeneration.get() / tentativeGenLimit) + // TODO: try it with numGenerationsMaximum rather than max, see how it look
+                                ",\"isDone\": " + false + "}");
             }
 
             // Increment generation counter, and then check for exit conditions
@@ -154,6 +164,12 @@ public class GeneticAlgorithmJob implements Runnable {
         System.out.println("Total time: " + ((System.nanoTime() - startTime) * 1E-6) + " ms");
 
         System.out.println("GA generations have completed, job=" + masterData.getJobId() + ", schedule=" + masterData.getScheduleId()); // FUTURE: Logger info
+
+        // Send a WebSocket publication to subscribers on the frontend web app, notifying job progress == DONE
+        this.websocket.convertAndSend(MESSAGE_PREFIX + "/jobStatus",
+                "{\"jobId\":" + masterData.getJobId() +
+                        ",\"progressPercent\":" + 1.0 +
+                        ",\"isDone\": " + true + "}");
     }
 
     /**

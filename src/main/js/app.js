@@ -114,7 +114,7 @@ class SchedulingJobLauncher extends React.Component {
                         <JobInProgressBar currentTimetableJobId={this.state.currentTimetableJobId} />
                     </Col>
                 </Row>
-                <Row>
+                <Row className="mb-3">
                     <Col>
                         <Timetable loggedInUser={this.props.loggedInUser}
                                    scheduleId={this.state.currentTimetableScheduleId} />
@@ -139,7 +139,7 @@ class Timetable extends React.Component {
             fetchDoneWhenZero: -1,
             visibleTimetable: -1
         };
-        this.refreshTimetableAfterEvent = this.refreshTimetableAfterEvent.bind(this);
+        this.refreshTimetableAfterWebSocket = this.refreshTimetableAfterWebSocket.bind(this);
     }
 
     loadFromServer() {
@@ -295,7 +295,7 @@ class Timetable extends React.Component {
     }
 
     // TODO: This event has to fire when a Job finishes (originating at the server), and then it will re-do the fetch, overriding the version guard
-    refreshTimetableAfterEvent(message) {
+    refreshTimetableAfterWebSocket(message) {
         const body = JSON.parse(message.body);
         console.log('STOMP MESSAGE RECEIVED', 'json of payload', body); // DEBUG
 
@@ -319,7 +319,7 @@ class Timetable extends React.Component {
         // When WebSockets broker sends us back these events, then perform these callback actions
         // This is how the data is re-loaded after an object is updated in the DB
         stompClient.register([
-            { route: '/topic/jobComplete', callback: this.refreshTimetableAfterEvent }
+            { route: '/topic/jobComplete', callback: this.refreshTimetableAfterWebSocket }
         ]);
     }
 
@@ -364,7 +364,8 @@ class Timetable extends React.Component {
                 <Row>
                     <Col style={this.state.isLoading ? { opacity: 0.3 } : {}}>
                         <Tabs variant="pills"
-                              transition={false}>
+                              transition={false}
+                              className="pt-2">
                             {courseTabs}
                         </Tabs>
                     </Col>
@@ -385,73 +386,44 @@ class JobInProgressBar extends React.Component {
         super(props);
         console.log('= Setting up new JobInProgressBar, jobId=', this.props.currentTimetableJobId);
         this.state = {
-            currentTimetableJobId: undefined,
             isVisible: false,
             progressOutOfHundred: 0
         };
-        this.refreshMilliseconds = 1 * 1000;
-        this.startNewProgressBarSession = this.startNewProgressBarSession.bind(this);
-        this.fetchDataAndUpdateProgress = this.fetchDataAndUpdateProgress.bind(this);
+        this.refreshProgressBarAfterWebSocket = this.refreshProgressBarAfterWebSocket.bind(this);
     }
 
     componentDidMount() {
-        console.log('= Progress Bar componentDidMOUNT: state/prop=', this.state.currentTimetableJobId, this.props.currentTimetableJobId);
-        if (this.props.currentTimetableJobId !== this.state.currentTimetableJobId) {
-            this.setState({
-                currentTimetableJobId: this.props.currentTimetableJobId
-            });
-            this.startNewProgressBarSession();
-        }
+        stompClient.register([
+            { route: '/topic/jobStatus', callback: this.refreshProgressBarAfterWebSocket }
+        ]);
     }
 
-    componentDidUpdate() {
-        console.log('== Progress Bar componentDidUpdate: state/prop=', this.state.currentTimetableJobId, this.props.currentTimetableJobId);
-        if (this.props.currentTimetableJobId !== this.state.currentTimetableJobId) {
-            this.setState({
-                currentTimetableJobId: this.props.currentTimetableJobId
-            });
-            this.startNewProgressBarSession();
-        }
-    }
+    refreshProgressBarAfterWebSocket(message) {
+        const body = JSON.parse(message.body);
+        // console.log('STOMP MESSAGE RECEIVED', 'json of payload', body); // DEBUG
 
-    startNewProgressBarSession() {
-        console.log('====== Starting Progress Bar');
-        this.setState({
-            isVisible: true,
-            progressOutOfHundred: 0
-        });
-        this.fetchDataInterval = window.setTimeout(this.fetchDataAndUpdateProgress, this.refreshMilliseconds);
-    }
-
-    fetchDataAndUpdateProgress() {
-        console.log('============= Progress Bar Interval');
-        this.fetchDataInterval = window.setTimeout(this.fetchDataAndUpdateProgress, this.refreshMilliseconds);
-
-        client({
-            method: 'GET',
-            path: `${apiRoot}/jobs/${this.state.currentTimetableJobId}`
-        }).then(jobStatus => {
-            console.log('progress:', jobStatus.entity.currentGeneration, jobStatus.entity.totalGenerations, jobStatus.entity.currentGeneration / jobStatus.entity.totalGenerations * 100);
-            if (jobStatus.entity.currentGeneration <= jobStatus.entity.totalGenerations) {
-                this.setState({
-                    progressOutOfHundred: 100 * jobStatus.entity.currentGeneration / jobStatus.entity.totalGenerations
-                });
-            } else {
-                window.clearTimeout(this.fetchDataInterval);
+        // Filter: only act on WebSocket messages that are for THIS Job
+        if (this.props.currentTimetableJobId === body.jobId) {
+            if (body.isDone) {
                 this.setState({
                     isVisible: false
                 });
+            } else {
+                this.setState({
+                    isVisible: true,
+                    progressOutOfHundred: body.progressPercent * 100
+                });
             }
-        });
+        }
     }
 
     render() {
         return (
-            <ProgressBar animated now={this.state.progressOutOfHundred} />
+            <ProgressBar now={this.state.progressOutOfHundred}
+                         label={`GA Job #${this.props.currentTimetableJobId}`}
+                         style={{ display: (this.state.isVisible) ? 'flex' : 'none' }}
+                         className="mb-3" />
         );
-        // return this.state.isVisisble ? (
-        //     <ProgressBar animated now={this.state.progressOutOfHundred} />
-        // ) : null;
     }
 }
 
