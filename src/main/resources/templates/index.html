@@ -1,13 +1,78 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${appName}"></title>
-    <link rel="stylesheet" href="/css/style.css" />
+
+    <title th:text="${appName}">title</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Change titlebar colour on Android -->
+    <meta name="theme-color" content="#00806b">
+    <!-- Change titlebar colour on Windows Phone -->
+    <meta name="msapplication-navbutton-color" content="#00806b">
+    <!-- Change titlebar colour on iOS Safari -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#00806b">
+
+    <link rel="stylesheet" href="/css/main.css" />
 </head>
 <body>
-    <div id="react"></div>
 
-    <script src="built/bundle.js"></script>
+<!-- Navbar must be done here so that Spring Boot login can be injected -->
+<nav class="navbar navbar-dark bg-primary shadow-sm">
+    <a class="navbar-brand" href="#"><span id="brand-icon-placeholder"></span> Genetic Algorithm Timetable</a>
+    <!--<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"-->
+            <!--aria-label="Toggle navigation">-->
+        <!--<span class="navbar-toggler-icon"></span>-->
+    <!--</button>-->
+
+    <!--<div class="collapse navbar-collapse" id="navbarSupportedContent">-->
+        <!--<ul class="navbar-nav mr-auto">-->
+            <!--<li class="nav-item active">-->
+                <!--<a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>-->
+            <!--</li>-->
+            <!--<li class="nav-item">-->
+                <!--<a class="nav-link" href="#">Link</a>-->
+            <!--</li>-->
+            <!--<li class="nav-item dropdown">-->
+                <!--<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+                    <!--Dropdown-->
+                <!--</a>-->
+                <!--<div class="dropdown-menu" aria-labelledby="navbarDropdown">-->
+                    <!--<a class="dropdown-item" href="#">Action</a>-->
+                    <!--<a class="dropdown-item" href="#">Another action</a>-->
+                    <!--<div class="dropdown-divider"></div>-->
+                    <!--<a class="dropdown-item" href="#">Something else here</a>-->
+                <!--</div>-->
+            <!--</li>-->
+            <!--<li class="nav-item">-->
+                <!--<a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>-->
+            <!--</li>-->
+        <!--</ul>-->
+        <!--<span class="navbar-text">User: <span th:text="${#authentication.getName()}">user</span></span>-->
+        <form th:action="@{/logout}" method="post" class="form-inline">
+            <span class="navbar-text" id="user-display-name-placeholder"></span>
+            <button class="btn btn-light ml-1 ml-sm-3 my-2 my-sm-0" type="submit">Logout</button>
+        </form>
+    <!--</div>-->
+</nav>
+
+<div style="display:none;" id="loggedInUser" th:text="${#authentication.name}">user</div>
+<!--<div>-->
+    <!--<div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">-->
+        <!--<p>You have admin privileges</p>-->
+    <!--</div>-->
+    <!--<div sec:authentication="name">-->
+        <!--The value of the "name" property of the authentication object should appear here.-->
+    <!--</div>-->
+    <!--<div sec:authorize="hasRole('ROLE_ADMIN')">-->
+        <!--This will only be displayed if authenticated user has role ROLE_ADMIN.-->
+    <!--</div>-->
+<!--</div>-->
+
+<div id="react"></div>
+
+<script src="built/bundle.js"></script>
 </body>
 </html>

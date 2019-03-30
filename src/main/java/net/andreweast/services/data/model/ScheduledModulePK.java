@@ -13,6 +13,25 @@ public class ScheduledModulePK implements Serializable {
     @Column(name = "module_id", nullable = false)
     private Long moduleId;
 
+    public ScheduledModulePK() {
+    }
+
+    public ScheduledModulePK(Long scheduleId, Long moduleId) {
+        this.scheduleId = scheduleId;
+        this.moduleId = moduleId;
+    }
+
+    /**
+     * Supports reversing one of these PKs that was created by the toString() method of this class
+     *
+     * @param pkCombinedByUnderscore
+     */
+    public ScheduledModulePK(String pkCombinedByUnderscore) {
+        String[] keys = pkCombinedByUnderscore.split("_");
+        this.scheduleId = Long.parseLong(keys[0]);
+        this.moduleId = Long.parseLong(keys[1]);
+    }
+
     public Long getScheduleId() {
         return scheduleId;
     }
@@ -41,5 +60,15 @@ public class ScheduledModulePK implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(scheduleId, moduleId);
+    }
+
+    /**
+     * Serialize this composite primary key into the two IDs joined by an underscore
+     *
+     * @return scheduleId then moduleId
+     */
+    @Override
+    public String toString() {
+        return scheduleId + "_" + moduleId;
     }
 }

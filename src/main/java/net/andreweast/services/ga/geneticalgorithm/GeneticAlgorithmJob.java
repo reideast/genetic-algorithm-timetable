@@ -3,11 +3,12 @@ package net.andreweast.services.ga.geneticalgorithm;
 import net.andreweast.BeanUtil;
 import net.andreweast.services.ga.service.Dispatcher;
 import net.andreweast.services.ga.service.GaToDbSerializer;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static net.andreweast.WebSocketConfiguration.MESSAGE_PREFIX;
 
 
 public class GeneticAlgorithmJob implements Runnable {
@@ -22,6 +23,9 @@ public class GeneticAlgorithmJob implements Runnable {
     // How many of the very best in a population are guaranteed to survive
     private static final int ELITE_SURVIVORS = 1;
 
+    // How often to send reports back to the database, in percentage of job done
+    private static final float QUERY_RATE = 0.05f;
+
     // To control the thread, change this atomic (i.e. thread-safe) boolean. The thread will stop itself after the next generation
     private AtomicBoolean isRunning;
 
@@ -30,6 +34,7 @@ public class GeneticAlgorithmJob implements Runnable {
     // but the lifecycle of this class is managed as a Thread
     private final GaToDbSerializer gaToDbSerializer;
     private final Dispatcher dispatcher;
+    private SimpMessagingTemplate websocket;
 
     // Data on this job:
     // Master data is all the metadata the GA needs to run
@@ -49,6 +54,7 @@ public class GeneticAlgorithmJob implements Runnable {
         // Directly get Spring @Services via a context-aware utility class
         gaToDbSerializer = BeanUtil.getBean(GaToDbSerializer.class);
         dispatcher = BeanUtil.getBean(Dispatcher.class);
+        websocket = BeanUtil.getBean(SimpMessagingTemplate.class);
 
         numGenerationsMaximum = masterData.getNumGenerations();
         currentGeneration = new AtomicInteger(0);
@@ -79,6 +85,8 @@ public class GeneticAlgorithmJob implements Runnable {
         // Is the algorithm currently running those "several more generations?"
         boolean isDoingFinalRunDown = false;
 
+        int queryGenerationModulus = (int) (numGenerationsMaximum * QUERY_RATE);
+
         long startTime = System.nanoTime(); // DEBUG
         System.out.println("************* GEN init *************"); // DEBUG
         System.out.println(population); // DEBUG
@@ -96,12 +104,12 @@ public class GeneticAlgorithmJob implements Runnable {
             // DEBUG: According to (Padhy 2005), selection should/may be done AFTER crossover & mutation
             population.select(ELITE_SURVIVORS); // Selection must be done after genetic crossover/mutate in order to find cached hasValidSolution
 
-//            // DEBUG
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
+            // DEBUG: introduce delays to make loading bar more obvious
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
             if (DEBUG) { // DEBUG
                 System.out.print("Gen " + currentGeneration.get() + ": ");
@@ -115,23 +123,33 @@ public class GeneticAlgorithmJob implements Runnable {
                 runningAverage += ((System.nanoTime() - generationTime) - runningAverage) / ((double) (currentGeneration.get() + 1));
             }
 
+            // Every 5% of the way through the job (config by QUERY_RATE), inform the frontend that the job status should be updated
+            if (currentGeneration.get() % queryGenerationModulus == 0) {
+                // Send a WebSocket publication to subscribers on the frontend web app, notifying of progress of this job
+                this.websocket.convertAndSend(MESSAGE_PREFIX + "/jobStatus",
+                        "{\"jobId\":" + masterData.getJobId() +
+                                ",\"progressPercent\":" +
+                                ((float) currentGeneration.get() / tentativeGenLimit) + // TODO: try it with numGenerationsMaximum rather than max, see how it look
+                                ",\"isDone\": " + false + "}");
+            }
+
             // Increment generation counter, and then check for exit conditions
             if (currentGeneration.incrementAndGet() > numGenerationsMaximum) {
                 isRunning.set(false);
             } else if (currentGeneration.get() > tentativeGenLimit) {
                 if (population.hasValidSolution()) {
                     isRunning.set(false); // Can quit early! We had found a solution, ran some more generations as a "run down", and now we still have a solution
-                    System.out.println("Found a valid solution and ran for several more generations. QUITTING EARLY!"); // DEBUG
+                    System.out.println("Found a valid solution and ran for several more generations. Quitting early!"); // FUTURE: Logger
                 } else {
                     tentativeGenLimit = numGenerationsMaximum; // Ran several more generations, but have now LOST the valid solution. Go some more
                     isDoingFinalRunDown = false;
-                    System.out.println("During the run down, the valid solution was lost. Population needs more more!"); // DEBUG
+                    System.out.println("During the run down, the valid solution was lost. Population needs more more!"); // FUTURE: Logger
                 }
             } else if (!isDoingFinalRunDown) {
                 if (population.hasValidSolution()) {
                     tentativeGenLimit = currentGeneration.get() + RUN_DOWN_NUM_GENERATIONS;
                     isDoingFinalRunDown = true;
-                    System.out.println("Found a valid solution! Doing a final run down now for " + RUN_DOWN_NUM_GENERATIONS + " generations"); // DEBUG
+                    System.out.println("Found a valid solution! Doing a final run down now for " + RUN_DOWN_NUM_GENERATIONS + " generations"); // FUTURE: Logger
                 }
                 // else: There's no valid solution. Continue running the algorithm as normal
             } // else: Already doing a final run down, don't check if the valid solution still exists until we're done
@@ -146,6 +164,12 @@ public class GeneticAlgorithmJob implements Runnable {
         System.out.println("Total time: " + ((System.nanoTime() - startTime) * 1E-6) + " ms");
 
         System.out.println("GA generations have completed, job=" + masterData.getJobId() + ", schedule=" + masterData.getScheduleId()); // FUTURE: Logger info
+
+        // Send a WebSocket publication to subscribers on the frontend web app, notifying job progress == DONE
+        this.websocket.convertAndSend(MESSAGE_PREFIX + "/jobStatus",
+                "{\"jobId\":" + masterData.getJobId() +
+                        ",\"progressPercent\":" + 1.0 +
+                        ",\"isDone\": " + true + "}");
     }
 
     /**
@@ -163,7 +187,7 @@ public class GeneticAlgorithmJob implements Runnable {
     }
 
     private void writeBackToDatabase() {
-        gaToDbSerializer.writeScheduleData(masterData, masterData.getScheduleId());
+        gaToDbSerializer.writeScheduleData(masterData, masterData.getScheduleId(), currentGeneration.get() - 1);
     }
 
     private void finaliseJob() {

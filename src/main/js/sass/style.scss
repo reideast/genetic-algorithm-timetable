@@ -1,0 +1,84 @@
+/* N.b. This file, when compiled, contains both all of Bootstrap and overridden styles */
+
+
+// Your variable overrides
+//$body-bg: #00806b;
+//https://www.colorhexa.com/00806b
+//$body-color: color-yiq(#00806b); // Automatic high-contrast colour
+
+$theme-colors: (
+        "primary": #00806b
+);
+
+// Set text color for all body text
+// Also, navbar-brand text
+$body-color: #212529; // Equiv to: color-yiq(#00806b);
+
+.navbar-brand {
+    color: white;
+}
+
+.timetableHeaderRow {
+    .col {
+        font-weight: bold;
+        text-align: center;
+        border-bottom-width: 2px;
+        border-bottom-style: solid;
+        border-bottom-color: map-get($theme-colors, "primary");
+
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: clip;
+    }
+
+    .timetableHeaderTimeCell {
+        font-weight: bold;
+        text-align: right;
+    }
+}
+
+.timetableCell div {
+    font-size: 0.9em; // Using relative font size: fonts in table are a fraction of the size as out
+    height: 3.6em; // Every cell should be tall enough for the text
+    font-weight: bold;
+}
+
+.scheduledCell {
+    background-color: map-get($theme-colors, "primary");
+    color: white;
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: clip;
+}
+
+.float-spinner-center {
+    position: absolute;
+    z-index: 2010; // Bootstrap places its floating elements at z 1000
+    height: 3em;
+    width: 3em;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.fade-out-mask {
+    background-color: black;
+    opacity: 0.2;
+    border-radius: 1em;
+    position: absolute;
+    z-index: 2000; // Bootstrap places its floating elements at z 1000
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+// Page background
+//$body-bg: #e2f5ff;
+//$body-bg: theme-color("primary");
+//$body-bg: map-get($theme-colors, "primary");
+
+@import "~bootstrap/scss/bootstrap";

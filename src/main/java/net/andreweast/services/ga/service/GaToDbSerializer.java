@@ -8,9 +8,12 @@ import net.andreweast.services.data.model.Schedule;
 import net.andreweast.services.ga.geneticalgorithm.GeneticAlgorithmJobData;
 import net.andreweast.services.ga.geneticalgorithm.ScheduledModule;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static net.andreweast.WebSocketConfiguration.MESSAGE_PREFIX;
 
 /**
  * Puts all information from a completed Genetic Algorithm job back into the database
@@ -26,11 +29,21 @@ public class GaToDbSerializer {
     @Autowired
     private ScheduledModuleRepository scheduledModuleRepository;
 
-    public void writeScheduleData(GeneticAlgorithmJobData gaData, Long scheduleId) {
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    // Warning is not correct IntelliJ is not picking picking up config. See: https://stackoverflow.com/a/23061805/5271224
+    @Autowired
+    private SimpMessagingTemplate websocket;
+
+    public void writeScheduleData(GeneticAlgorithmJobData gaData, Long scheduleId, int currentGeneration) {
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(DataNotFoundException::new);
         // Anytime a schedule is modified by the GA, it is not longer new, therefore should be considered a "work-in-progress"
         schedule.setWip(true);
         scheduleRepository.save(schedule);
+
+        // Send a WebSocket publication to subscribers on the frontend web app, notifying "A job has finished for this schedule"
+        this.websocket.convertAndSend(MESSAGE_PREFIX + "/jobComplete",
+                "{\"scheduleId\":" + schedule.getScheduleId() +
+                        ",\"currentGeneration\":" + currentGeneration + "}");
 
         // Update or create a database record for each scheduled module that the GA generated
         List<ScheduledModule> scheduledModules = gaData.getScheduledModules();

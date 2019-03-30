@@ -1,12 +1,18 @@
 // Webpack config was written by: https://spring.io/guides/tutorials/react-and-spring-data-rest/
 var path = require('path');
 var CopyPlugin = require('copy-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
     entry: './src/main/js/app.js',
     devtool: 'sourcemaps',
     cache: true,
     mode: 'development',
+    resolve: {
+        alias: {
+            'stompjs': __dirname + '/node_modules' + '/stompjs/lib/stomp.js'
+        }
+    },
     output: {
         path: __dirname,
         filename: './src/main/resources/static/built/bundle.js'
@@ -22,15 +28,71 @@ module.exports = {
                         presets: ['@babel/preset-env', '@babel/preset-react']
                     }
                 }]
+            },
+            {
+                test: /\.scss$/,
+                exclude: /(node_modules)/,
+                // include: [
+                //     path.resolve(__dirname, 'src/main/resources/static/sass')
+                // ],
+                // test: /\.\/src\/main\/resources\/static\/sass\/style\.scss/,
+                // test: path.join(__dirname, '.'),
+                // test: path.join(__dirname, 'src/main/resources/static/sass/.'),
+                use: [{
+                    loader: MiniCssExtractPlugin.loader // See: https://github.com/webpack-contrib/sass-loader and https://github.com/webpack-contrib/mini-css-extract-plugin
+                // }, { // 'style-loader' is not used with MiniCssExtractPlugin
+                    // loader: 'style-loader' // inject CSS to page
+                }, {
+                    loader: 'css-loader' // translates CSS into CommonJS modules
+                }, {
+                    loader: 'postcss-loader', // Run postcss actions
+                    options: {
+                        plugins: function() { // postcss plugins, can be exported to postcss.config.js
+                            return [
+                                require('autoprefixer')
+                            ];
+                        }
+                    }
+                }, {
+                    loader: 'sass-loader' // compiles Sass to CSS
+                }
+                ]
             }
         ]
     },
     plugins: [
+        // Copy built JS file from build location into where Spring Boot gradle runner servers it. This allows hot-reload of any JavaScript (and only javascript! no static files)
         new CopyPlugin([ // See: https://webpack.js.org/plugins/copy-webpack-plugin/
             {
                 from: './src/main/resources/static/built/bundle.js',
                 to: './build/resources/main/static/built/bundle.js'
+            },
+            {
+                from: './src/main/resources/static/css/main.css',
+                to: './build/resources/main/static/css/main.css'
+            },
+            {
+                from: './node_modules/bootstrap/dist/css/bootstrap.min.css',
+                to: './src/main/resources/static/css/bootstrap.min.css'
+            },
+            {
+                from: './node_modules/bootstrap/dist/css/bootstrap-grid.min.css',
+                to: './src/main/resources/static/css/bootstrap-grid.min.css'
+            },
+            {
+                from: './node_modules/bootstrap/dist/css/bootstrap-reboot.min.css',
+                to: './src/main/resources/static/css/bootstrap-reboot.min.css'
             }
-        ])
+            // },
+            // {
+            //     from: './node_modules/react-bootstrap/dist/react-bootstrap.min.js',
+            //     to: './src/main/resources/static/js/react-bootstrap.min.js'
+        ]),
+        new MiniCssExtractPlugin({
+            // Options similar to the same options in webpackOptions.output
+            // both options are optional
+            filename: './src/main/resources/static/css/[name].css',
+            chunkFilename: './src/main/resources/static/css/[id].css'
+        })
     ]
 };
