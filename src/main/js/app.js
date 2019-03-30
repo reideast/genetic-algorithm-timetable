@@ -89,9 +89,7 @@ class SchedulingJobLauncher extends React.Component {
      * @param scheduleId
      */
     onJob(jobId, totalGenerations, startDateString, scheduleId) {
-        // TODO: have gotten jobId, generations, and start date. Display them!
-        // SEE: https://getbootstrap.com/docs/4.3/components/progress/
-        console.log('STUB ON JOB', 'scheduleId=', scheduleId, 'jobId=', jobId); // DEBUG
+        // console.log('STUB ON JOB', 'scheduleId=', scheduleId, 'jobId=', jobId); // DEBUG
         this.setState(previousState => ({
             currentTimetableJobId: jobId,
             currentTimetableScheduleId: scheduleId
@@ -134,6 +132,8 @@ class Timetable extends React.Component {
             fetchVersionDesired: undefined,
             fetchVersionInProgress: undefined,
             isLoading: false,
+            fetchEnqueued: false,
+            hasNewScheduleLoaded: false,
             courses: undefined,
             // scheduledModules: undefined,
             fetchDoneWhenZero: -1,
@@ -154,7 +154,8 @@ class Timetable extends React.Component {
                 fetchVersionInProgress: 0, // This current fetch action is what will become version 0
                 currentScheduleId: this.props.scheduleId,
                 currentFetchVersionDisplayed: -1,
-                fetchVersionDesired: 0
+                fetchVersionDesired: 0,
+                hasNewScheduleLoaded: false
             });
             // And now, start the fetch of this new version
         } else if (this.state.fetchVersionDesired === this.state.fetchVersionInProgress) {
@@ -168,9 +169,22 @@ class Timetable extends React.Component {
         } else {
             // This is a new fetch job to get a newly desired version. Tag which version we're getting
             // console.log('didUpdate: starting a new version fetch job. fetch version in progress := desired version', this.state.fetchVersionDesired);
-            this.setState({
-                fetchVersionInProgress: this.state.fetchVersionDesired
-            });
+
+            if (this.state.isLoading) {
+                // A job has AJAX requests still outstanding! Hold onto which job we'll get next, but don't do it yet
+                if (!this.state.fetchEnqueued) {
+                    // Only set enqueued if it hasn't already been set (prevents infinite setState<-->update loop
+                    this.setState({
+                        fetchEnqueued: true
+                    });
+                }
+                return; // Don't execute yet
+            } else {
+                // No jobs in progress. Set state and execute immediately
+                this.setState({
+                    fetchVersionInProgress: this.state.fetchVersionDesired
+                });
+            }
         }
 
         // } else if (this.state.fetchVersionInProgress <= this.state.currentFetchVersionDisplayed) {
@@ -197,7 +211,7 @@ class Timetable extends React.Component {
             { rel: 'schedule', params: { id: this.props.scheduleId } }
         ]).then(scheduledModulesCollection => {
             this.setState({
-                fetchDoneWhenZero: scheduledModulesCollection.entity._embedded.scheduledModules.length + 1
+                fetchDoneWhenZero: scheduledModulesCollection.entity._embedded.scheduledModules.length
             });
             scheduledModulesCollection.entity._embedded.scheduledModules.forEach((scheduledModule) => {
                 const needToBeFetched = [
@@ -262,52 +276,55 @@ class Timetable extends React.Component {
                             // console.log('lecturer', lecturer); // DEBUG
                             scheduledModule.lecturer = lecturer;
 
-                            this.setState(previousState => {
-                                if (previousState.fetchDoneWhenZero === 1) {
-                                    // This is the last pending ajax request!
-                                    // In this state update, swap courses to the new version. (Hey, this is like graphics double buffering! ^_^
-                                    return {
-                                        courses: courses,
-                                        fetchVersionInProgress: undefined,
-                                        isLoading: false,
-                                        fetchDoneWhenZero: 0 // Cheaper to just say one, rather than doing 1 - 1 = 0....
-                                    };
-                                } else {
-                                    return {
-                                        // scheduledModules: previousState.scheduledModules.concat(scheduledModule),
-                                        fetchDoneWhenZero: previousState.fetchDoneWhenZero - 1
-                                    };
+                            if (this.state.fetchDoneWhenZero === 1) {
+                                // This is the last pending ajax request!
+                                // In this state update, swap courses to the new version. (Hey, this is like graphics double buffering! ^_^
+                                this.setState(previousState => ({
+                                    courses: courses,
+                                    fetchVersionInProgress: undefined,
+                                    isLoading: false,
+                                    fetchDoneWhenZero: 0, // Cheaper to just say one, rather than doing 1 - 1 = 0....
+                                    hasNewScheduleLoaded: true,
+                                    currentFetchVersionDisplayed: previousState.currentFetchVersionDisplayed + 1
+                                }));
+                                if (this.state.fetchEnqueued) {
+                                    // Since this ajax request started, a request for a new version of the timetable has come in. Trigger that enqueued job (via state update)!
+                                    this.setState({
+                                        fetchEnqueue: false
+                                    });
                                 }
-                            });
-                            // console.log('LECTURER FILLED IN MODULE', scheduledModule.id.moduleId, scheduledModule); // DEBUG
+                            } else {
+                                // This was not the last pending request
+                                this.setState(previousState => ({
+                                    fetchDoneWhenZero: previousState.fetchDoneWhenZero - 1
+                                }));
+                            }
                         });
                     });
                 });
             });
-            return scheduledModulesCollection;
-        }).done(scheduledModulesCollection => {
-            // Note: This will be reached BEFORE the "inner" arrays of ajax calls are done, above
-            this.setState(previousState => ({
-                fetchDoneWhenZero: previousState.fetchDoneWhenZero - 1,
-                currentFetchVersionDisplayed: previousState.currentFetchVersionDisplayed + 1
-            }));
+            // No more Promise chain after this, don't return anything: return scheduledModulesCollection;
         });
     }
 
-    // TODO: This event has to fire when a Job finishes (originating at the server), and then it will re-do the fetch, overriding the version guard
+    // This event fires hen a Job finishes (originating from the server via a WebSocket), and then it will re-do the fetch, overriding the version guard
     refreshTimetableAfterWebSocket(message) {
         const body = JSON.parse(message.body);
-        console.log('STOMP MESSAGE RECEIVED', 'json of payload', body); // DEBUG
+        console.log('GA Job done signal received as WebSocket, scheduleId=', body.scheduleId, 'valid?', body.foundValidSolution);
+        if (!body.foundValidSolution) {
+            console.log('The completed job was not able to find a timetable without scheduling conflicts within the number of generations limit!');
 
+            // FUTURE: Make a more elegant and informative in the UI!
+            alert('The completed job was not able to find a timetable without scheduling conflicts within the number of generations limit!');
+        }
         if (this.state.currentScheduleId === body.scheduleId) {
-            // 1. Set state  . fetchVersionDesired += 1
+            // 1. Set state, s.t. an update is triggered
             this.setState(previousState => ({
                 fetchVersionDesired: previousState.fetchVersionDesired + 1
             }));
-            // 2. Call this.loadFromServer();
-            this.loadFromServer();
+            // Don't call loadFromServer  manually! .setState will end up calling componentDidUpdate-->which calls-->loadFromServer()
         }
-        // else, this component has changed to a new schedule, so should NOT refresh it!
+        // else, this component has changed to a new schedule in the meantime, so should NOT refresh it!
     }
 
     componentDidUpdate() {
@@ -316,6 +333,7 @@ class Timetable extends React.Component {
 
     componentDidMount() {
         this.loadFromServer();
+
         // When WebSockets broker sends us back these events, then perform these callback actions
         // This is how the data is re-loaded after an object is updated in the DB
         stompClient.register([
@@ -324,20 +342,11 @@ class Timetable extends React.Component {
     }
 
     render() {
-        // Guard against rendering before a scheduleId has been set
-        if (this.state.currentScheduleId < 0) {
+        // Guard against rendering while the FIRST fetch job after switching to a new scheduleId (or the first scheduleId ever)
+        if (!this.state.hasNewScheduleLoaded) {
+            // It is appropriate to clear away the DOM elements until the fetch has finished
             return null;
         }
-        // When switching scheduleIDs, guard against rendering the child until ALL ajax requests returned
-        if (this.state.fetchVersionDesired === 0 && this.state.fetchDoneWhenZero !== 0) {
-            // The FIRST fetch job after switching to a new scheduleId (or the first scheduleId ever)
-            // So, it is appropriate to clear away the DOM elements until the fetch has finished
-            // (at which point, fetchVersionInProgress will go back to being undefined
-            return null;
-        }
-
-        // console.log('RENDERING A LIST OF SCHEDULED_MODULES', this.state.scheduledModules); // DEBUG
-        // console.log('Rendering a list of scheduled modules, put in buckets by course ID', this.state.courses); // DEBUG
 
         // This tab layout can be moved to the side: Custom Tab Layout: https://react-bootstrap.github.io/components/tabs/#tabs-custom-layout
         // This may be necessary when there are a lot of courses
@@ -668,7 +677,9 @@ class RunGeneticAlgorithm extends React.Component {
             this.props.onJob(response.entity.jobId, response.entity.totalGenerations, response.entity.startDate, this.props.schedule.entity.scheduleId);
         }, error => {
             if (error.status.code === 409) {
-                alert('A Genetic Algorithm job for schedule ID #' + this.props.schedule.entity.scheduleId + ' has already been started on the server!'); // FUTURE: More elegant error handling. Toast? Popover on button
+                // FUTURE: Make a more elegant and informative in the UI!
+                // FUTURE: More elegant error handling. Toast at top of page? Popover on Launch Job button?
+                alert('A Genetic Algorithm job for schedule ID #' + this.props.schedule.entity.scheduleId + ' has already been started on the server!');
 
                 this.setState({
                     icon: faMicrochip,

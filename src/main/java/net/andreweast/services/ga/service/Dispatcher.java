@@ -12,6 +12,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Dispatch genetic algorithm jobs
@@ -28,6 +30,12 @@ public class Dispatcher {
     // An in-memory datastore of current jobs, saved such that they can be queried or stopped later
     // Why is in-memory is acceptable, don't need to go to database? If the server crashes, the job is lost anyway!
     private static final HashMap<Long, GeneticAlgorithmRunner> runningJobHandles = new HashMap<>();
+
+    // A thread pool to spawn dispatched worker tasks from
+    // Those tasks are also allowed to spawn tasks from the thread pool
+    private static final ExecutorService threadPool = Executors.newCachedThreadPool(); // CachedPool can: Makes new threads as need. After terminating, keeps threads available for reuse (for 60 seconds)
+    // DEBUG: There might be more justification for FixedThreadPool, maybe of 20 or so available threads
+    // DEBUG: the queue thing turned me off, but then I realised that having a queue is still better than calculating fitness synchronously
 
     /**
      * Creates a dynamic GA job based on the static Schedule database record
@@ -47,7 +55,7 @@ public class Dispatcher {
         geneticAlgorithmJobData.setPopulationSize(populationSize);
 
         // Start the job!
-        GeneticAlgorithmRunner jobRunner = new GeneticAlgorithmRunner(geneticAlgorithmJobData);
+        GeneticAlgorithmRunner jobRunner = new GeneticAlgorithmRunner(geneticAlgorithmJobData, threadPool);
         jobRunner.start();
 
         // Save a handle to the job in the in-memory datastore

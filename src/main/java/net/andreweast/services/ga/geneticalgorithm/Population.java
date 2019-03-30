@@ -5,17 +5,24 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 public class Population implements Serializable {
     private static final Random random = new Random();
 
+    private final ExecutorService threadPool;
+
     private GeneticAlgorithmJobData data;
+
     private final int populationSize;
 
     private Chromosome[] individuals;
 
-    public Population(GeneticAlgorithmJobData masterData) {
+    public Population(GeneticAlgorithmJobData masterData, ExecutorService threadPool) {
         data = masterData;
+        this.threadPool = threadPool;
         populationSize = data.getPopulationSize();
 
         individuals = new Chromosome[populationSize];
@@ -32,8 +39,22 @@ public class Population implements Serializable {
     }
 
     private void makeNewPopulation(GeneticAlgorithmJobData data) {
+        // Using the thread pool, start a series of jobs ot make a new chromosome.
+        // Threads are justified since the new chromosomes will be calculating fitness
+        List<Future<Chromosome>> chromosomeCreators = new ArrayList<>(populationSize);
         for (int i = 0; i < populationSize; ++i) {
-            individuals[i] = new Chromosome(data);
+            chromosomeCreators.add(threadPool.submit(() -> new Chromosome(data)));
+        }
+
+        // Block until all threads are done
+        try {
+            for (int i = 0; i < populationSize; ++i) {
+                individuals[i] = (chromosomeCreators.get(i)).get(); // Block for this thread
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            // TODO: There's no real exception handling here. This should kill the Genetic Algorithm Job and put it in a failed state!
+            System.out.println("ERROR: While creating a new population and calculating its fitness, a threading error was thrown"); // FUTURE: Logger error
+            e.printStackTrace();
         }
     }
 
@@ -156,7 +177,7 @@ public class Population implements Serializable {
                 return individual;
             }
         }
-        // None of valid, so just return the best of the bunch
+        // None were valid, so just return the best of the bunch
         return individuals[0];
     }
 
