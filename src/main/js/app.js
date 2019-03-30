@@ -48,7 +48,7 @@ const apiGeneticAlgorithmRoot = '/genetic-algorithm-api';
 // FUTURE: This information should be fetched from the database, perhaps on app load
 const dayNames = ['Mon', 'Tues', 'Wed', 'Thur', 'Fri'];
 const days = [0, 1, 2, 3, 4];
-const hours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+const hours = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
 
 // TODO: need a REST controller for the root of /genetic-algorithm-api, which returns metadata for all possible endpoints. How does spring-data do it?
 
