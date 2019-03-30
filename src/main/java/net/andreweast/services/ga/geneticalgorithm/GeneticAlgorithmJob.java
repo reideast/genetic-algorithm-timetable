@@ -16,7 +16,7 @@ public class GeneticAlgorithmJob implements Runnable {
     // Parameters of the GA
     // These are to tweak the algorithm. Other major params (population size, max num generations) are passed as input from the REST interface
     // How many "extra" generations to run after a valid (no violated hard constraints) solution has emerged
-    private static final int RUN_DOWN_NUM_GENERATIONS = 20;
+    private static final int RUN_DOWN_NUM_GENERATIONS = 50;
     // Crossover with p = 0.6
     private static final int CROSSOVER_PERCENTAGE = 60;
     // Mutate a random individual with p = 0.9
