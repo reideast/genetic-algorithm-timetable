@@ -465,13 +465,13 @@ class WeekView extends React.Component {
         // FUTURE: Or, just make it global constant
         return (
             <Container fluid={true} className="timetableContainer">
-                <Row key={'headerRow'} className="timetableHeaderRow">
+                <Row key={'headerRow'} className="timetableHeaderRow no-gutters">
                     {/*{dayNames.reduce((day => (*/}
                     {/*<Col key={day}>{day}</Col>*/}
                     {/*)), (*/}
                     {/*<Col key={'timeColumn'}>Time</Col>*/}
                     {/*))}*/}
-                    <Col xs={1} key={'times'} className="timetableHeaderTimeCell"><span className="d-none d-md-inline">Time</span></Col>
+                    <Col xs={1} key={'times'} className="pr-2" className="timetableHeaderTimeCell"><span className="d-none d-md-inline">Time</span></Col>
                     {
                         dayNames.map(dayName => (
                             <Col key={dayName}>
@@ -499,7 +499,7 @@ class WeekRow extends React.Component {
         const dayColumns = this.props.days.map(day => {
             if (this.props.modulesByDays[day]) {
                 return (
-                    <Col key={day} className="timetableCell scheduledCell border border-primary">
+                    <Col key={day} className="timetableCell scheduledCell border border-primary text-center">
                         <TimetableCell key={day}
                                        courseId={this.props.courseId}
                                        dayName={dayNames[day]}
@@ -517,8 +517,8 @@ class WeekRow extends React.Component {
         });
 
         return (
-            <Row>
-                <Col xs={1} className="text-right my-auto pl-0 ml-0">
+            <Row className="no-gutters">
+                <Col xs={1} className="text-right my-auto pr-2">
                     <span className="d-none d-md-inline">{timeName}</span>
                     <span className="d-md-none">{this.props.hour}</span>
                 </Col>
@@ -544,14 +544,12 @@ class TimetableCell extends React.Component {
                                     {`${this.props.dayName} ${this.props.timeName}`}
                                 </Popover>
                             )}>
-                <div>
-                    <span className="align-middle">
-                        {courseCodeFromCourseModule}<br />
-                        <small>
-                            {scheduledModule.venue.entity.name}
-                        </small>
-                    </span>
-                </div>
+                <span>
+                    {courseCodeFromCourseModule}<br />
+                    <small>
+                        {scheduledModule.venue.entity.name}
+                    </small>
+                </span>
             </OverlayTrigger>
         );
     }
