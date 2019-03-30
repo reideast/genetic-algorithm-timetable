@@ -82,6 +82,8 @@ public class Dispatcher {
             job.setLastStatusUpdateTime(new Timestamp(new Date().getTime())); // Timestamp of now
             jobRepository.save(job);
 
+            System.out.println("Wrote job status to DB: " + job.getCurrentGeneration() + "/" + job.getTotalGenerations());
+
             return job;
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No handle to job with that ID exists to check its status", new DataNotFoundException());

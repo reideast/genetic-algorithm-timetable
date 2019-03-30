@@ -26,7 +26,7 @@ const follow = require('./follow');
 const stompClient = require('./websocket-listener');
 
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faDna, faUser, faMicrochip, faSpinner} from '@fortawesome/free-solid-svg-icons';
+import {faDna, faMicrochip, faSpinner, faUser} from '@fortawesome/free-solid-svg-icons';
 
 import './sass/style.scss';
 import 'react-bootstrap/dist/react-bootstrap.min.js';
@@ -40,6 +40,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 
 const apiRoot = '/api';
 const apiGeneticAlgorithmRoot = '/genetic-algorithm-api';
@@ -77,7 +78,7 @@ class SchedulingJobLauncher extends React.Component {
         super(props);
         this.state = {
             currentTimetableScheduleId: -1,
-            jobRunning: undefined
+            currentTimetableJobId: undefined
         };
         this.onJob = this.onJob.bind(this);
     }
@@ -90,10 +91,10 @@ class SchedulingJobLauncher extends React.Component {
     onJob(jobId, totalGenerations, startDateString, scheduleId) {
         // TODO: have gotten jobId, generations, and start date. Display them!
         // SEE: https://getbootstrap.com/docs/4.3/components/progress/
-        // console.log('STUB ON JOB', schedule.entity.scheduleId); // DEBUG
+        console.log('STUB ON JOB', 'scheduleId=', scheduleId, 'jobId=', jobId); // DEBUG
         this.setState(previousState => ({
-            currentTimetableScheduleId: scheduleId,
-            jobRunning: jobId
+            currentTimetableJobId: jobId,
+            currentTimetableScheduleId: scheduleId
         }));
     }
 
@@ -110,8 +111,12 @@ class SchedulingJobLauncher extends React.Component {
                 </Row>
                 <Row>
                     <Col>
+                        <JobInProgressBar currentTimetableJobId={this.state.currentTimetableJobId} />
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
                         <Timetable loggedInUser={this.props.loggedInUser}
-                                   jobRunning={this.state.jobRunning}
                                    scheduleId={this.state.currentTimetableScheduleId} />
                     </Col>
                 </Row>
@@ -134,17 +139,16 @@ class Timetable extends React.Component {
             fetchDoneWhenZero: -1,
             visibleTimetable: -1
         };
-        this.numRowsPerCell = 2;
         this.refreshTimetableAfterEvent = this.refreshTimetableAfterEvent.bind(this);
     }
 
     loadFromServer() {
         if (this.props.scheduleId < 0) {
-            console.log('didUpdate: No scheduleId, not loading'); // DEBUG
+            // console.log('didUpdate: No scheduleId, not loading'); // DEBUG
             return; // No schedule has been provided to this component yet
         }
         if (this.props.scheduleId !== this.state.currentScheduleId) {
-            console.log('didUpdate: New schedule! Starting versions over from 0'); // DEBUG
+            // console.log('didUpdate: New schedule! Starting versions over from 0'); // DEBUG
             // This is a different schedule to get from the server! Discard old fetch versions
             this.setState({
                 fetchVersionInProgress: 0, // This current fetch action is what will become version 0
@@ -154,16 +158,16 @@ class Timetable extends React.Component {
             });
             // And now, start the fetch of this new version
         } else if (this.state.fetchVersionDesired === this.state.fetchVersionInProgress) {
-            console.log('didUpdate: desired version already being fetched', this.state.fetchVersionDesired, this.state.fetchVersionInProgress); // DEBUG
+            // console.log('didUpdate: desired version already being fetched', this.state.fetchVersionDesired, this.state.fetchVersionInProgress); // DEBUG
             // A fetch of the desired new version has already begun. Don't start again
             return;
         } else if (this.state.currentFetchVersionDisplayed === this.state.fetchVersionDesired) {
-            console.log('didUpdate: desired version has already been fetched&displayed', this.state.fetchVersionDesired, this.state.currentFetchVersionDisplayed);
+            // console.log('didUpdate: desired version has already been fetched&displayed', this.state.fetchVersionDesired, this.state.currentFetchVersionDisplayed);
             // The version desired has already been displayed. Don't fetch again
             return;
         } else {
             // This is a new fetch job to get a newly desired version. Tag which version we're getting
-            console.log('didUpdate: starting a new version fetch job. fetch version in progress := desired version', this.state.fetchVersionDesired);
+            // console.log('didUpdate: starting a new version fetch job. fetch version in progress := desired version', this.state.fetchVersionDesired);
             this.setState({
                 fetchVersionInProgress: this.state.fetchVersionDesired
             });
@@ -319,13 +323,6 @@ class Timetable extends React.Component {
         ]);
     }
 
-    // DEBUG: this is now being done by a Bootstrap Tab group
-    setVisibleTimetableForCourse(course) {
-        this.setState({
-            visibleTimetable: course
-        });
-    }
-
     render() {
         // Guard against rendering before a scheduleId has been set
         if (this.state.currentScheduleId < 0) {
@@ -357,9 +354,7 @@ class Timetable extends React.Component {
                               modules={course.scheduledModules}
                               dayNames={dayNames}
                               days={days}
-                              hours={hours}
-                              numRowsPerCell={this.numRowsPerCell}
-                    />
+                              hours={hours} />
                 </Tab>
             );
         });
@@ -367,16 +362,13 @@ class Timetable extends React.Component {
         return (
             <Container>
                 <Row>
-                    <JobInProgressBar />
-                </Row>
-                <Row>
-                    <Col style={this.state.isLoading ? {opacity: 0.3} : {}}>
+                    <Col style={this.state.isLoading ? { opacity: 0.3 } : {}}>
                         <Tabs variant="pills"
                               transition={false}>
                             {courseTabs}
                         </Tabs>
                     </Col>
-                    <div style={this.state.isLoading ? {display: "block"} : {display: "none"}}>
+                    <div style={this.state.isLoading ? { display: 'block' } : { display: 'none' }}>
                         <div className="fade-out-mask"></div>
                         <div className="float-spinner-center spinner-border text-primary" role="status">
                             <span className="sr-only">Loading...</span>
@@ -389,8 +381,77 @@ class Timetable extends React.Component {
 }
 
 class JobInProgressBar extends React.Component {
+    constructor(props) {
+        super(props);
+        console.log('= Setting up new JobInProgressBar, jobId=', this.props.currentTimetableJobId);
+        this.state = {
+            currentTimetableJobId: undefined,
+            isVisible: false,
+            progressOutOfHundred: 0
+        };
+        this.refreshMilliseconds = 1 * 1000;
+        this.startNewProgressBarSession = this.startNewProgressBarSession.bind(this);
+        this.fetchDataAndUpdateProgress = this.fetchDataAndUpdateProgress.bind(this);
+    }
+
+    componentDidMount() {
+        console.log('= Progress Bar componentDidMOUNT: state/prop=', this.state.currentTimetableJobId, this.props.currentTimetableJobId);
+        if (this.props.currentTimetableJobId !== this.state.currentTimetableJobId) {
+            this.setState({
+                currentTimetableJobId: this.props.currentTimetableJobId
+            });
+            this.startNewProgressBarSession();
+        }
+    }
+
+    componentDidUpdate() {
+        console.log('== Progress Bar componentDidUpdate: state/prop=', this.state.currentTimetableJobId, this.props.currentTimetableJobId);
+        if (this.props.currentTimetableJobId !== this.state.currentTimetableJobId) {
+            this.setState({
+                currentTimetableJobId: this.props.currentTimetableJobId
+            });
+            this.startNewProgressBarSession();
+        }
+    }
+
+    startNewProgressBarSession() {
+        console.log('====== Starting Progress Bar');
+        this.setState({
+            isVisible: true,
+            progressOutOfHundred: 0
+        });
+        this.fetchDataInterval = window.setTimeout(this.fetchDataAndUpdateProgress, this.refreshMilliseconds);
+    }
+
+    fetchDataAndUpdateProgress() {
+        console.log('============= Progress Bar Interval');
+        this.fetchDataInterval = window.setTimeout(this.fetchDataAndUpdateProgress, this.refreshMilliseconds);
+
+        client({
+            method: 'GET',
+            path: `${apiRoot}/jobs/${this.state.currentTimetableJobId}`
+        }).then(jobStatus => {
+            console.log('progress:', jobStatus.entity.currentGeneration, jobStatus.entity.totalGenerations, jobStatus.entity.currentGeneration / jobStatus.entity.totalGenerations * 100);
+            if (jobStatus.entity.currentGeneration <= jobStatus.entity.totalGenerations) {
+                this.setState({
+                    progressOutOfHundred: 100 * jobStatus.entity.currentGeneration / jobStatus.entity.totalGenerations
+                });
+            } else {
+                window.clearTimeout(this.fetchDataInterval);
+                this.setState({
+                    isVisible: false
+                });
+            }
+        });
+    }
+
     render() {
-        return null;
+        return (
+            <ProgressBar animated now={this.state.progressOutOfHundred} />
+        );
+        // return this.state.isVisisble ? (
+        //     <ProgressBar animated now={this.state.progressOutOfHundred} />
+        // ) : null;
     }
 }
 

@@ -20,6 +20,9 @@ public class GeneticAlgorithmJob implements Runnable {
     // How many of the very best in a population are guaranteed to survive
     private static final int ELITE_SURVIVORS = 1;
 
+    // How often to send reports back to the database, in percentage of job done
+    private static final float QUERY_RATE = 0.20f;
+
     // To control the thread, change this atomic (i.e. thread-safe) boolean. The thread will stop itself after the next generation
     private AtomicBoolean isRunning;
 
@@ -77,6 +80,8 @@ public class GeneticAlgorithmJob implements Runnable {
         // Is the algorithm currently running those "several more generations?"
         boolean isDoingFinalRunDown = false;
 
+        int queryGenerationModulus = (int) (numGenerationsMaximum * QUERY_RATE);
+
         long startTime = System.nanoTime(); // DEBUG
         System.out.println("************* GEN init *************"); // DEBUG
         System.out.println(population); // DEBUG
@@ -94,12 +99,12 @@ public class GeneticAlgorithmJob implements Runnable {
             // DEBUG: According to (Padhy 2005), selection should/may be done AFTER crossover & mutation
             population.select(ELITE_SURVIVORS); // Selection must be done after genetic crossover/mutate in order to find cached hasValidSolution
 
-//            // DEBUG
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
+            // DEBUG: introduce delays to make loading bar more obvious
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
             if (DEBUG) { // DEBUG
                 System.out.print("Gen " + currentGeneration.get() + ": ");
@@ -111,6 +116,11 @@ public class GeneticAlgorithmJob implements Runnable {
                 runningAverage = System.nanoTime() - generationTime;
             } else {
                 runningAverage += ((System.nanoTime() - generationTime) - runningAverage) / ((double) (currentGeneration.get() + 1));
+            }
+
+            // Every 1/10 of the way through the job (config by QUERY_RATE), inform the Dispatcher that the job status should be updated
+            if (currentGeneration.get() % queryGenerationModulus == 0) {
+                dispatcher.getStatusForJob(masterData.getJobId()); // FUTURE: Slight hack: Dispatcher#getStatusForJob should really have its functionality moved into THIS class
             }
 
             // Increment generation counter, and then check for exit conditions
@@ -161,7 +171,7 @@ public class GeneticAlgorithmJob implements Runnable {
     }
 
     private void writeBackToDatabase() {
-        gaToDbSerializer.writeScheduleData(masterData, masterData.getScheduleId());
+        gaToDbSerializer.writeScheduleData(masterData, masterData.getScheduleId(), currentGeneration.get() - 1);
     }
 
     private void finaliseJob() {
