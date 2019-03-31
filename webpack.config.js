@@ -70,23 +70,23 @@ module.exports = {
             {
                 from: './src/main/resources/static/css/main.css',
                 to: './build/resources/main/static/css/main.css'
-            },
-            {
-                from: './node_modules/bootstrap/dist/css/bootstrap.min.css',
-                to: './src/main/resources/static/css/bootstrap.min.css'
-            },
-            {
-                from: './node_modules/bootstrap/dist/css/bootstrap-grid.min.css',
-                to: './src/main/resources/static/css/bootstrap-grid.min.css'
-            },
-            {
-                from: './node_modules/bootstrap/dist/css/bootstrap-reboot.min.css',
-                to: './src/main/resources/static/css/bootstrap-reboot.min.css'
-            }
+            // },
+            // {
+            //     from: './node_modules/bootstrap/dist/css/bootstrap.min.css',
+            //     to: './src/main/resources/static/css/bootstrap.min.css'
+            // },
+            // {
+            //     from: './node_modules/bootstrap/dist/css/bootstrap-grid.min.css',
+            //     to: './src/main/resources/static/css/bootstrap-grid.min.css'
+            // },
+            // {
+            //     from: './node_modules/bootstrap/dist/css/bootstrap-reboot.min.css',
+            //     to: './src/main/resources/static/css/bootstrap-reboot.min.css'
             // },
             // {
             //     from: './node_modules/react-bootstrap/dist/react-bootstrap.min.js',
             //     to: './src/main/resources/static/js/react-bootstrap.min.js'
+            }
         ]),
         new MiniCssExtractPlugin({
             // Options similar to the same options in webpackOptions.output

@@ -11,7 +11,7 @@ public class Timeslot implements Serializable {
 
     // M-Su, 0-6
     int day;
-    // Time slots, integer by the hour. Usually 8-18 (8:00 AM - 6:00 PM)
+    // Time slots, integer by the hour. Usually 9-19 (9:00 AM - 7:00 PM)
     int time;
 
     // Stores set of preferences for each lecturer for this timeslot

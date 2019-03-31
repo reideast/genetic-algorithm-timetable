@@ -27,6 +27,7 @@ function register(registrations) {
     const backedEndpoint = '/geneticalgorithm';
     const socket = SockJS(backedEndpoint); // <3>
     const stompClient = Stomp.over(socket);
+    stompClient.debug = null;
     stompClient.connect({}, function(frame) {
         registrations.forEach(function (registration) { // <4>
             stompClient.subscribe(registration.route, registration.callback);

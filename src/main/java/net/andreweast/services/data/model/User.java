@@ -1,6 +1,8 @@
 package net.andreweast.services.data.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -25,7 +27,6 @@ public class User {
     @Column(name = "username", nullable = false, length = -1)
     private String username;
 
-    @JsonIgnore
     @Basic
     @Column(name = "password", nullable = false, length = 256)
     private String password;
@@ -73,13 +74,15 @@ public class User {
         this.username = username;
     }
 
+    @JsonIgnore
     public String getPassword() {
         return password;
     }
 
+    @JsonSetter
+    @JsonInclude
     public void setPassword(String password) {
         this.password = passwordEncoder.encode(password);
-//        this.password = password;
     }
 
     @JsonIgnore

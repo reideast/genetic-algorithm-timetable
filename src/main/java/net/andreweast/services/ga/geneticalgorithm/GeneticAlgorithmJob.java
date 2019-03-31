@@ -5,6 +5,7 @@ import net.andreweast.services.ga.service.Dispatcher;
 import net.andreweast.services.ga.service.GaToDbSerializer;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,7 +16,7 @@ public class GeneticAlgorithmJob implements Runnable {
     // Parameters of the GA
     // These are to tweak the algorithm. Other major params (population size, max num generations) are passed as input from the REST interface
     // How many "extra" generations to run after a valid (no violated hard constraints) solution has emerged
-    private static final int RUN_DOWN_NUM_GENERATIONS = 20;
+    private static final int RUN_DOWN_NUM_GENERATIONS = 50;
     // Crossover with p = 0.6
     private static final int CROSSOVER_PERCENTAGE = 60;
     // Mutate a random individual with p = 0.9
@@ -24,10 +25,13 @@ public class GeneticAlgorithmJob implements Runnable {
     private static final int ELITE_SURVIVORS = 1;
 
     // How often to send reports back to the database, in percentage of job done
-    private static final float QUERY_RATE = 0.05f;
+    private static final float QUERY_RATE = 0.03f;
 
     // To control the thread, change this atomic (i.e. thread-safe) boolean. The thread will stop itself after the next generation
-    private AtomicBoolean isRunning;
+    private final AtomicBoolean isRunning;
+
+    // A thread pool that can be used to execute any subtasks of the GA that can run in parallel
+    private final ExecutorService threadPool;
 
     // Spring @Service bean classes
     // Can't use @Autowired here because that would require letting Spring manage the lifecycle of this class,
@@ -48,7 +52,7 @@ public class GeneticAlgorithmJob implements Runnable {
     private Population population;
     static final boolean DEBUG = true; // DEBUG
 
-    public GeneticAlgorithmJob(GeneticAlgorithmJobData geneticAlgorithmJobData) {
+    public GeneticAlgorithmJob(GeneticAlgorithmJobData geneticAlgorithmJobData, ExecutorService threadPool) {
         this.masterData = geneticAlgorithmJobData;
 
         // Directly get Spring @Services via a context-aware utility class
@@ -58,6 +62,8 @@ public class GeneticAlgorithmJob implements Runnable {
 
         numGenerationsMaximum = masterData.getNumGenerations();
         currentGeneration = new AtomicInteger(0);
+
+        this.threadPool = threadPool;
 
         isRunning = new AtomicBoolean(false);
     }
@@ -73,7 +79,7 @@ public class GeneticAlgorithmJob implements Runnable {
 
     private void createInitialPopulation() {
         // TODO: get data from the new DB-based objects
-        population = new Population(masterData);
+        population = new Population(masterData, threadPool);
     }
 
     private void runAllGenerations() {
@@ -104,9 +110,9 @@ public class GeneticAlgorithmJob implements Runnable {
             // DEBUG: According to (Padhy 2005), selection should/may be done AFTER crossover & mutation
             population.select(ELITE_SURVIVORS); // Selection must be done after genetic crossover/mutate in order to find cached hasValidSolution
 
-            // DEBUG: introduce delays to make loading bar more obvious
+            // DEBUG: Some delay needed to prevent frontend from breaking because it cannot update when the job ends too quickly. This is obviously a hack, but may be able to eliminate it once there's more load for the whole GA
             try {
-                Thread.sleep(100);
+                Thread.sleep(20);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -187,7 +193,14 @@ public class GeneticAlgorithmJob implements Runnable {
     }
 
     private void writeBackToDatabase() {
-        gaToDbSerializer.writeScheduleData(masterData, masterData.getScheduleId(), currentGeneration.get() - 1);
+        gaToDbSerializer.writeScheduleData(masterData, masterData.getScheduleId());
+
+        // Send a WebSocket publication to subscribers on the frontend web app, notifying "A job has finished for this schedule and has been written into the DB"
+        this.websocket.convertAndSend(MESSAGE_PREFIX + "/jobComplete",
+                "{\"scheduleId\":" + masterData.getScheduleId() +
+                        ",\"foundValidSolution\":" + population.hasValidSolution() +
+                        ",\"finalGenerationNumber\":" + (currentGeneration.get() - 1) + "}");
+
     }
 
     private void finaliseJob() {
