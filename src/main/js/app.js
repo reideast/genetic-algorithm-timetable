@@ -41,6 +41,7 @@ import Tab from 'react-bootstrap/Tab';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import ProgressBar from 'react-bootstrap/ProgressBar';
+import Alert from 'react-bootstrap/Alert';
 
 const apiRoot = '/api';
 const apiGeneticAlgorithmRoot = '/genetic-algorithm-api';
@@ -78,9 +79,14 @@ class SchedulingJobLauncher extends React.Component {
         super(props);
         this.state = {
             currentTimetableScheduleId: -1,
-            currentTimetableJobId: undefined
+            currentTimetableJobId: undefined,
+            alertIsShown: false,
+            alertVariant: 'info',
+            alertTitle: 'Alert',
+            alertBody: 'Error message'
         };
         this.onJob = this.onJob.bind(this);
+        this.onErrorAlert = this.onErrorAlert.bind(this);
     }
 
     /**
@@ -94,6 +100,15 @@ class SchedulingJobLauncher extends React.Component {
             currentTimetableJobId: jobId,
             currentTimetableScheduleId: scheduleId
         }));
+    }
+
+    onErrorAlert(body, title, variant = 'info') {
+        this.setState({
+            alertIsShown: true,
+            alertTitle: title,
+            alertBody: body,
+            alertVariant: variant
+        })
     }
 
     // FUTURE: make an onShowSchedule and have AvailableSchedulesTable be able to call it to show different ones (without having to start a new job)
@@ -112,9 +127,18 @@ class SchedulingJobLauncher extends React.Component {
                         <JobInProgressBar currentTimetableJobId={this.state.currentTimetableJobId} />
                     </Col>
                 </Row>
+                <Row>
+                    <Col>
+                        <Alert dismissible onClose={()  => {this.setState({alertIsShown: false})}} show={this.state.alertIsShown} variant={this.state.alertVariant}>
+                            <Alert.Heading>{this.state.alertTitle}</Alert.Heading>
+                            <p>{this.state.alertBody}</p>
+                        </Alert>
+                    </Col>
+                </Row>
                 <Row className="mb-3">
                     <Col>
                         <Timetable loggedInUser={this.props.loggedInUser}
+                                   onErrorAlert={this.onErrorAlert}
                                    scheduleId={this.state.currentTimetableScheduleId} />
                     </Col>
                 </Row>
@@ -210,9 +234,20 @@ class Timetable extends React.Component {
             'search',
             { rel: 'schedule', params: { id: this.props.scheduleId } }
         ]).then(scheduledModulesCollection => {
+            if (scheduledModulesCollection.entity._embedded.scheduledModules.length === 0) {
+                // No scheduled modules exist for this schedule. It's probably a new schedule
+                // Don't render the table, but need to keep this.state.currentScheduleId correct so a newer version can be fetched
+                this.setState(previousState => ({
+                    hasNewScheduleLoaded: false, // This is most important: it keeps the schedule from rendering
+                    currentFetchVersionDisplayed: previousState.currentFetchVersionDisplayed + 1, // And this makes sure that when an update arrives, it will know that it's a new version, therefore should start a fetch
+                    fetchVersionInProgress: undefined,
+                    isLoading: false,
+                }));
+            }
             this.setState({
                 fetchDoneWhenZero: scheduledModulesCollection.entity._embedded.scheduledModules.length
             });
+            console.log("NEW: ajax requests:", this.state.fetchDoneWhenZero);
             scheduledModulesCollection.entity._embedded.scheduledModules.forEach((scheduledModule) => {
                 const needToBeFetched = [
                     { rel: 'module', href: scheduledModule._links.module.href },
@@ -287,6 +322,7 @@ class Timetable extends React.Component {
                                     hasNewScheduleLoaded: true,
                                     currentFetchVersionDisplayed: previousState.currentFetchVersionDisplayed + 1
                                 }));
+                                console.log("Open ajax requests:", this.state.fetchDoneWhenZero);
                                 if (this.state.fetchEnqueued) {
                                     // Since this ajax request started, a request for a new version of the timetable has come in. Trigger that enqueued job (via state update)!
                                     this.setState({
@@ -298,6 +334,7 @@ class Timetable extends React.Component {
                                 this.setState(previousState => ({
                                     fetchDoneWhenZero: previousState.fetchDoneWhenZero - 1
                                 }));
+                                console.log("Open ajax requests:", this.state.fetchDoneWhenZero);
                             }
                         });
                     });
@@ -315,7 +352,8 @@ class Timetable extends React.Component {
             console.log('The completed job was not able to find a timetable without scheduling conflicts within the number of generations limit!');
 
             // FUTURE: Make a more elegant and informative in the UI!
-            alert('The completed job was not able to find a timetable without scheduling conflicts within the number of generations limit!');
+            // alert('The completed job was not able to find a timetable without scheduling conflicts within the number of generations limit!');
+            this.props.onErrorAlert('The completed job was not able to find a timetable without scheduling conflicts! (Within the number of generations limit)', 'No Valid Schedule Found', 'warning');
         }
         if (this.state.currentScheduleId === body.scheduleId) {
             // 1. Set state, s.t. an update is triggered
