@@ -3,6 +3,7 @@ package net.andreweast.services.ga.geneticalgorithm;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -18,14 +19,14 @@ public class Population implements Serializable {
 
     private final int populationSize;
 
-    private Chromosome[] individuals;
+    private List<Chromosome> individuals;
 
     public Population(GeneticAlgorithmJobData masterData, ExecutorService threadPool) {
         data = masterData;
         this.threadPool = threadPool;
         populationSize = data.getPopulationSize();
 
-        individuals = new Chromosome[populationSize];
+        individuals = new ArrayList<>(populationSize);
         if (data.isModifyExistingJob()) {
             makePopulationFromExisting(data);
         } else {
@@ -49,7 +50,7 @@ public class Population implements Serializable {
         // Block until all threads are done
         try {
             for (int i = 0; i < populationSize; ++i) {
-                individuals[i] = (chromosomeCreators.get(i)).get(); // Block for this thread
+                individuals.add((chromosomeCreators.get(i)).get()); // Block for this thread to return its Future value
             }
         } catch (InterruptedException | ExecutionException e) {
             // TODO: There's no real exception handling here. This should kill the Genetic Algorithm Job and put it in a failed state!
@@ -68,7 +69,7 @@ public class Population implements Serializable {
      *                          Keeping 1 elite member halved num generations to converge. 2-3 elites selected improved a good bit, and any more had diminishing returns.
      */
     public void select(int numEliteSurvivors) {
-        final Chromosome[] nextPopulation = new Chromosome[populationSize];
+        final List<Chromosome> nextPopulation = new ArrayList<>(populationSize);
 
         // TODO: numEliteSurvivors:
         // TODO: Keep population members ranked 1st, and maybe also 2nd, and 3rd
@@ -76,8 +77,8 @@ public class Population implements Serializable {
 
         // Determine sum total of all individuals' fitness s.t. roulette wheel can select from them
         int totalFitness = 0;
-        for (int i = 0; i < populationSize; ++i) {
-            totalFitness += individuals[i].getCachedFitness();
+        for (Chromosome individual : individuals) {
+            totalFitness += individual.getCachedFitness();
         }
 
         // Select a whole new population
@@ -86,14 +87,13 @@ public class Population implements Serializable {
             int randomSelected = random.nextInt(totalFitness);
 
             // For each individual, starting with first, if random number was less than its proportion, then roulette wheel "landed" on this item
-            for (int individual = 0; individual < populationSize; ++individual) {
+            for (Chromosome individual : individuals) {
                 // Subtract this individual's fitness, so the next individual's fitness will be the closest to zero
-                randomSelected -= individuals[individual].getCachedFitness();
+                randomSelected -= individual.getCachedFitness();
                 if (randomSelected < 0) {
-                    nextPopulation[i] = new Chromosome(individuals[individual]);// deep clone individual
+                    nextPopulation.add(new Chromosome(individual));// deep clone individual
                     break;
                 }
-
             }
         }
 
@@ -112,9 +112,9 @@ public class Population implements Serializable {
             // TODO: Rather naive (and therefore probably inefficient) method of choosing best: Just sort the population by fitness
 
             // TODO: Is there support in the literature to crossing _random_ individuals rather than the best
-            Arrays.sort(individuals);
-            Chromosome first = individuals[0];
-            Chromosome second = individuals[1];
+            Collections.sort(individuals);
+            Chromosome first = individuals.get(0);
+            Chromosome second = individuals.get(1);
 
             // create a new one cloned from highest
             Chromosome offspring = new Chromosome(first);
@@ -122,15 +122,14 @@ public class Population implements Serializable {
             // swap some genes with second highest
             offspring.crossover(second);
 
-            // replace lowest individual with new offspring
-            // DEBUG: REPLACING...THIS IS NOT SUPPORTED BY LITERATURE
-            individuals[individuals.length - 1] = offspring;
+            // save the offspring into the population, where it may be selected to be in the next generation soon
+            individuals.add(offspring);
         }
     }
 
     // TODO: Fix mutate percent: right now it's going float -> int -> float
     /**
-     * Possibly mutate (e.g. random perturb a gene) within the population
+     * Possibly mutate (e.g. randomly perturb a gene) within the population
      *
      * @param mutateRate int range [0,100], how often to mutate. Higher is more often
      */
@@ -138,20 +137,19 @@ public class Population implements Serializable {
         if (random.nextInt(100) < (mutateRate * 100)) { // TODO: hardcoded 90% mutate. See (Cekała et all 2015) and/or my lit review for suggested %
             final int numToMutate = random.nextInt(10) + 1;
             for (int i = 0; i < numToMutate; ++i) {
-                individuals[random.nextInt(populationSize)].mutate();
+                individuals.add(individuals.get(random.nextInt(populationSize)).mutate());
             }
         }
     }
 
     public Boolean hasValidSolution() {
         // Determine if any of the chromosomes represents a valid solution
-        boolean hasValidSolution = false;
-        for (int i = 0; i < populationSize; ++i) {
-            if (individuals[i].isValidSolution()) {
-                hasValidSolution = true;
+        for (Chromosome individual : individuals) {
+            if (individual.isValidSolution()) {
+                return true;
             }
         }
-        return hasValidSolution;
+        return false;
     }
 
     @Override
@@ -165,7 +163,7 @@ public class Population implements Serializable {
     }
 
     public List<Integer> toFitnessList() {
-        List<Integer> fitnessValues = new ArrayList<>(individuals.length);
+        List<Integer> fitnessValues = new ArrayList<>(individuals.size());
         for (Chromosome individual : individuals) {
             fitnessValues.add(individual.getCachedFitness());
         }
@@ -173,7 +171,7 @@ public class Population implements Serializable {
     }
 
     private Chromosome getBestChromosome() {
-        Arrays.sort(individuals);
+        Collections.sort(individuals);
         System.out.println("Getting best gene out of chromosome: " + this.toFitnessList()); // FUTURE: Logger
 
         // Go through list and return the FIRST valid one, which will be best since list is sorted DESC
@@ -183,7 +181,7 @@ public class Population implements Serializable {
             }
         }
         // None were valid, so just return the best of the bunch
-        return individuals[0];
+        return individuals.get(0);
     }
 
     /**
