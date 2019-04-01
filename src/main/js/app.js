@@ -702,7 +702,7 @@ class RunGeneticAlgorithm extends React.Component {
                 scheduleId: this.props.schedule.entity.scheduleId,
                 numGenerations: 10000,
                 // numGenerations: 100000,
-                mutatePercentage: 100,
+                mutatePercentage: 5,
                 populationSize: 60
             }
         }).then(response => {

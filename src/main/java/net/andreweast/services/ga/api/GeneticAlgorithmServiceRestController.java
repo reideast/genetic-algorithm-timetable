@@ -27,14 +27,16 @@ public class GeneticAlgorithmServiceRestController {
     // Parameters of the GA. These are to fine-tune the algorithm
     // FUTURE: These constants should be stored somewhere else. Some sort of public static constant in the GA controller?
     // FUTURE: Perhaps in a configuration text file, or better: in a database config table
-    private static final String NUM_GENERATIONS = "2000";
-    private static final String POPULATION_SIZE = "30";
+    private static final String NUM_GENERATIONS = "10000";
+    private static final String POPULATION_SIZE = "60";
     // How many "extra" generations to run after a valid (no violated hard constraints) solution has emerged
     private static final String RUN_DOWN_NUM_GENERATIONS = "50";
     // Crossover with p = 0.6
     private static final String CROSSOVER_PERCENTAGE = "90";
-    // Mutate a random individual with p = 0.9
-    private static final String MUTATE_PERCENTAGE = "80";
+    // Mutate all individuals with p = 0.05 each generation
+    private static final String MUTATE_PERCENTAGE = "5"; // For suggested rates, see (Cekała et all 2015) and/or my lit review for suggested %
+    // Each chromosome may have between 1 and MUTATE_GENES_MAX if it is mutated
+    private static final String MUTATE_GENES_MAX = "20";
     // How many of the very best in a population are guaranteed to survive
     private static final String ELITE_SURVIVORS = "1";
 
@@ -56,6 +58,7 @@ public class GeneticAlgorithmServiceRestController {
                             @RequestParam(required = false, defaultValue = RUN_DOWN_NUM_GENERATIONS) Integer numRunDownGenerations,
                             @RequestParam(required = false, defaultValue = CROSSOVER_PERCENTAGE) Integer crossoverPercentage,
                             @RequestParam(required = false, defaultValue = MUTATE_PERCENTAGE) Integer mutatePercentage,
+                            @RequestParam(required = false, defaultValue = MUTATE_GENES_MAX) Integer mutateGenesMax,
                             @RequestParam(required = false, defaultValue = ELITE_SURVIVORS) Integer numEliteSurvivors,
                             @RequestParam(required = false, defaultValue = QUERY_RATE) Integer queryRate
     ) {
@@ -63,11 +66,11 @@ public class GeneticAlgorithmServiceRestController {
 
         // Dispatch the job. After getting data from database, and creating a new record in the Job table,
         // the dispatcher will spawn its own thread (so that this method (and API call) can return)
-        Job job = dispatcher.dispatchNewJobForSchedule(scheduleId, numGenerations, populationSize, numRunDownGenerations, crossoverPercentage, mutatePercentage, numEliteSurvivors, queryRate);
+        Job job = dispatcher.dispatchNewJobForSchedule(scheduleId, numGenerations, populationSize, numRunDownGenerations, crossoverPercentage, mutatePercentage, mutateGenesMax, numEliteSurvivors, queryRate);
 
         // Return a JSON response representing the Job
         JobDto dto = buildJsonResponse(job);
-        dto.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(GeneticAlgorithmServiceRestController.class).createJob(scheduleId, numGenerations, populationSize, numRunDownGenerations, crossoverPercentage, mutatePercentage, numEliteSurvivors, queryRate)).withSelfRel());
+        dto.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(GeneticAlgorithmServiceRestController.class).createJob(scheduleId, numGenerations, populationSize, numRunDownGenerations, crossoverPercentage, mutatePercentage, mutateGenesMax, numEliteSurvivors, queryRate)).withSelfRel());
         return dto;
     }
 

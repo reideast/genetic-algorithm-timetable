@@ -52,8 +52,10 @@ public class GeneticAlgorithmJob implements Runnable {
     private final int runDownNumGenerations;
     // Crossover with p = 0.6
     private final float crossoverProbability;
-    // Mutate a random individual with p = 0.9
+    // Mutate each individual with p = 0.9
     private final float mutateProbability;
+    // How many genes can be mutated within a chromosome if it is mutated: between 1..mutatedGenesMax
+    private final int mutatedGenesMax;
     // How many of the very best in a population are guaranteed to survive
     private final int eliteSurvivors;
 
@@ -78,6 +80,7 @@ public class GeneticAlgorithmJob implements Runnable {
         runDownNumGenerations = masterData.getNumRunDownGenerations();
         crossoverProbability = masterData.getCrossoverProbability();
         mutateProbability = masterData.getMutateProbability();
+        mutatedGenesMax = masterData.getMutatedGenesMax();
         eliteSurvivors = masterData.getNumEliteSurvivors();
 
         // Thread control
@@ -129,7 +132,7 @@ public class GeneticAlgorithmJob implements Runnable {
 
             population.crossover(crossoverProbability);
 
-            population.mutate(mutateProbability);
+            population.mutate(mutateProbability, mutatedGenesMax);
 
             // DEBUG: According to (Padhy 2005), selection should/may be done AFTER crossover & mutation
             population.select(eliteSurvivors); // Selection must be done after genetic crossover/mutate in order to find cached hasValidSolution

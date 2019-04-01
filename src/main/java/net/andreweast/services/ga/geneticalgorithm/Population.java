@@ -74,6 +74,11 @@ public class Population implements Serializable {
         // TODO: numEliteSurvivors:
         // TODO: Keep population members ranked 1st, and maybe also 2nd, and 3rd
         // TODO: Probably requires: Arrays.sort(individuals);
+//        Collections.sort(individuals);
+//        for (int i = 0; i < numEliteSurvivors; ++i) {
+//            // Get the best: the 0th, 1st, ... individuals
+//            nextPopulation.add(new Chromosome(individuals.get(i)));// deep clone individual
+//        }
 
         // Determine sum total of all individuals' fitness s.t. roulette wheel can select from them
         int totalFitness = 0;
@@ -101,14 +106,13 @@ public class Population implements Serializable {
         individuals = nextPopulation;
     }
 
-    // TODO: Fix crossover percent: right now it's going float -> int -> float
     /**
      * Possibly do genetic crossover (e.g. sexual reproduction) within the population
      *
-     * @param crossoverRate int range [0,100], how often to do crossover. Higher is more often
+     * @param crossoverRate [0.0f, 1.0f] Do crossover with p = crossoverRate . Higher is more often
      */
     public void crossover(float crossoverRate) {
-        if (random.nextInt(100) < (crossoverRate * 100)) { // TODO: hardcoded 60% crossover. See (Cekała et all 2015) and/or my lit review for suggested %
+        if (random.nextFloat() < crossoverRate) { // TODO: hardcoded 60% crossover. See (Cekała et all 2015) and/or my lit review for suggested %
             // TODO: Rather naive (and therefore probably inefficient) method of choosing best: Just sort the population by fitness
 
             // TODO: Is there support in the literature to crossing _random_ individuals rather than the best
@@ -127,17 +131,16 @@ public class Population implements Serializable {
         }
     }
 
-    // TODO: Fix mutate percent: right now it's going float -> int -> float
     /**
-     * Possibly mutate (e.g. randomly perturb a gene) within the population
+     * Try to mutate ALL individuals with each one being mutated with p = mutateRate
      *
-     * @param mutateRate int range [0,100], how often to mutate. Higher is more often
+     * @param mutateRate [0.0f, 1.0f] Probability of mutation for EVERY chromosome. Higher is more often
      */
-    public void mutate(float mutateRate) {
-        if (random.nextInt(100) < (mutateRate * 100)) { // TODO: hardcoded 90% mutate. See (Cekała et all 2015) and/or my lit review for suggested %
-            final int numToMutate = random.nextInt(10) + 1;
-            for (int i = 0; i < numToMutate; ++i) {
-                individuals.add(individuals.get(random.nextInt(populationSize)).mutate());
+    public void mutate(float mutateRate, int mutatedGenesMax) {
+        final int currentPopulationSize = individuals.size();
+        for (int i = 0; i < currentPopulationSize; ++i) {
+            if (random.nextFloat() < mutateRate) {
+                individuals.add(individuals.get(i).mutate(mutatedGenesMax));
             }
         }
     }

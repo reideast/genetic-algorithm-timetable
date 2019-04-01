@@ -66,27 +66,28 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
 //        }
     }
 
-    public Chromosome mutate() {
+    public Chromosome mutate(int mutateGenesMax) {
         // Clones itself
         Chromosome outOfTheGreenGlowingGoop = new Chromosome(this);
 
         // Mutates itself
-        outOfTheGreenGlowingGoop.mutateSelf();
+        outOfTheGreenGlowingGoop.mutateSelf(mutateGenesMax);
 
         return outOfTheGreenGlowingGoop;
     }
 
-    private void mutateSelf() {
+
+    /**
+     *
+     * @param mutateGenesMax Mutation of multiple genes in this chromosome
+     */
+    private void mutateSelf(int mutateGenesMax) {
         // Randomise one of the scheduled modules
 //        if (!havePrintedMutateDebug && GeneticAlgorithmJob.DEBUG) {
 //            System.out.println("Before mutate: " + this.toString());
 //        }
 
-        // Mutation of multiple genes in this chromosome
-//        final int MAX_GENES_TO_MUTATE = Math.min(50, data.getChromosomeSize());
-        final int MAX_GENES_TO_MUTATE = 20;
-
-        final int numToMutate = random.nextInt(MAX_GENES_TO_MUTATE) + 1;
+        final int numToMutate = random.nextInt(mutateGenesMax) + 1;
 
         for (int i = 0; i < numToMutate; ++i) {
             int mutateGene = random.nextInt(genes.length);
