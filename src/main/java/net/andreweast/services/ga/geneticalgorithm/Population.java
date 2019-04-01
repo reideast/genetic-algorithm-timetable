@@ -136,9 +136,11 @@ public class Population implements Serializable {
      */
     public void mutate(float mutateRate) {
         if (random.nextInt(100) < (mutateRate * 100)) { // TODO: hardcoded 90% mutate. See (Cekała et all 2015) and/or my lit review for suggested %
-            individuals[random.nextInt(populationSize)].mutate();
+            final int numToMutate = random.nextInt(10) + 1;
+            for (int i = 0; i < numToMutate; ++i) {
+                individuals[random.nextInt(populationSize)].mutate();
+            }
         }
-
     }
 
     public Boolean hasValidSolution() {
@@ -193,5 +195,19 @@ public class Population implements Serializable {
      */
     public List<ScheduledModule> getBestChromosomeScheduledModule() {
         return Arrays.asList(getBestChromosome().getGenes());
+    }
+
+    /**
+     * A debug method to help track down which modules don't have venues that they could POSSIBLY fit into
+     */
+    public void logFailuresToSchedule() {
+        Chromosome best = this.getBestChromosome();
+        if (best.isValidSolution()) {
+            System.out.println("No conflicts in the best solution");
+        } else {
+            System.out.println("******************** There were conflicts in the best solution! ********************");
+            best.logFailuresToSchedule();
+            System.out.println("************************************************************************************");
+        }
     }
 }

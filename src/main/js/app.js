@@ -698,7 +698,12 @@ class RunGeneticAlgorithm extends React.Component {
         client({
             method: 'POST',
             path: apiGeneticAlgorithmRoot + '/job',
-            params: { scheduleId: this.props.schedule.entity.scheduleId }
+            params: {
+                scheduleId: this.props.schedule.entity.scheduleId,
+                numGenerations: 100000,
+                mutatePercentage: 100,
+                populationSize: 60
+            }
         }).then(response => {
             console.log('Job submitted, response received:', response); // DEBUG
             // TODO: Do something with this job JSON object?

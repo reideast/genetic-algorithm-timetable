@@ -136,7 +136,7 @@ public class GeneticAlgorithmJob implements Runnable {
 
             // DEBUG: Some delay needed to prevent frontend from breaking because it cannot update when the job ends too quickly. This is obviously a hack, but may be able to eliminate it once there's more load for the whole GA
             try {
-                Thread.sleep(10);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -169,17 +169,17 @@ public class GeneticAlgorithmJob implements Runnable {
             } else if (currentGeneration.get() > tentativeGenLimit) {
                 if (population.hasValidSolution()) {
                     isRunning.set(false); // Can quit early! We had found a solution, ran some more generations as a "run down", and now we still have a solution
-                    System.out.println("Found a valid solution and ran for several more generations. Quitting early!"); // FUTURE: Logger
+                    System.out.println(currentGeneration.get() + "gen: Found a valid solution and ran for several more generations. Quitting early!"); // FUTURE: Logger
                 } else {
                     tentativeGenLimit = numGenerationsMaximum; // Ran several more generations, but have now LOST the valid solution. Go some more
                     isDoingFinalRunDown = false;
-                    System.out.println("During the run down, the valid solution was lost. Population needs more more!"); // FUTURE: Logger
+                    System.out.println(currentGeneration.get() + "gen: During the run down, the valid solution was lost. Population needs more more!"); // FUTURE: Logger
                 }
             } else if (!isDoingFinalRunDown) {
                 if (population.hasValidSolution()) {
                     tentativeGenLimit = currentGeneration.get() + runDownNumGenerations;
                     isDoingFinalRunDown = true;
-                    System.out.println("Found a valid solution! Doing a final run down now for " + runDownNumGenerations + " generations"); // FUTURE: Logger
+                    System.out.println(currentGeneration.get() + "gen: Found a valid solution! Doing a final run down now for " + runDownNumGenerations + " generations"); // FUTURE: Logger
                 }
                 // else: There's no valid solution. Continue running the algorithm as normal
             } // else: Already doing a final run down, don't check if the valid solution still exists until we're done
@@ -190,12 +190,19 @@ public class GeneticAlgorithmJob implements Runnable {
             System.out.print(" Num modules: " + masterData.getModules().size()); // FUTURE: Logger
             System.out.println(" Venues x Timeslots: " + (masterData.getVenues().size() * masterData.getTimeslots().size())); // FUTURE: Logger
             System.out.print("Running time stats:"); // FUTURE: Logger
+            System.out.print(" Num gens: " + (currentGeneration.get() - 1));
             System.out.print(" Time init: " + (initTime * 1.0E-6) + " ms"); // FUTURE: Logger
             System.out.print(" Average generation time: " + (runningAverage * 1E-6) + " ms"); // FUTURE: Logger
             System.out.println(" Total time: " + ((System.nanoTime() - startTime) * 1E-9) + " s"); // FUTURE: Logger
         }
 
-        System.out.println("GA generations have completed, job=" + masterData.getJobId() + ", schedule=" + masterData.getScheduleId()); // FUTURE: Logger info
+        System.out.println("GA generations have completed in " + (currentGeneration.get() - 1) + " generations, job=" + masterData.getJobId() + ", schedule=" + masterData.getScheduleId()); // FUTURE: Logger info
+
+
+        if (DEBUG) {
+            // Log which modules were not able to be scheduled
+            population.logFailuresToSchedule();
+        }
 
         // Generate a CSV file with the parameters and running time results for this GA run
         // FUTURE: File writing could be optimised

@@ -72,8 +72,26 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
 //            System.out.println("Before mutate: " + this.toString());
 //        }
 
-        final int mutateGene = random.nextInt(genes.length);
-        genes[mutateGene] = new ScheduledModule(genes[mutateGene].getModule(), data);
+        // Mutation of multiple genes in this chromosome
+//        final int NUM_TO_MUTATE = Math.min(50, data.getChromosomeSize());
+        final int NUM_TO_MUTATE = 20;
+
+        final int numToMutate = random.nextInt(NUM_TO_MUTATE) + 1;
+
+        for (int i = 0; i < numToMutate; ++i) {
+
+            int mutateGene = random.nextInt(genes.length);
+
+            // Heuristic mutate: if this gene is already in a suitable venue, don't mutate the venue, just the time
+            if (genes[mutateGene].isInValidVenue()) {
+                // Mutate only time
+                genes[mutateGene].setTimeslot(data.getRandomTimeslot());
+            } else {
+                // Mutate both timeslot and venue
+                genes[mutateGene] = new ScheduledModule(genes[mutateGene].getModule(), data);
+            }
+        }
+
         cachedFitness = calculateFitness();
 
 //        if (!havePrintedMutateDebug && GeneticAlgorithmJob.DEBUG) {
@@ -206,5 +224,29 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
 
     public ScheduledModule[] getGenes() {
         return genes;
+    }
+
+    /**
+     * A debug method to help track down which modules don't have venues that they could POSSIBLY fit into
+     */
+    public void logFailuresToSchedule() {
+        for (int i = 0; i < genes.length; ++i) {
+            if (!genes[i].isInValidVenue()) {
+                System.out.print("Not in an appropriate venue:");
+                System.out.print(" #students=" + genes[i].getModule().getNumEnrolled());
+                System.out.print(" isLab=" + genes[i].getModule().isLab());
+                System.out.print(" #seats=" + genes[i].getVenue().getCapacity());
+                System.out.print(" labVenue=" + genes[i].getVenue().isLab() + " rawData=");
+                System.out.println(genes[i]);
+            }
+
+            for (int j = i + 1; j < genes.length; ++j) {
+                if (i != j) {
+                    if (genes[i].conflictsWithTimeOrPlaceOf(genes[j])) {
+                        System.out.println("Conflict between two modules: " + genes[i] + "//////" + genes[j]);
+                    }
+                }
+            }
+        }
     }
 }

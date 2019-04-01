@@ -80,11 +80,24 @@ public class ScheduledModule implements Cloneable, Serializable {
         return module;
     }
 
+    public void setModule(Module module) {
+        this.module = module;
+    }
+
     public Venue getVenue() {
         return venue;
+    }
+
+    public void setVenue(Venue venue) {
+        this.venue = venue;
     }
 
     public Timeslot getTimeslot() {
         return timeslot;
     }
+
+    public void setTimeslot(Timeslot timeslot) {
+        this.timeslot = timeslot;
+    }
+
 }
