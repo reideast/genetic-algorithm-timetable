@@ -27,7 +27,7 @@ public class GeneticAlgorithmJobData implements Serializable {
     private int chromosomeSize;
 
     // How many "extra" generations to run after a valid (no violated hard constraints) solution has emerged
-    private int numRunDownGenerations;
+    private float proportionRunDownGenerations;
 
     // Crossover with p = 0.6
     private float crossoverProbability;
@@ -136,12 +136,12 @@ public class GeneticAlgorithmJobData implements Serializable {
         this.populationSize = populationSize;
     }
 
-    public int getNumRunDownGenerations() {
-        return numRunDownGenerations;
+    public float getProportionRunDownGenerations() {
+        return proportionRunDownGenerations;
     }
 
-    public void setNumRunDownGenerations(int numRunDownGenerations) {
-        this.numRunDownGenerations = numRunDownGenerations;
+    public void setProportionRunDownGenerations(float proportionRunDownGenerations) {
+        this.proportionRunDownGenerations = proportionRunDownGenerations;
     }
 
     public float getCrossoverProbability() {

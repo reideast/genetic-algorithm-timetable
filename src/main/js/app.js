@@ -704,6 +704,7 @@ class RunGeneticAlgorithm extends React.Component {
                 // numGenerations: 100000,
                 // mutatePercentage: 5,
                 // populationSize: 60
+                // proportionRunDownGenerations: 10
             }
         }).then(response => {
             console.log('Job submitted, response received:', response); // DEBUG

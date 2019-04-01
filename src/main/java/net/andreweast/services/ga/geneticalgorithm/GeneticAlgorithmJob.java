@@ -49,7 +49,8 @@ public class GeneticAlgorithmJob implements Runnable {
     // Number of generations to stop after
     private final int numGenerationsMaximum;
     // How many "extra" generations to run after a valid (no violated hard constraints) solution has emerged
-    private final int runDownNumGenerations;
+    // Expressed in the proportion of already-ran generations. E.g. If this is 20, and 1000 generations have run when a valid solution is found, then 1000 * 0.20 = 200 more generations will run
+    private final float proportionRunDownGenerations;
     // Crossover with p = 0.6
     private final float crossoverProbability;
     // Mutate each individual with p = 0.9
@@ -77,7 +78,7 @@ public class GeneticAlgorithmJob implements Runnable {
         // Genetic algorithm data
         masterData = geneticAlgorithmJobData;
         numGenerationsMaximum = masterData.getNumGenerations();
-        runDownNumGenerations = masterData.getNumRunDownGenerations();
+        proportionRunDownGenerations = masterData.getProportionRunDownGenerations();
         crossoverProbability = masterData.getCrossoverProbability();
         mutateProbability = masterData.getMutateProbability();
         mutatedGenesMax = masterData.getMutatedGenesMax();
@@ -109,7 +110,7 @@ public class GeneticAlgorithmJob implements Runnable {
 
         // Let the algorithm be quit earlier than the specified MAX generations
         // Such as, if all hard constraints are met, then let the algorithm run for several more generations, then quit
-        int tentativeGenLimit = numGenerationsMaximum;
+        float tentativeGenLimit = numGenerationsMaximum;
         // Is the algorithm currently running those "several more generations?"
         boolean isDoingFinalRunDown = false;
 
@@ -181,9 +182,9 @@ public class GeneticAlgorithmJob implements Runnable {
                 }
             } else if (!isDoingFinalRunDown) {
                 if (population.hasValidSolution()) {
-                    tentativeGenLimit = currentGeneration.get() + runDownNumGenerations;
+                    tentativeGenLimit = currentGeneration.get() + (proportionRunDownGenerations * currentGeneration.get()); // Add a number of generations that is the fraction (expressed in proportionRunDownGenerations) of the current generation
                     isDoingFinalRunDown = true;
-                    System.out.println(currentGeneration.get() + "gen: Found a valid solution! Doing a final run down now for " + runDownNumGenerations + " generations"); // FUTURE: Logger
+                    System.out.println(currentGeneration.get() + "gen: Found a valid solution! Doing a final run down now for " + proportionRunDownGenerations + " generations"); // FUTURE: Logger
                 }
                 // else: There's no valid solution. Continue running the algorithm as normal
             } // else: Already doing a final run down, don't check if the valid solution still exists until we're done
@@ -229,10 +230,10 @@ public class GeneticAlgorithmJob implements Runnable {
                 // Write stats row, appending to (now created) existing file
                 try (Writer csvWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(statsCsv, true)))) {
                     csvWriter.write(String.format("%s,%d,%d,%d,%d,%d," +
-                                    "%d,%f,%f,%d,%d," +
+                                    "%d,%f,%f,%d,%f," +
                                     "%d,%d,%s,%f,%f,%s%n",
                             new Date(), masterData.getJobId(), masterData.getScheduleId(), masterData.getModules().size(), masterData.getVenues().size(), masterData.getTimeslots().size(),
-                            masterData.getPopulationSize(), crossoverProbability, mutateProbability, eliteSurvivors, runDownNumGenerations,
+                            masterData.getPopulationSize(), crossoverProbability, mutateProbability, eliteSurvivors, proportionRunDownGenerations,
                             numGenerationsMaximum, (currentGeneration.get() - 1), population.hasValidSolution(), (runningAverage * 1.0E-6), ((System.nanoTime() - startTime) * 1.0E-6),
                             population.toFitnessList()
                     ));
@@ -260,16 +261,16 @@ public class GeneticAlgorithmJob implements Runnable {
         }
 
         // Send a WebSocket publication to subscribers on the frontend web app, notifying job progress == DONE
-//        try {
-//            // DEBUG: If the algorithm converged TOO FAST, then add an artificial delay. This is to make up for failings in the front end (breaks state if updates too fast).
-//            // DEBUG: ...this is definitely a hack
-//            final int MIN_EXECUTION_TIME = 10 * 1000; // milliseconds
-//            final long actualExecutionTime = (long) ((System.nanoTime() - startTime) * 1E-6);
-//            System.out.println("Need a delay? Sleeping for " + (MIN_EXECUTION_TIME - actualExecutionTime) + "ms"); // DEBUG
-//            Thread.sleep(MIN_EXECUTION_TIME - actualExecutionTime);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            // DEBUG: If the algorithm converged TOO FAST, then add an artificial delay. This is to make up for failings in the front end (breaks state if updates too fast).
+            // DEBUG: ...this is definitely a hack
+            final int MIN_EXECUTION_TIME = 10 * 1000; // milliseconds
+            final long actualExecutionTime = (long) ((System.nanoTime() - startTime) * 1E-6);
+            System.out.println("Need a delay? Sleeping for " + (MIN_EXECUTION_TIME - actualExecutionTime) + "ms"); // DEBUG
+            Thread.sleep(Math.max(MIN_EXECUTION_TIME - actualExecutionTime, 0));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         this.websocket.convertAndSend(MESSAGE_PREFIX + "/jobStatus",
                 "{\"jobId\":" + masterData.getJobId() +
                         ",\"progressPercent\":" + 1.0 +

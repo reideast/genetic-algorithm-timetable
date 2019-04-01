@@ -161,7 +161,11 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
         // TODO: Tweak these fitness weights
 
         // Calculate minimal fitness of any chromosome which has all HARD constraints met
-        final int ONE_HARD_CONSTRAINT = 100;
+        final int ONE_HARD_CONSTRAINT = 1000;
+
+
+        final int QTY_SOFT_CONSTRAINTS = 2;
+        final int EACH_SOFT_CONSTRAINT = ONE_HARD_CONSTRAINT / (QTY_SOFT_CONSTRAINTS * data.getChromosomeSize());
         // TODO: soft constraints should be able to add up to just below that
         /*
           If there are 5 modules, and each violated hard constraint takes away 100 = ONE_HARD_CONSTRAINT fitness,
@@ -211,10 +215,14 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
           Perhaps the solution is to make sure that hard-fitness values aren't TOO LARGE?
          */
 
-        // Start with the max possible hard-fitness value; subtract has violations are found
+        // Start with the max possible hard-fitness value; subtract as violations are found
         int fitnessFromOverlappingClasses = data.getChromosomeSize() * ONE_HARD_CONSTRAINT;
         int fitnessFromInvalidVenues = data.getChromosomeSize() * ONE_HARD_CONSTRAINT;
         isValidSolution = true;
+
+        // For soft constraints, start at zero and add as good values are found
+        int fitnessFromBuildingPreference = 0;
+        int fitnessFromTimeslotPreference = 0;
 
         // TODO: O(n^2) iterative search. Needs improvement. Ideas: Hash array, make sure no collisions. "Sort" array and then compare linearly.
         // TODO: ...but, may not be able to make those improvements! Because fitness is now comparing across several axes
@@ -228,6 +236,12 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
                 fitnessFromInvalidVenues -= ONE_HARD_CONSTRAINT;
                 isValidSolution = false;
             }
+
+            // TODO: goldilocks effect: preference against having a small class in a very big venue
+
+            fitnessFromBuildingPreference += EACH_SOFT_CONSTRAINT * genes[i].getDepartmentsBuildingPreferenceAverage() / ScheduledModule.MAX_BUILDING_PREF_SCORE; // Integer division rounds down, which is desired
+
+            fitnessFromTimeslotPreference += 0.25f * EACH_SOFT_CONSTRAINT * genes[i].getLecturerTimeslotPreference() / ScheduledModule.MAX_TIMESLOT_PREF_SCORE; // Integer division rounds down, which is desired
 
             // *****************************************************************************************************
 
@@ -249,7 +263,9 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
         }
 
         return fitnessFromOverlappingClasses
-                + fitnessFromInvalidVenues;
+                + fitnessFromInvalidVenues
+                + fitnessFromBuildingPreference
+                + fitnessFromTimeslotPreference;
     }
 
     public String toString() {

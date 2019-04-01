@@ -61,7 +61,6 @@ public class ScheduledModule implements Cloneable, Serializable {
             }
         }
 
-
         return false;
     }
 
@@ -74,6 +73,24 @@ public class ScheduledModule implements Cloneable, Serializable {
         if (this.module.isLab != this.venue.isLab) return false;
         if (this.venue.capacity < this.module.numEnrolled) return false;
         return true;
+    }
+
+    public static final int MAX_BUILDING_PREF_SCORE = 20;
+    public float getDepartmentsBuildingPreferenceAverage() {
+        int scoreSum = 0;
+        for (Long departamentId : module.getDepartmentIds()) {
+            scoreSum += venue.getDepartmentsScores().getOrDefault(departamentId, 10); // If the key does not exist, then count it as 10, or "half"
+        }
+        float avg = (float) scoreSum / module.getDepartmentIds().size();
+        if (avg > 20) {
+            System.out.println("An average score was over 20: module=" + module.getId() + ",venue=" + venue.getId());
+        }
+        return avg;
+    }
+
+    public static final int MAX_TIMESLOT_PREF_SCORE = 20;
+    public int getLecturerTimeslotPreference() {
+        return timeslot.getLecturerPreferences().getOrDefault(module.lecturerId, 10); // If the database field of this lecturer in this timeslot does not exist, then count it as 10, or "half"
     }
 
     public Module getModule() {
@@ -99,5 +116,4 @@ public class ScheduledModule implements Cloneable, Serializable {
     public void setTimeslot(Timeslot timeslot) {
         this.timeslot = timeslot;
     }
-
 }

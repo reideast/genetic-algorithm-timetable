@@ -74,9 +74,7 @@ public class Population implements Serializable {
         final List<Chromosome> nextPopulation = Collections.synchronizedList(new ArrayList<>(populationSize + 600));
 //        final List<Chromosome> nextPopulation = new ArrayList<>(populationSize + 600);
 
-        // TODO: numEliteSurvivors:
-        // TODO: Keep population members ranked 1st, and maybe also 2nd, and 3rd
-        // TODO: Probably requires: Arrays.sort(individuals);
+        // Elite survivors: Keep population members ranked 1st, and maybe also 2nd, and 3rd
         Collections.sort(individuals);
         for (int i = 0; i < numEliteSurvivors; ++i) {
             // Get the best: the 0th, 1st, ... individuals
@@ -119,13 +117,11 @@ public class Population implements Serializable {
             // todo: initial size??
             List<Future<Chromosome>> crossedOverChromosomesFutures = new ArrayList<>(populationSize * populationSize);
 
-            int numCrossovers = 0;
             for (int i = 0; i < populationSize; ++i) {
                 for (int j = 0; j < populationSize; ++j) {
                     if (i != j) {
                         if (random.nextFloat() < crossoverRate) {
                             final int firstIndex = i, secondIndex = j;
-                            numCrossovers += 1;
                             crossedOverChromosomesFutures.add(threadPool.submit(() -> {
                                 Chromosome first = individuals.get(firstIndex);
                                 Chromosome second = individuals.get(secondIndex);
@@ -147,7 +143,6 @@ public class Population implements Serializable {
             for (Future<Chromosome> waiter : crossedOverChromosomesFutures) {
                 individuals.add(waiter.get());
             }
-            System.out.print(numCrossovers + ",");
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }

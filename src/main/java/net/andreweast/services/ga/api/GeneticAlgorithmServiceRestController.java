@@ -27,10 +27,11 @@ public class GeneticAlgorithmServiceRestController {
     // Parameters of the GA. These are to fine-tune the algorithm
     // FUTURE: These constants should be stored somewhere else. Some sort of public static constant in the GA controller?
     // FUTURE: Perhaps in a configuration text file, or better: in a database config table
-    private static final String NUM_GENERATIONS = "100000";
+    private static final String NUM_GENERATIONS = "10000";
     private static final String POPULATION_SIZE = "60";
     // How many "extra" generations to run after a valid (no violated hard constraints) solution has emerged
-    private static final String RUN_DOWN_NUM_GENERATIONS = "200";
+    // Expressed in the proportion of already-ran generations. E.g. If this is 20, and 1000 generations have run when a valid solution is found, then 1000 * 0.20 = 200 more generations will run
+    private static final String RUN_DOWN_PROPORTION_GENERATIONS = "20";
     // Crossover with p = 0.6
     private static final String CROSSOVER_PERCENTAGE = "10";
     // Mutate all individuals with p = 0.05 each generation
@@ -42,7 +43,7 @@ public class GeneticAlgorithmServiceRestController {
 
     // How often to send reports back to the database, in percentage of job done
     // This is important for the frontend, since it is how often the status progress bar will update
-    private static final String QUERY_RATE = "3";
+    private static final String QUERY_RATE = "1";
 
     /**
      * Start a genetic algorithm batch job running, using an existing Schedule (which may or may not be a work-in-progress)
@@ -55,7 +56,7 @@ public class GeneticAlgorithmServiceRestController {
     public JobDto createJob(@RequestParam(required = true) Long scheduleId,
                             @RequestParam(required = false, defaultValue = NUM_GENERATIONS) Integer numGenerations,
                             @RequestParam(required = false, defaultValue = POPULATION_SIZE) Integer populationSize,
-                            @RequestParam(required = false, defaultValue = RUN_DOWN_NUM_GENERATIONS) Integer numRunDownGenerations,
+                            @RequestParam(required = false, defaultValue = RUN_DOWN_PROPORTION_GENERATIONS) Integer proportionRunDownGenerations,
                             @RequestParam(required = false, defaultValue = CROSSOVER_PERCENTAGE) Integer crossoverPercentage,
                             @RequestParam(required = false, defaultValue = MUTATE_PERCENTAGE) Integer mutatePercentage,
                             @RequestParam(required = false, defaultValue = MUTATE_GENES_MAX) Integer mutateGenesMax,
@@ -66,11 +67,11 @@ public class GeneticAlgorithmServiceRestController {
 
         // Dispatch the job. After getting data from database, and creating a new record in the Job table,
         // the dispatcher will spawn its own thread (so that this method (and API call) can return)
-        Job job = dispatcher.dispatchNewJobForSchedule(scheduleId, numGenerations, populationSize, numRunDownGenerations, crossoverPercentage, mutatePercentage, mutateGenesMax, numEliteSurvivors, queryRate);
+        Job job = dispatcher.dispatchNewJobForSchedule(scheduleId, numGenerations, populationSize, proportionRunDownGenerations, crossoverPercentage, mutatePercentage, mutateGenesMax, numEliteSurvivors, queryRate);
 
         // Return a JSON response representing the Job
         JobDto dto = buildJsonResponse(job);
-        dto.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(GeneticAlgorithmServiceRestController.class).createJob(scheduleId, numGenerations, populationSize, numRunDownGenerations, crossoverPercentage, mutatePercentage, mutateGenesMax, numEliteSurvivors, queryRate)).withSelfRel());
+        dto.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(GeneticAlgorithmServiceRestController.class).createJob(scheduleId, numGenerations, populationSize, proportionRunDownGenerations, crossoverPercentage, mutatePercentage, mutateGenesMax, numEliteSurvivors, queryRate)).withSelfRel());
         return dto;
     }
 
