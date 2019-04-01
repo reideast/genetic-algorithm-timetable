@@ -1,6 +1,7 @@
 package net.andreweast.services.ga.geneticalgorithm;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Random;
 
 public class Chromosome implements Comparable<Chromosome>, Serializable {
@@ -47,23 +48,65 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
         isValidSolution = toClone.isValidSolution();
     }
 
-    public void crossover(Chromosome toCrossWith) {
+    public void crossoverBinary(Chromosome toCrossWith) {
         final int crossoverPoint = random.nextInt(genes.length);
-//        if (!havePrintedCrossoverDebug && GeneticAlgorithmJob.DEBUG) { // DEBUG
-//            System.out.println("Before cross: " + this.toString());
-//            System.out.println("Crossing w/:  " + toCrossWith.toString());
-//            System.out.println("CrossoverPoint=" + crossoverPoint);
-//        }
-
         for (int i = 0; i <= crossoverPoint; ++i) {
             genes[i] = toCrossWith.genes[i].clone();
         }
+
         cachedFitness = calculateFitness();
-//        if (!havePrintedCrossoverDebug && GeneticAlgorithmJob.DEBUG) { // DEBUG
-//            System.out.println("After cross:  " + this.toString());
-//
-//            havePrintedCrossoverDebug = true;
-//        }
+    }
+
+    /**
+     * Crossover a randomly selected, contiguous range, could be any range of any size, to visualise:
+     * ########******######
+     * #*****************##
+     * #########***********
+     * ####***#############
+     * ###############*####
+     * ********############
+     *
+     * @param toCrossWith
+     */
+    public void crossoverPiece(Chromosome toCrossWith) {
+        final int crossoverStart = random.nextInt(genes.length);
+        final int crossoverEnd = random.nextInt(genes.length - crossoverStart);
+        for (int i = crossoverStart; i < crossoverEnd; ++i) {
+            genes[i] = toCrossWith.genes[i].clone();
+        }
+
+        cachedFitness = calculateFitness();
+    }
+
+    /**
+     * Crossover a TWO randomly selected, contiguous ranges, could be of any size, to visualise:
+     * ##**####******######
+     * #**************##*##
+     * **#######***********
+     * ####******##########
+     * ###############*####
+     * ********#***********
+     *
+     * @param toCrossWith
+     */
+    public void crossoverTwoPieces(Chromosome toCrossWith) {
+        // Choose any four points in the gene, pairs of which delineate the genes that will be crossed
+        final int[] startStopGeneNumbers = {
+                random.nextInt(genes.length),
+                random.nextInt(genes.length),
+                random.nextInt(genes.length),
+                random.nextInt(genes.length)
+        };
+        Arrays.sort(startStopGeneNumbers);
+
+        for (int i = startStopGeneNumbers[0]; i < startStopGeneNumbers[1]; ++i) {
+            genes[i] = toCrossWith.genes[i].clone();
+        }
+        for (int i = startStopGeneNumbers[2]; i < startStopGeneNumbers[3]; ++i) {
+            genes[i] = toCrossWith.genes[i].clone();
+        }
+
+        cachedFitness = calculateFitness();
     }
 
     public Chromosome mutate(int mutateGenesMax) {
@@ -78,7 +121,6 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
 
 
     /**
-     *
      * @param mutateGenesMax Mutation of multiple genes in this chromosome
      */
     private void mutateSelf(int mutateGenesMax) {

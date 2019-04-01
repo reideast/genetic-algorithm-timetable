@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -26,7 +27,8 @@ public class Population implements Serializable {
         this.threadPool = threadPool;
         populationSize = data.getPopulationSize();
 
-        individuals = new ArrayList<>(populationSize);
+//        individuals = new ArrayList<>(populationSize + 600);
+        individuals = Collections.synchronizedList(new ArrayList<>(populationSize + 600));
         if (data.isModifyExistingJob()) {
             makePopulationFromExisting(data);
         } else {
@@ -69,7 +71,8 @@ public class Population implements Serializable {
      *                          Keeping 1 elite member halved num generations to converge. 2-3 elites selected improved a good bit, and any more had diminishing returns.
      */
     public void select(int numEliteSurvivors) {
-        final List<Chromosome> nextPopulation = new ArrayList<>(populationSize);
+        final List<Chromosome> nextPopulation = Collections.synchronizedList(new ArrayList<>(populationSize + 600));
+//        final List<Chromosome> nextPopulation = new ArrayList<>(populationSize + 600);
 
         // TODO: numEliteSurvivors:
         // TODO: Keep population members ranked 1st, and maybe also 2nd, and 3rd
@@ -114,22 +117,88 @@ public class Population implements Serializable {
     public void crossover(float crossoverRate) {
         if (random.nextFloat() < crossoverRate) { // TODO: hardcoded 60% crossover. See (Cekała et all 2015) and/or my lit review for suggested %
             // TODO: Rather naive (and therefore probably inefficient) method of choosing best: Just sort the population by fitness
-
             // TODO: Is there support in the literature to crossing _random_ individuals rather than the best
-            Collections.sort(individuals);
-            Chromosome first = individuals.get(0);
-//            Chromosome second = individuals.get(1);
-            // Pick a random Chromosome from the current population
-            Chromosome second = individuals.get(random.nextInt(individuals.size()));
 
-            // create a new one cloned from highest
-            Chromosome offspring = new Chromosome(first);
+            int numCrossovers = 600;
 
-            // swap some genes with second highest
-            offspring.crossover(second);
+            List<Callable<Integer>> tasks = new ArrayList<>();
 
-            // save the offspring into the population, where it may be selected to be in the next generation soon
-            individuals.add(offspring);
+            tasks.add(() -> {
+                try {
+                    List<Future<Chromosome>> chromosomeCreators = new ArrayList<>(numCrossovers);
+                    for (int i = 0; i < numCrossovers; ++i) {
+                        chromosomeCreators.add(threadPool.submit(() -> {
+                            Chromosome first = individuals.get(random.nextInt(individuals.size()));
+                            Chromosome second = individuals.get(random.nextInt(individuals.size()));
+                            Chromosome offspring = new Chromosome(first);
+                            offspring.crossoverBinary(second);
+//                individuals.add(offspring); // save the offspring into the population, where it may be selected to be in the next generation soon
+                            return offspring; // save the offspring into the population, where it may be selected to be in the next generation soon
+                        }));
+                    }
+                    for (Future<Chromosome> waiter : chromosomeCreators) {
+                        individuals.add(waiter.get());
+                    }
+                } catch (ExecutionException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            });
+
+            tasks.add(() -> {
+                try {
+                    List<Future<Chromosome>> chromosomeCreators = new ArrayList<>(numCrossovers);
+                    for (int i = 0; i < numCrossovers; ++i) {
+                        chromosomeCreators.add(threadPool.submit(() -> {
+                            Chromosome first = individuals.get(random.nextInt(individuals.size()));
+                            Chromosome second = individuals.get(random.nextInt(individuals.size()));
+                            Chromosome offspring = new Chromosome(first);
+                            offspring.crossoverPiece(second);
+//                individuals.add(offspring); // save the offspring into the population, where it may be selected to be in the next generation soon
+                            return offspring; // save the offspring into the population, where it may be selected to be in the next generation soon
+                        }));
+                    }
+                    for (Future<Chromosome> waiter : chromosomeCreators) {
+                        individuals.add(waiter.get());
+                    }
+                } catch (ExecutionException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            });
+
+            tasks.add(() -> {
+                try {
+                    List<Future<Chromosome>> chromosomeCreators = new ArrayList<>(numCrossovers);
+                    for (int i = 0; i < numCrossovers; ++i) {
+                        chromosomeCreators.add(threadPool.submit(() -> {
+                            Chromosome first = individuals.get(random.nextInt(individuals.size()));
+                            Chromosome second = individuals.get(random.nextInt(individuals.size()));
+                            Chromosome offspring = new Chromosome(first);
+                            offspring.crossoverTwoPieces(second);
+//                individuals.add(offspring); // save the offspring into the population, where it may be selected to be in the next generation soon
+                            return offspring; // save the offspring into the population, where it may be selected to be in the next generation soon
+                        }));
+                    }
+                    for (Future<Chromosome> waiter : chromosomeCreators) {
+                        individuals.add(waiter.get());
+                    }
+                } catch (ExecutionException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            });
+
+            try {
+//                threadPool.execute(a);
+//                threadPool.execute(b);
+//                threadPool.execute(c);
+
+                threadPool.invokeAll(tasks);
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
