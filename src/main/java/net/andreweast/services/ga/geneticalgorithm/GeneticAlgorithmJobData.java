@@ -26,6 +26,18 @@ public class GeneticAlgorithmJobData implements Serializable {
     // How big an Individual will be (e.g. how many modules there are to schedule)
     private int chromosomeSize;
 
+    // How many "extra" generations to run after a valid (no violated hard constraints) solution has emerged
+    private int numRunDownGenerations;
+    // Crossover with p = 0.6
+    private float crossoverProbability;
+    // Mutate a random individual with p = 0.9
+    private float mutateProbability;
+    // How many of the very best in a population are guaranteed to survive
+    private int numEliteSurvivors;
+    // How often to send reports back to the database, in percentage of job done
+    // This is important for the frontend, since it is how often the status progress bar will update
+    private float queryRate;
+
     // The various things to be scheduled. Each one may have data that the Fitness Function will utilise
     private List<Module> modules;
     private List<Venue> venues;
@@ -116,6 +128,46 @@ public class GeneticAlgorithmJobData implements Serializable {
 
     public void setPopulationSize(int populationSize) {
         this.populationSize = populationSize;
+    }
+
+    public int getNumRunDownGenerations() {
+        return numRunDownGenerations;
+    }
+
+    public void setNumRunDownGenerations(int numRunDownGenerations) {
+        this.numRunDownGenerations = numRunDownGenerations;
+    }
+
+    public float getCrossoverProbability() {
+        return crossoverProbability;
+    }
+
+    public void setCrossoverProbability(float crossoverProbability) {
+        this.crossoverProbability = crossoverProbability;
+    }
+
+    public float getMutateProbability() {
+        return mutateProbability;
+    }
+
+    public void setMutateProbability(float mutateProbability) {
+        this.mutateProbability = mutateProbability;
+    }
+
+    public int getNumEliteSurvivors() {
+        return numEliteSurvivors;
+    }
+
+    public void setNumEliteSurvivors(int numEliteSurvivors) {
+        this.numEliteSurvivors = numEliteSurvivors;
+    }
+
+    public float getQueryRate() {
+        return queryRate;
+    }
+
+    public void setQueryRate(float queryRate) {
+        this.queryRate = queryRate;
     }
 
     // Potential source of error: If this.modules is retrieved, then items are added/removed,

@@ -101,13 +101,14 @@ public class Population implements Serializable {
         individuals = nextPopulation;
     }
 
+    // TODO: Fix crossover percent: right now it's going float -> int -> float
     /**
      * Possibly do genetic crossover (e.g. sexual reproduction) within the population
      *
      * @param crossoverRate int range [0,100], how often to do crossover. Higher is more often
      */
-    public void crossover(int crossoverRate) {
-        if (random.nextInt(100) < crossoverRate) { // TODO: hardcoded 60% crossover. See (Cekała et all 2015) and/or my lit review for suggested %
+    public void crossover(float crossoverRate) {
+        if (random.nextInt(100) < (crossoverRate * 100)) { // TODO: hardcoded 60% crossover. See (Cekała et all 2015) and/or my lit review for suggested %
             // TODO: Rather naive (and therefore probably inefficient) method of choosing best: Just sort the population by fitness
 
             // TODO: Is there support in the literature to crossing _random_ individuals rather than the best
@@ -122,17 +123,19 @@ public class Population implements Serializable {
             offspring.crossover(second);
 
             // replace lowest individual with new offspring
+            // DEBUG: REPLACING...THIS IS NOT SUPPORTED BY LITERATURE
             individuals[individuals.length - 1] = offspring;
         }
     }
 
+    // TODO: Fix mutate percent: right now it's going float -> int -> float
     /**
      * Possibly mutate (e.g. random perturb a gene) within the population
      *
      * @param mutateRate int range [0,100], how often to mutate. Higher is more often
      */
-    public void mutate(int mutateRate) {
-        if (random.nextInt(100) < mutateRate) { // TODO: hardcoded 90% mutate. See (Cekała et all 2015) and/or my lit review for suggested %
+    public void mutate(float mutateRate) {
+        if (random.nextInt(100) < (mutateRate * 100)) { // TODO: hardcoded 90% mutate. See (Cekała et all 2015) and/or my lit review for suggested %
             individuals[random.nextInt(populationSize)].mutate();
         }
 
