@@ -5,9 +5,22 @@ import net.andreweast.services.ga.service.Dispatcher;
 import net.andreweast.services.ga.service.GaToDbSerializer;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static net.andreweast.WebSocketConfiguration.MESSAGE_PREFIX;
 
@@ -94,8 +107,14 @@ public class GeneticAlgorithmJob implements Runnable {
         int queryGenerationModulus = (int) (numGenerationsMaximum * QUERY_RATE);
 
         long startTime = System.nanoTime(); // DEBUG
-        System.out.println("************* GEN init *************"); // DEBUG
-        System.out.println(population); // DEBUG
+        List<String> debugOutputLines;
+        if (DEBUG) {
+            System.out.println("************* GENETIC ALGORITHM INITIALISATION *************"); // DEBUG
+//        System.out.println(population); // DEBUG
+            // Generate a CSV header for the chromosomes in a population
+            debugOutputLines = new ArrayList<>(1 + numGenerationsMaximum);
+            debugOutputLines.add("generation_num," + Stream.iterate(0, item -> item + 1).limit(masterData.getChromosomeSize()).map(item -> "chromosome" + item).collect(Collectors.joining(",")));
+        }
         final long initTime = System.nanoTime() - startTime; // DEBUG
         double runningAverage = -1; // DEBUG
 
@@ -112,14 +131,14 @@ public class GeneticAlgorithmJob implements Runnable {
 
             // DEBUG: Some delay needed to prevent frontend from breaking because it cannot update when the job ends too quickly. This is obviously a hack, but may be able to eliminate it once there's more load for the whole GA
             try {
-                Thread.sleep(20);
+                Thread.sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
             if (DEBUG) { // DEBUG
-                System.out.print("Gen " + currentGeneration.get() + ": ");
-                System.out.println(population.toFitnessList());
+                // Output CSV values for the population's fitness values
+                debugOutputLines.add(currentGeneration.get() + "," + population.toFitnessList().stream().map(Object::toString).collect(Collectors.joining(",")));
             }
 
             // DEBUG
@@ -161,15 +180,57 @@ public class GeneticAlgorithmJob implements Runnable {
             } // else: Already doing a final run down, don't check if the valid solution still exists until we're done
         }
         // DEBUG
-        System.out.println("Complexity of dataset:");
-        System.out.println("Num modules: " + masterData.getModules().size());
-        System.out.println("Venues x Timeslots: " + (masterData.getVenues().size() * masterData.getTimeslots().size()));
-        System.out.println("Running time stats:");
-        System.out.println("Time init: " + (initTime * 1.0E-6) + " ms");
-        System.out.println("Average generation time: " + (runningAverage * 1E-6) + " ms");
-        System.out.println("Total time: " + ((System.nanoTime() - startTime) * 1E-6) + " ms");
+        if (DEBUG) {
+            System.out.print("Complexity of dataset:");
+            System.out.print(" Num modules: " + masterData.getModules().size());
+            System.out.println(" Venues x Timeslots: " + (masterData.getVenues().size() * masterData.getTimeslots().size()));
+            System.out.print("Running time stats:");
+            System.out.print(" Time init: " + (initTime * 1.0E-6) + " ms");
+            System.out.print(" Average generation time: " + (runningAverage * 1E-6) + " ms");
+            System.out.println(" Total time: " + ((System.nanoTime() - startTime) * 1E-9) + " s");
+        }
 
         System.out.println("GA generations have completed, job=" + masterData.getJobId() + ", schedule=" + masterData.getScheduleId()); // FUTURE: Logger info
+
+        // Generate a CSV file with the parameters and running time results for this GA run
+        // FUTURE: File writing could be optimised
+        if (DEBUG) {
+            try {
+                File statsCsv = new File("stats" + File.separator + "ga_stats.csv");
+                File generationsFile = new File("stats" + File.separator + "fitness_for_all_gen_job_" + masterData.getJobId() + ".csv");
+
+                // Write header row ONLY if this is the first run
+                if (!statsCsv.exists()) {
+                    statsCsv.getParentFile().mkdirs();
+                    try (Writer csvWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(statsCsv)))) {
+                        csvWriter.write("timestamp,jobId,scheduleId,Modules,Venues,Timeslots," +
+                                "Population Size,Crossover Probability,Mutate Probability,Elite Survivors,Run Down Num Generations," +
+                                "Generation Max,Generation Ran,Found Valid Timetable?,Avg Generation Time (ms),Total Time (ms)");
+                    }
+                }
+
+                // Write stats row, appending to (now created) existing file
+                try (Writer csvWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(statsCsv, true)))) {
+                    csvWriter.write(String.format("%s,%d,%d,%d,%d,%d," +
+                                    "%d,%f,%f,%d,%d," +
+                                    "%d,%d,%s,%f,%f",
+                            new Date(), masterData.getJobId(), masterData.getScheduleId(), masterData.getModules().size(), masterData.getVenues().size(), masterData.getTimeslots().size(),
+                            masterData.getChromosomeSize(), (CROSSOVER_PERCENTAGE / 100.0), (MUTATE_PERCENTAGE / 100.0), ELITE_SURVIVORS, RUN_DOWN_NUM_GENERATIONS,
+                            numGenerationsMaximum, (currentGeneration.get() - 1), population.hasValidSolution(), (runningAverage * 1.0E-6), ((System.nanoTime() - startTime) * 1.0E-6)
+                    ));
+                }
+
+                // Print gen-over-gen CSV to a new file
+                try (Writer csvWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(generationsFile)))) {
+                    for (String line : debugOutputLines) {
+                        csvWriter.write(line);
+                    }
+                }
+            } catch (IOException e) {
+                System.out.println("ERROR: Writing results CSV has failed"); // FUTURE: logger
+                e.printStackTrace();
+            }
+        }
 
         // Send a WebSocket publication to subscribers on the frontend web app, notifying job progress == DONE
         this.websocket.convertAndSend(MESSAGE_PREFIX + "/jobStatus",
@@ -184,12 +245,6 @@ public class GeneticAlgorithmJob implements Runnable {
     private void saveBestIndividualToMasterData() {
         // Get info from Population, and choose a Chromosome to write back to {@link masterData}
         masterData.setScheduledModules(population.getBestChromosomeScheduledModule());
-
-        // DEBUG:
-        System.out.println("Scheduled Modules:");
-        for (ScheduledModule item : masterData.getScheduledModules()) {
-            System.out.println(item);
-        }
     }
 
     private void writeBackToDatabase() {
