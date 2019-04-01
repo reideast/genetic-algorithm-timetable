@@ -113,11 +113,11 @@ public class DbToGaDeserializer {
         }
 
         // DEBUG:
-        System.out.println("Timeslots: ");
-        for (Timeslot item : timeslots) {
-            System.out.print(item);
-        }
-        System.out.println();
+//        System.out.println("Timeslots: ");
+//        for (Timeslot item : timeslots) {
+//            System.out.print(item);
+//        }
+//        System.out.println();
 
         return timeslots;
     }
@@ -140,10 +140,10 @@ public class DbToGaDeserializer {
         }
 
         // DEBUG:
-        System.out.println("Venues:");
-        for (Venue item : venues) {
-            System.out.println(item);
-        }
+//        System.out.println("Venues:");
+//        for (Venue item : venues) {
+//            System.out.println(item);
+//        }
 
         return venues;
     }
@@ -171,10 +171,10 @@ public class DbToGaDeserializer {
         }
 
         // DEBUG:
-        System.out.println("Modules:");
-        for (Module item : modules) {
-            System.out.println(item);
-        }
+//        System.out.println("Modules:");
+//        for (Module item : modules) {
+//            System.out.println(item);
+//        }
 
         return modules;
     }
@@ -198,10 +198,10 @@ public class DbToGaDeserializer {
         }
 
         // DEBUG:
-        System.out.println("Scheduled Modules:");
-        for (ScheduledModule item : scheduledModules) {
-            System.out.println(item);
-        }
+//        System.out.println("Scheduled Modules:");
+//        for (ScheduledModule item : scheduledModules) {
+//            System.out.println(item);
+//        }
 
         return scheduledModules;
     }

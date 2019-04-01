@@ -49,38 +49,38 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
 
     public void crossover(Chromosome toCrossWith) {
         final int crossoverPoint = random.nextInt(genes.length);
-        if (!havePrintedCrossoverDebug && GeneticAlgorithmJob.DEBUG) { // DEBUG
-            System.out.println("Before cross: " + this.toString());
-            System.out.println("Crossing w/:  " + toCrossWith.toString());
-            System.out.println("CrossoverPoint=" + crossoverPoint);
-        }
+//        if (!havePrintedCrossoverDebug && GeneticAlgorithmJob.DEBUG) { // DEBUG
+//            System.out.println("Before cross: " + this.toString());
+//            System.out.println("Crossing w/:  " + toCrossWith.toString());
+//            System.out.println("CrossoverPoint=" + crossoverPoint);
+//        }
 
         for (int i = 0; i <= crossoverPoint; ++i) {
             genes[i] = toCrossWith.genes[i].clone();
         }
         cachedFitness = calculateFitness();
-        if (!havePrintedCrossoverDebug && GeneticAlgorithmJob.DEBUG) { // DEBUG
-            System.out.println("After cross:  " + this.toString());
-
-            havePrintedCrossoverDebug = true;
-        }
+//        if (!havePrintedCrossoverDebug && GeneticAlgorithmJob.DEBUG) { // DEBUG
+//            System.out.println("After cross:  " + this.toString());
+//
+//            havePrintedCrossoverDebug = true;
+//        }
     }
 
     public void mutate() {
         // Randomise one of the scheduled modules
-        if (!havePrintedMutateDebug && GeneticAlgorithmJob.DEBUG) {
-            System.out.println("Before mutate: " + this.toString());
-        }
+//        if (!havePrintedMutateDebug && GeneticAlgorithmJob.DEBUG) {
+//            System.out.println("Before mutate: " + this.toString());
+//        }
 
         final int mutateGene = random.nextInt(genes.length);
         genes[mutateGene] = new ScheduledModule(genes[mutateGene].getModule(), data);
         cachedFitness = calculateFitness();
 
-        if (!havePrintedMutateDebug && GeneticAlgorithmJob.DEBUG) {
-            System.out.println("@" + mutateGene + " After mutate:  " + this.toString());
-
-            havePrintedMutateDebug = true;
-        }
+//        if (!havePrintedMutateDebug && GeneticAlgorithmJob.DEBUG) {
+//            System.out.println("@" + mutateGene + " After mutate:  " + this.toString());
+//
+//            havePrintedMutateDebug = true;
+//        }
     }
 
     private int calculateFitness() {

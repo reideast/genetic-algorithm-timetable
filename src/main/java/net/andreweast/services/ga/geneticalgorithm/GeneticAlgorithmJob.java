@@ -11,11 +11,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -91,7 +89,6 @@ public class GeneticAlgorithmJob implements Runnable {
     }
 
     private void createInitialPopulation() {
-        // TODO: get data from the new DB-based objects
         population = new Population(masterData, threadPool);
     }
 
@@ -107,13 +104,14 @@ public class GeneticAlgorithmJob implements Runnable {
         int queryGenerationModulus = (int) (numGenerationsMaximum * QUERY_RATE);
 
         long startTime = System.nanoTime(); // DEBUG
+        String csvHeader;
         List<String> debugOutputLines;
         if (DEBUG) {
-            System.out.println("************* GENETIC ALGORITHM INITIALISATION *************"); // DEBUG
+            System.out.println("************* GENETIC ALGORITHM INITIALISATION jobId=" + masterData.getJobId() + " *************"); // DEBUG
 //        System.out.println(population); // DEBUG
             // Generate a CSV header for the chromosomes in a population
             debugOutputLines = new ArrayList<>(1 + numGenerationsMaximum);
-            debugOutputLines.add("generation_num," + Stream.iterate(0, item -> item + 1).limit(masterData.getChromosomeSize()).map(item -> "chromosome" + item).collect(Collectors.joining(",")));
+            csvHeader = "generation_num," + Stream.iterate(0, item -> item + 1).limit(masterData.getPopulationSize()).map(item -> "chromosome" + item).collect(Collectors.joining(","));
         }
         final long initTime = System.nanoTime() - startTime; // DEBUG
         double runningAverage = -1; // DEBUG
@@ -181,13 +179,13 @@ public class GeneticAlgorithmJob implements Runnable {
         }
         // DEBUG
         if (DEBUG) {
-            System.out.print("Complexity of dataset:");
-            System.out.print(" Num modules: " + masterData.getModules().size());
-            System.out.println(" Venues x Timeslots: " + (masterData.getVenues().size() * masterData.getTimeslots().size()));
-            System.out.print("Running time stats:");
-            System.out.print(" Time init: " + (initTime * 1.0E-6) + " ms");
-            System.out.print(" Average generation time: " + (runningAverage * 1E-6) + " ms");
-            System.out.println(" Total time: " + ((System.nanoTime() - startTime) * 1E-9) + " s");
+            System.out.print("Complexity of dataset:"); // FUTURE: Logger
+            System.out.print(" Num modules: " + masterData.getModules().size()); // FUTURE: Logger
+            System.out.println(" Venues x Timeslots: " + (masterData.getVenues().size() * masterData.getTimeslots().size())); // FUTURE: Logger
+            System.out.print("Running time stats:"); // FUTURE: Logger
+            System.out.print(" Time init: " + (initTime * 1.0E-6) + " ms"); // FUTURE: Logger
+            System.out.print(" Average generation time: " + (runningAverage * 1E-6) + " ms"); // FUTURE: Logger
+            System.out.println(" Total time: " + ((System.nanoTime() - startTime) * 1E-9) + " s"); // FUTURE: Logger
         }
 
         System.out.println("GA generations have completed, job=" + masterData.getJobId() + ", schedule=" + masterData.getScheduleId()); // FUTURE: Logger info
@@ -198,6 +196,7 @@ public class GeneticAlgorithmJob implements Runnable {
             try {
                 File statsCsv = new File("stats" + File.separator + "ga_stats.csv");
                 File generationsFile = new File("stats" + File.separator + "fitness_for_all_gen_job_" + masterData.getJobId() + ".csv");
+                File generations250File = new File("stats" + File.separator + "fitness_for_all_gen_job_" + masterData.getJobId() + "_pick_250_gens.csv");
 
                 // Write header row ONLY if this is the first run
                 if (!statsCsv.exists()) {
@@ -205,7 +204,7 @@ public class GeneticAlgorithmJob implements Runnable {
                     try (Writer csvWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(statsCsv)))) {
                         csvWriter.write("timestamp,jobId,scheduleId,Modules,Venues,Timeslots," +
                                 "Population Size,Crossover Probability,Mutate Probability,Elite Survivors,Run Down Num Generations," +
-                                "Generation Max,Generation Ran,Found Valid Timetable?,Avg Generation Time (ms),Total Time (ms)");
+                                "Generation Max,Generation Ran,Found Valid Timetable?,Avg Generation Time (ms),Total Time (ms),Final generation's chromosomes' fitness...\n");
                     }
                 }
 
@@ -213,17 +212,26 @@ public class GeneticAlgorithmJob implements Runnable {
                 try (Writer csvWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(statsCsv, true)))) {
                     csvWriter.write(String.format("%s,%d,%d,%d,%d,%d," +
                                     "%d,%f,%f,%d,%d," +
-                                    "%d,%d,%s,%f,%f",
+                                    "%d,%d,%s,%f,%f,%s%n",
                             new Date(), masterData.getJobId(), masterData.getScheduleId(), masterData.getModules().size(), masterData.getVenues().size(), masterData.getTimeslots().size(),
-                            masterData.getChromosomeSize(), (CROSSOVER_PERCENTAGE / 100.0), (MUTATE_PERCENTAGE / 100.0), ELITE_SURVIVORS, RUN_DOWN_NUM_GENERATIONS,
-                            numGenerationsMaximum, (currentGeneration.get() - 1), population.hasValidSolution(), (runningAverage * 1.0E-6), ((System.nanoTime() - startTime) * 1.0E-6)
+                            masterData.getPopulationSize(), (CROSSOVER_PERCENTAGE / 100.0), (MUTATE_PERCENTAGE / 100.0), ELITE_SURVIVORS, RUN_DOWN_NUM_GENERATIONS,
+                            numGenerationsMaximum, (currentGeneration.get() - 1), population.hasValidSolution(), (runningAverage * 1.0E-6), ((System.nanoTime() - startTime) * 1.0E-6),
+                            population.toFitnessList()
                     ));
                 }
 
                 // Print gen-over-gen CSV to a new file
-                try (Writer csvWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(generationsFile)))) {
-                    for (String line : debugOutputLines) {
-                        csvWriter.write(line);
+                try (Writer csvWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(generationsFile)));
+                     Writer csv250Writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(generations250File)))) {
+                    csvWriter.write(csvHeader + "\n");
+                    csv250Writer.write(csvHeader + "\n");
+
+                    int modValueToLimit250 = currentGeneration.get() / 250;
+                    for (int i = 0; i < debugOutputLines.size(); ++i) {
+                        csvWriter.write(debugOutputLines.get(i) + "\n");
+                        if (i % modValueToLimit250 == 0) {
+                            csv250Writer.write(debugOutputLines.get(i) + "\n");
+                        }
                     }
                 }
             } catch (IOException e) {

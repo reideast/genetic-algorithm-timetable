@@ -88,7 +88,7 @@ fabric.properties
 logs/
 *.log
 *.log.[0-9]
-
+stats/
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
