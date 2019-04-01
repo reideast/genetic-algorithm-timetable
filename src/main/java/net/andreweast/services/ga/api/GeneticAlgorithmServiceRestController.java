@@ -30,7 +30,7 @@ public class GeneticAlgorithmServiceRestController {
     private static final String NUM_GENERATIONS = "10000";
     private static final String POPULATION_SIZE = "60";
     // How many "extra" generations to run after a valid (no violated hard constraints) solution has emerged
-    private static final String RUN_DOWN_NUM_GENERATIONS = "50";
+    private static final String RUN_DOWN_NUM_GENERATIONS = "500";
     // Crossover with p = 0.6
     private static final String CROSSOVER_PERCENTAGE = "90";
     // Mutate all individuals with p = 0.05 each generation
@@ -38,7 +38,7 @@ public class GeneticAlgorithmServiceRestController {
     // Each chromosome may have between 1 and MUTATE_GENES_MAX if it is mutated
     private static final String MUTATE_GENES_MAX = "20";
     // How many of the very best in a population are guaranteed to survive
-    private static final String ELITE_SURVIVORS = "1";
+    private static final String ELITE_SURVIVORS = "2";
 
     // How often to send reports back to the database, in percentage of job done
     // This is important for the frontend, since it is how often the status progress bar will update

@@ -74,11 +74,11 @@ public class Population implements Serializable {
         // TODO: numEliteSurvivors:
         // TODO: Keep population members ranked 1st, and maybe also 2nd, and 3rd
         // TODO: Probably requires: Arrays.sort(individuals);
-//        Collections.sort(individuals);
-//        for (int i = 0; i < numEliteSurvivors; ++i) {
-//            // Get the best: the 0th, 1st, ... individuals
-//            nextPopulation.add(new Chromosome(individuals.get(i)));// deep clone individual
-//        }
+        Collections.sort(individuals);
+        for (int i = 0; i < numEliteSurvivors; ++i) {
+            // Get the best: the 0th, 1st, ... individuals
+            nextPopulation.add(new Chromosome(individuals.get(i)));// deep clone individual
+        }
 
         // Determine sum total of all individuals' fitness s.t. roulette wheel can select from them
         int totalFitness = 0;
@@ -118,7 +118,9 @@ public class Population implements Serializable {
             // TODO: Is there support in the literature to crossing _random_ individuals rather than the best
             Collections.sort(individuals);
             Chromosome first = individuals.get(0);
-            Chromosome second = individuals.get(1);
+//            Chromosome second = individuals.get(1);
+            // Pick a random Chromosome from the current population
+            Chromosome second = individuals.get(random.nextInt(individuals.size()));
 
             // create a new one cloned from highest
             Chromosome offspring = new Chromosome(first);

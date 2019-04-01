@@ -700,10 +700,10 @@ class RunGeneticAlgorithm extends React.Component {
             path: apiGeneticAlgorithmRoot + '/job',
             params: {
                 scheduleId: this.props.schedule.entity.scheduleId,
-                numGenerations: 10000,
+                // numGenerations: 10000,
                 // numGenerations: 100000,
-                mutatePercentage: 5,
-                populationSize: 60
+                // mutatePercentage: 5,
+                // populationSize: 60
             }
         }).then(response => {
             console.log('Job submitted, response received:', response); // DEBUG

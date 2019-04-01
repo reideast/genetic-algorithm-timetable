@@ -91,11 +91,13 @@ public class GeneticAlgorithmJob implements Runnable {
 
     @Override
     public void run() {
+        System.out.println("************* GENETIC ALGORITHM INITIALISATION jobId=" + masterData.getJobId() + " *************"); // DEBUG
         createInitialPopulation();
         runAllGenerations();
         saveBestIndividualToMasterData();
         writeBackToDatabase();
         finaliseJob();
+        System.out.println("************* JOB DONE jobId=" + masterData.getJobId() + " *************"); // DEBUG
     }
 
     private void createInitialPopulation() {
@@ -117,7 +119,6 @@ public class GeneticAlgorithmJob implements Runnable {
         String csvHeader;
         List<String> debugOutputLines;
         if (DEBUG) {
-            System.out.println("************* GENETIC ALGORITHM INITIALISATION jobId=" + masterData.getJobId() + " *************"); // DEBUG
 //        System.out.println(population); // DEBUG
             // Generate a CSV header for the chromosomes in a population
             debugOutputLines = new ArrayList<>(1 + numGenerationsMaximum);
@@ -130,19 +131,19 @@ public class GeneticAlgorithmJob implements Runnable {
         while (isRunning.get()) { // Use of AtomicBoolean to control a Thread see: https://www.baeldung.com/java-thread-stop
             long generationTime = System.nanoTime(); // DEBUG
 
-            population.crossover(crossoverProbability);
-
             population.mutate(mutateProbability, mutatedGenesMax);
+
+            population.crossover(crossoverProbability);
 
             // DEBUG: According to (Padhy 2005), selection should/may be done AFTER crossover & mutation
             population.select(eliteSurvivors); // Selection must be done after genetic crossover/mutate in order to find cached hasValidSolution
 
-            // DEBUG: Some delay needed to prevent frontend from breaking because it cannot update when the job ends too quickly. This is obviously a hack, but may be able to eliminate it once there's more load for the whole GA
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//            // DEBUG: Some delay needed to prevent frontend from breaking because it cannot update when the job ends too quickly. This is obviously a hack, but may be able to eliminate it once there's more load for the whole GA
+//            try {
+//                Thread.sleep(1);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
 
             if (DEBUG) { // DEBUG
                 // Output CSV values for the population's fitness values
@@ -258,6 +259,16 @@ public class GeneticAlgorithmJob implements Runnable {
         }
 
         // Send a WebSocket publication to subscribers on the frontend web app, notifying job progress == DONE
+//        try {
+//            // DEBUG: If the algorithm converged TOO FAST, then add an artificial delay. This is to make up for failings in the front end (breaks state if updates too fast).
+//            // DEBUG: ...this is definitely a hack
+//            final int MIN_EXECUTION_TIME = 10 * 1000; // milliseconds
+//            final long actualExecutionTime = (long) ((System.nanoTime() - startTime) * 1E-6);
+//            System.out.println("Need a delay? Sleeping for " + (MIN_EXECUTION_TIME - actualExecutionTime) + "ms"); // DEBUG
+//            Thread.sleep(MIN_EXECUTION_TIME - actualExecutionTime);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         this.websocket.convertAndSend(MESSAGE_PREFIX + "/jobStatus",
                 "{\"jobId\":" + masterData.getJobId() +
                         ",\"progressPercent\":" + 1.0 +
