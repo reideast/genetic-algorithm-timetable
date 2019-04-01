@@ -1,6 +1,6 @@
 DO $$
 BEGIN 
-FOR counter IN 16..39 LOOP
+FOR counter IN 18..28 LOOP
     INSERT INTO public.lecturer_timeslot_preferences (lecturer_id, timeslot_id, "rank") VALUES(counter, 01, 08);
     INSERT INTO public.lecturer_timeslot_preferences (lecturer_id, timeslot_id, "rank") VALUES(counter, 02, 15);
     INSERT INTO public.lecturer_timeslot_preferences (lecturer_id, timeslot_id, "rank") VALUES(counter, 03, 18);
