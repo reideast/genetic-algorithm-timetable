@@ -115,90 +115,41 @@ public class Population implements Serializable {
      * @param crossoverRate [0.0f, 1.0f] Do crossover with p = crossoverRate . Higher is more often
      */
     public void crossover(float crossoverRate) {
-        if (random.nextFloat() < crossoverRate) { // TODO: hardcoded 60% crossover. See (Cekała et all 2015) and/or my lit review for suggested %
-            // TODO: Rather naive (and therefore probably inefficient) method of choosing best: Just sort the population by fitness
-            // TODO: Is there support in the literature to crossing _random_ individuals rather than the best
+        try {
+            // todo: initial size??
+            List<Future<Chromosome>> crossedOverChromosomesFutures = new ArrayList<>(populationSize * populationSize);
 
-            int numCrossovers = 600;
-
-            List<Callable<Integer>> tasks = new ArrayList<>();
-
-            tasks.add(() -> {
-                try {
-                    List<Future<Chromosome>> chromosomeCreators = new ArrayList<>(numCrossovers);
-                    for (int i = 0; i < numCrossovers; ++i) {
-                        chromosomeCreators.add(threadPool.submit(() -> {
-                            Chromosome first = individuals.get(random.nextInt(individuals.size()));
-                            Chromosome second = individuals.get(random.nextInt(individuals.size()));
-                            Chromosome offspring = new Chromosome(first);
-                            offspring.crossoverBinary(second);
-//                individuals.add(offspring); // save the offspring into the population, where it may be selected to be in the next generation soon
-                            return offspring; // save the offspring into the population, where it may be selected to be in the next generation soon
-                        }));
+            int numCrossovers = 0;
+            for (int i = 0; i < populationSize; ++i) {
+                for (int j = 0; j < populationSize; ++j) {
+                    if (i != j) {
+                        if (random.nextFloat() < crossoverRate) {
+                            final int firstIndex = i, secondIndex = j;
+                            numCrossovers += 1;
+                            crossedOverChromosomesFutures.add(threadPool.submit(() -> {
+                                Chromosome first = individuals.get(firstIndex);
+                                Chromosome second = individuals.get(secondIndex);
+                                Chromosome offspring = new Chromosome(first);
+                                final float whichCrossoverMethod = random.nextFloat();
+                                if (whichCrossoverMethod < 0.3333f) {
+                                    offspring.crossoverBinary(second);
+                                } else if (whichCrossoverMethod < 0.6666f) {
+                                    offspring.crossoverPiece(second);
+                                } else {
+                                    offspring.crossoverTwoPieces(second);
+                                }
+                                return offspring; // save the offspring into the population, where it may be selected to be in the next generation soon
+                            }));
+                        }
                     }
-                    for (Future<Chromosome> waiter : chromosomeCreators) {
-                        individuals.add(waiter.get());
-                    }
-                } catch (ExecutionException | InterruptedException e) {
-                    e.printStackTrace();
                 }
-                return null;
-            });
-
-            tasks.add(() -> {
-                try {
-                    List<Future<Chromosome>> chromosomeCreators = new ArrayList<>(numCrossovers);
-                    for (int i = 0; i < numCrossovers; ++i) {
-                        chromosomeCreators.add(threadPool.submit(() -> {
-                            Chromosome first = individuals.get(random.nextInt(individuals.size()));
-                            Chromosome second = individuals.get(random.nextInt(individuals.size()));
-                            Chromosome offspring = new Chromosome(first);
-                            offspring.crossoverPiece(second);
-//                individuals.add(offspring); // save the offspring into the population, where it may be selected to be in the next generation soon
-                            return offspring; // save the offspring into the population, where it may be selected to be in the next generation soon
-                        }));
-                    }
-                    for (Future<Chromosome> waiter : chromosomeCreators) {
-                        individuals.add(waiter.get());
-                    }
-                } catch (ExecutionException | InterruptedException e) {
-                    e.printStackTrace();
-                }
-                return null;
-            });
-
-            tasks.add(() -> {
-                try {
-                    List<Future<Chromosome>> chromosomeCreators = new ArrayList<>(numCrossovers);
-                    for (int i = 0; i < numCrossovers; ++i) {
-                        chromosomeCreators.add(threadPool.submit(() -> {
-                            Chromosome first = individuals.get(random.nextInt(individuals.size()));
-                            Chromosome second = individuals.get(random.nextInt(individuals.size()));
-                            Chromosome offspring = new Chromosome(first);
-                            offspring.crossoverTwoPieces(second);
-//                individuals.add(offspring); // save the offspring into the population, where it may be selected to be in the next generation soon
-                            return offspring; // save the offspring into the population, where it may be selected to be in the next generation soon
-                        }));
-                    }
-                    for (Future<Chromosome> waiter : chromosomeCreators) {
-                        individuals.add(waiter.get());
-                    }
-                } catch (ExecutionException | InterruptedException e) {
-                    e.printStackTrace();
-                }
-                return null;
-            });
-
-            try {
-//                threadPool.execute(a);
-//                threadPool.execute(b);
-//                threadPool.execute(c);
-
-                threadPool.invokeAll(tasks);
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
+            for (Future<Chromosome> waiter : crossedOverChromosomesFutures) {
+                individuals.add(waiter.get());
+            }
+            System.out.print(numCrossovers + ",");
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
         }
     }
 

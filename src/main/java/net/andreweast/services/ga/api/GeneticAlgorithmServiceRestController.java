@@ -27,12 +27,12 @@ public class GeneticAlgorithmServiceRestController {
     // Parameters of the GA. These are to fine-tune the algorithm
     // FUTURE: These constants should be stored somewhere else. Some sort of public static constant in the GA controller?
     // FUTURE: Perhaps in a configuration text file, or better: in a database config table
-    private static final String NUM_GENERATIONS = "10000";
+    private static final String NUM_GENERATIONS = "100000";
     private static final String POPULATION_SIZE = "60";
     // How many "extra" generations to run after a valid (no violated hard constraints) solution has emerged
-    private static final String RUN_DOWN_NUM_GENERATIONS = "500";
+    private static final String RUN_DOWN_NUM_GENERATIONS = "200";
     // Crossover with p = 0.6
-    private static final String CROSSOVER_PERCENTAGE = "90";
+    private static final String CROSSOVER_PERCENTAGE = "10";
     // Mutate all individuals with p = 0.05 each generation
     private static final String MUTATE_PERCENTAGE = "5"; // For suggested rates, see (Cekała et all 2015) and/or my lit review for suggested %
     // Each chromosome may have between 1 and MUTATE_GENES_MAX if it is mutated
