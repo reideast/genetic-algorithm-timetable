@@ -20,42 +20,28 @@
 <body>
 
 <!-- Navbar must be done here so that Spring Boot login can be injected -->
-<nav class="navbar navbar-dark bg-primary shadow-sm">
-    <a class="navbar-brand" href="#"><span id="brand-icon-placeholder"></span> Genetic Algorithm Timetable</a>
-    <!--<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"-->
-            <!--aria-label="Toggle navigation">-->
-        <!--<span class="navbar-toggler-icon"></span>-->
-    <!--</button>-->
+<nav class="navbar navbar-expand-md navbar-dark bg-primary shadow-sm">
+    <a class="navbar-brand" href="#"><span id="brand-icon-placeholder"></span> <span class="d-sm-inline d-none">Genetic Algorithm Timetable</span><span class="d-sm-none d-inline">GA Timetable</span></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+            aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
 
-    <!--<div class="collapse navbar-collapse" id="navbarSupportedContent">-->
-        <!--<ul class="navbar-nav mr-auto">-->
-            <!--<li class="nav-item active">-->
-                <!--<a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>-->
-            <!--</li>-->
-            <!--<li class="nav-item">-->
-                <!--<a class="nav-link" href="#">Link</a>-->
-            <!--</li>-->
-            <!--<li class="nav-item dropdown">-->
-                <!--<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
-                    <!--Dropdown-->
-                <!--</a>-->
-                <!--<div class="dropdown-menu" aria-labelledby="navbarDropdown">-->
-                    <!--<a class="dropdown-item" href="#">Action</a>-->
-                    <!--<a class="dropdown-item" href="#">Another action</a>-->
-                    <!--<div class="dropdown-divider"></div>-->
-                    <!--<a class="dropdown-item" href="#">Something else here</a>-->
-                <!--</div>-->
-            <!--</li>-->
-            <!--<li class="nav-item">-->
-                <!--<a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>-->
-            <!--</li>-->
-        <!--</ul>-->
-        <!--<span class="navbar-text">User: <span th:text="${#authentication.getName()}">user</span></span>-->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <!-- TODO: Link to self not needed until the navbar is more populated... -->
+<!--            <li class="nav-item active">-->
+<!--                <a class="nav-link" href="#">Run<span class="sr-only">(current)</span></a>-->
+<!--            </li>-->
+            <li class="nav-item">
+                <a class="nav-link" href="swagger-ui.html">API Documentation</a>
+            </li>
+        </ul>
+        <span class="navbar-text" id="user-display-name-placeholder"></span>
         <form th:action="@{/logout}" method="post" class="form-inline">
-            <span class="navbar-text" id="user-display-name-placeholder"></span>
-            <button class="btn btn-light ml-1 ml-sm-3 my-2 my-sm-0" type="submit">Logout</button>
+            <button class="btn btn-light ml-1 ml-md-3 my-2 my-md-0" type="submit" aria-label="Logout">Logout</button>
         </form>
-    <!--</div>-->
+    </div>
 </nav>
 
 <div style="display:none;" id="loggedInUser" th:text="${#authentication.name}">user</div>

@@ -63,7 +63,9 @@ class App extends React.Component {
             <Container className="bg-white">
                 <Row>
                     <Col className="py-3 pt-md-5 pb-md-4 mx-auto text-center">
-                        <h4 className="display-4">Run Genetic Algorithm</h4>
+                        <h4 className="display-4 d-md-block d-none">Run Genetic Algorithm</h4>
+                        <h1 className="d-md-none d-sm-block d-none" style={{fontWeight: 300, lineHeight: 1.2}}>Run Genetic Algorithm</h1>
+                        <h2 className="d-sm-none d-block" style={{fontWeight: 300, lineHeight: 1.2}}>Run Genetic Algorithm</h2>
                     </Col>
                 </Row>
                 <Row>
