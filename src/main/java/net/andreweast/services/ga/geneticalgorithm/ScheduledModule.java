@@ -42,26 +42,33 @@ public class ScheduledModule implements Cloneable, Serializable {
 
     /**
      * Compare two genes. If they overlap in both venue and timeslot, there is a conflict! Return true
-     * If they overlap in JUST timeslot and the two modules are offered BY THE SAME COURSE, return true
+     * If they overlap in JUST timeslot but the two modules are offered BY THE SAME COURSE, return true
+     * If they overlap in JUST timeslot and the two modules are taught by the same lecturer, return true
      *
-     * @return true if these two modules both be taught in this timeslot/venue
+     * @return true if these two modules should not both be taught in the same timeslot. False means no conflicts
      */
-    public boolean conflictsWithTimeOrPlaceOf(ScheduledModule that) {
+    public boolean conflictsWithTimeOrPlaceOrLecturerOf(ScheduledModule that) {
         if (this == that) return true;
 
         if (timeslot == that.timeslot) {
             // Check if scheduled at same time AND place
             if (venue == that.venue) {
                 return true;
-            } else {
-                // Check if a time conflict is also for two modules within the same course. If not, the overlap doesn't matter
-                if (module.offeredBySameCourse(that.module)) {
-                    return true;
-                }
+            }
+
+            // Check if the lecturer is already busy this hour
+            if (module.taughtByTheSameLecturer(that.module)) {
+                return true;
+            }
+
+            // Check if a time conflict is also for two modules within the same course. If not, the overlap doesn't matter
+            // Done last, since it is most likely the worst performance test
+            if (module.offeredBySameCourse(that.module)) {
+                return true;
             }
         }
 
-        return false;
+        return false; // No conflict!
     }
 
     /**

@@ -252,7 +252,7 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
                     // Combines hard constraints related to conflicting timeslots:
                     // 1. Cannot schedule any module in the same time and place (timeslot + venue)
                     // 2. Cannot schedule modules within one course for the same time (timeslot + course)
-                    if (genes[i].conflictsWithTimeOrPlaceOf(genes[j])) {
+                    if (genes[i].conflictsWithTimeOrPlaceOrLecturerOf(genes[j])) {
                         fitnessFromOverlappingClasses -= ONE_HARD_CONSTRAINT;
                         isValidSolution = false;
                     }
@@ -310,7 +310,7 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
 
             for (int j = i + 1; j < genes.length; ++j) {
                 if (i != j) {
-                    if (genes[i].conflictsWithTimeOrPlaceOf(genes[j])) {
+                    if (genes[i].conflictsWithTimeOrPlaceOrLecturerOf(genes[j])) {
                         System.out.println("Conflict between two modules: " + genes[i] + "//////" + genes[j]);
                     }
                 }
