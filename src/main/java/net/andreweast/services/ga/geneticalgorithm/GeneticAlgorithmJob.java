@@ -92,13 +92,13 @@ public class GeneticAlgorithmJob implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("************* GENETIC ALGORITHM INITIALISATION jobId=" + masterData.getJobId() + " *************"); // DEBUG
+        System.out.println("************* GENETIC ALGORITHM INITIALISATION jobId=" + masterData.getJobId() + ", schedId=" + masterData.getScheduleId() + " *************"); // DEBUG
         createInitialPopulation();
         runAllGenerations();
         saveBestIndividualToMasterData();
         writeBackToDatabase();
         finaliseJob();
-        System.out.println("************* JOB DONE jobId=" + masterData.getJobId() + " *************"); // DEBUG
+        System.out.println("************* JOB DONE jobId=" + masterData.getJobId() + ", schedId=" + masterData.getScheduleId() + " *************"); // DEBUG
     }
 
     private void createInitialPopulation() {
@@ -114,7 +114,14 @@ public class GeneticAlgorithmJob implements Runnable {
         // Is the algorithm currently running those "several more generations?"
         boolean isDoingFinalRunDown = false;
 
-        int queryGenerationModulus = (int) (numGenerationsMaximum * queryRate);
+        if (masterData.isModifyExistingJob()) {
+            // For an existing job, ALWAYS run for at least 20% of total length (or whatever percentage is in currentGeneration.get())
+            // DEBUG: This is a hack. An existing job might be configured with how many minimum generations to run (defaulting to 20% max maybe)
+            tentativeGenLimit = currentGeneration.get() + (proportionRunDownGenerations * numGenerationsMaximum); // DEBUG
+            isDoingFinalRunDown = true; // DEBUG
+        }
+
+        int queryGenerationModulus = Math.max((int) (numGenerationsMaximum * queryRate), 1); // Max is to guard against when query rate has been set higher than numGenMax
 
         long startTime = System.nanoTime(); // DEBUG
         String csvHeader;

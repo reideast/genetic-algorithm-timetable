@@ -349,11 +349,8 @@ class Timetable extends React.Component {
         const body = JSON.parse(message.body);
         console.log('GA Job done signal received as WebSocket, scheduleId=', body.scheduleId, 'valid?', body.foundValidSolution);
         if (!body.foundValidSolution) {
-            console.log('The completed job was not able to find a timetable without scheduling conflicts within the number of generations limit!');
-
-            // FUTURE: Make a more elegant and informative in the UI!
-            // alert('The completed job was not able to find a timetable without scheduling conflicts within the number of generations limit!');
-            this.props.onErrorAlert('The completed job was not able to find a timetable without scheduling conflicts! (Within the number of generations limit)', 'No Valid Schedule Found', 'warning');
+            console.warn('The completed job was not able to find a timetable without scheduling conflicts within ' + body.finalGenerationNumber + ' generations!');
+            this.props.onErrorAlert('The completed job was not able to find a timetable without scheduling conflicts within ' + body.finalGenerationNumber + ' generations!', 'No Valid Schedule Found', 'warning');
         }
         if (this.state.currentScheduleId === body.scheduleId) {
             // 1. Set state, s.t. an update is triggered

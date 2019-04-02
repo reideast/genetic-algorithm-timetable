@@ -38,6 +38,11 @@ public class Population implements Serializable {
 
     /**
      * To modify an existing Schedule, make a population out of the existing data's ScheduledModules
+     *
+     * Fill the population up with 1/3 of each:
+     *   1. Clones of the existing data
+     *   2. Mutations of that data
+     *   3. Crossovers sampled from the above two groups
      */
     private void makePopulationFromExisting(GeneticAlgorithmJobData data) {
         if (data.getScheduledModules() == null || data.getScheduledModules().size() == 0) {
@@ -52,10 +57,33 @@ public class Population implements Serializable {
         Chromosome chromosomeFromDatabase = new Chromosome(data, data.getScheduledModules());
         individuals.add(chromosomeFromDatabase);
 
-        // Clone the new individual a lot. No thread used since no fitness is calculated upon clone
-        for (int i = 0; i < populationSize - 1; ++i) {
+        int oneThird = populationSize / 3;
+
+        // Use a thread pool for mutation since it will be recalculating fitness
+        List<Future<Chromosome>> chromosomeCreators = new ArrayList<>(oneThird);
+        for (int i = 0; i < oneThird; ++i) {
+            chromosomeCreators.add(threadPool.submit(() -> chromosomeFromDatabase.mutate(data.getMutatedGenesMax())));
+        }
+
+        // Clone the new individual. No thread used since no fitness is calculated upon clone
+        // Might as well do it while the mutate threads are working, though
+        for (int i = 0; i < oneThird; ++i) {
             individuals.add(new Chromosome(chromosomeFromDatabase));
         }
+
+        // Block until all mutating is done
+        try {
+            for (int i = 0; i < oneThird; ++i) {
+                individuals.add((chromosomeCreators.get(i)).get()); // Block for this thread to return its Future value
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            // TODO: There's no real exception handling here. This should kill the Genetic Algorithm Job and put it in a failed state!
+            System.out.println("ERROR: While creating a new population and calculating its fitness, a threading error was thrown"); // FUTURE: Logger error
+            e.printStackTrace();
+        }
+
+        // No thread pool: crossover already uses it
+        this.crossover(1.0f); // Always
     }
 
     private void makeNewPopulation(GeneticAlgorithmJobData data) {
@@ -88,7 +116,7 @@ public class Population implements Serializable {
      *                          Keeping 1 elite member halved num generations to converge. 2-3 elites selected improved a good bit, and any more had diminishing returns.
      */
     public void select(int numEliteSurvivors) {
-        final List<Chromosome> nextPopulation = Collections.synchronizedList(new ArrayList<>(populationSize + 600));
+        final List<Chromosome> nextPopulation = Collections.synchronizedList(new ArrayList<>(populationSize));
 //        final List<Chromosome> nextPopulation = new ArrayList<>(populationSize + 600);
 
         // Elite survivors: Keep population members ranked 1st, and maybe also 2nd, and 3rd
@@ -104,8 +132,8 @@ public class Population implements Serializable {
             totalFitness += individual.getCachedFitness();
         }
 
-        // Select a whole new population
-        for (int i = 0; i < populationSize; ++i) {
+        // Select a whole new population, limited to the expected population size
+        for (int i = 0; i < populationSize - numEliteSurvivors; ++i) {
             // "Spin the roulette wheel". Based on https://en.wikipedia.org/wiki/Fitness_proportionate_selection
             int randomSelected = random.nextInt(totalFitness);
 
@@ -134,8 +162,8 @@ public class Population implements Serializable {
             // todo: initial size??
             List<Future<Chromosome>> crossedOverChromosomesFutures = new ArrayList<>(populationSize * populationSize);
 
-            for (int i = 0; i < populationSize; ++i) {
-                for (int j = 0; j < populationSize; ++j) {
+            for (int i = 0; i < individuals.size(); ++i) {
+                for (int j = 0; j < individuals.size(); ++j) {
                     if (i != j) {
                         if (random.nextFloat() < crossoverRate) {
                             final int firstIndex = i, secondIndex = j;
