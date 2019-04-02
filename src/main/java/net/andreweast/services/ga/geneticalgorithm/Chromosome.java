@@ -2,6 +2,7 @@ package net.andreweast.services.ga.geneticalgorithm;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 public class Chromosome implements Comparable<Chromosome>, Serializable {
@@ -46,6 +47,18 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
 
         cachedFitness = toClone.getCachedFitness();
         isValidSolution = toClone.isValidSolution();
+    }
+
+    /**
+     * Database data copy constructor
+     */
+    public Chromosome(GeneticAlgorithmJobData masterData, List<ScheduledModule> existingSchedule) {
+        data = masterData;
+
+        // Make a new array of the appropriate type using existing data
+        genes = existingSchedule.toArray(new ScheduledModule[0]); // The JVM optimises array creation, so passing an empty array is preferential, see: https://stackoverflow.com/a/29444594/5271224
+
+        cachedFitness = calculateFitness(); // Also sets isValidSolution
     }
 
     public void crossoverBinary(Chromosome toCrossWith) {

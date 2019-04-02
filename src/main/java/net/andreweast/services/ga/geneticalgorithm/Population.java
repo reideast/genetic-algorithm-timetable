@@ -36,9 +36,26 @@ public class Population implements Serializable {
         }
     }
 
+    /**
+     * To modify an existing Schedule, make a population out of the existing data's ScheduledModules
+     */
     private void makePopulationFromExisting(GeneticAlgorithmJobData data) {
-        // FUTURE: To modify an existing Schedule, make a population out of the existing data's ScheduledModules
-        makeNewPopulation(data); // FUTURE: For now, just overwrite everything by running this job as if it were new
+        if (data.getScheduledModules() == null || data.getScheduledModules().size() == 0) {
+            System.out.println("ERROR For preexisting schedule (id=" + data.getScheduleId() + "), there were no scheduled modules in the database"); // FUTURE: Logger error
+            // FUTURE: To prevent jobs from not going forward until the GUI has more features, simply ignore this error
+            // FUTURE: Also, see {@link DbToGaDeserializer}
+            data.setModifyExistingJob(false); // FUTURE: Hack until future work can be done
+            makeNewPopulation(data); // FUTURE: For now, just overwrite everything by running this job as if it were new
+        }
+
+        // This constructor will make a new individual with the data provided
+        Chromosome chromosomeFromDatabase = new Chromosome(data, data.getScheduledModules());
+        individuals.add(chromosomeFromDatabase);
+
+        // Clone the new individual a lot. No thread used since no fitness is calculated upon clone
+        for (int i = 0; i < populationSize - 1; ++i) {
+            individuals.add(new Chromosome(chromosomeFromDatabase));
+        }
     }
 
     private void makeNewPopulation(GeneticAlgorithmJobData data) {
