@@ -134,8 +134,8 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
         for (int i = 0; i < numToMutate; ++i) {
             int mutateGene = random.nextInt(genes.length);
 
-            // Heuristic mutate: if this gene is already in a suitable venue, don't mutate the venue, just the time
-            if (genes[mutateGene].isInValidVenue()) {
+            // Heuristic mutate (sometimes): if this gene is already in a suitable venue, don't mutate the venue, just the time
+            if (genes[mutateGene].isInValidVenue() && random.nextFloat() < 0.5) {
                 // Mutate only time
                 genes[mutateGene].setTimeslot(data.getRandomTimeslot());
             } else {
@@ -237,7 +237,7 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
                 isValidSolution = false;
             }
 
-            // TODO: goldilocks effect: preference against having a small class in a very big venue
+            // TODO: Soft constraint: Goldilocks effect: preference against having a small class in a very big venue
 
             fitnessFromBuildingPreference += EACH_SOFT_CONSTRAINT * genes[i].getDepartmentsBuildingPreferenceAverage() / ScheduledModule.MAX_BUILDING_PREF_SCORE; // Integer division rounds down, which is desired
 
