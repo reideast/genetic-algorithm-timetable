@@ -8,9 +8,6 @@ import java.util.Random;
 public class Chromosome implements Comparable<Chromosome>, Serializable {
     private static Random random = new Random();
 
-    private static boolean havePrintedCrossoverDebug = false; // DEBUG
-    private static boolean havePrintedMutateDebug = false; // DEBUG
-
     private ScheduledModule[] genes;
 
     private GeneticAlgorithmJobData data;
@@ -138,10 +135,6 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
      */
     private void mutateSelf(int mutateGenesMax) {
         // Randomise one of the scheduled modules
-//        if (!havePrintedMutateDebug && GeneticAlgorithmJob.DEBUG) {
-//            System.out.println("Before mutate: " + this.toString());
-//        }
-
         final int numToMutate = random.nextInt(mutateGenesMax) + 1;
 
         for (int i = 0; i < numToMutate; ++i) {
@@ -158,12 +151,6 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
         }
 
         cachedFitness = calculateFitness();
-
-//        if (!havePrintedMutateDebug && GeneticAlgorithmJob.DEBUG) {
-//            System.out.println("@" + mutateGene + " After mutate:  " + this.toString());
-//
-//            havePrintedMutateDebug = true;
-//        }
     }
 
     private int calculateFitness() {
@@ -229,8 +216,8 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
          */
 
         // Start with the max possible hard-fitness value; subtract as violations are found
-        int fitnessFromOverlappingClasses = data.getChromosomeSize() * ONE_HARD_CONSTRAINT;
-        int fitnessFromInvalidVenues = data.getChromosomeSize() * ONE_HARD_CONSTRAINT;
+        int fitnessFromOverlappingClasses = genes.length * ONE_HARD_CONSTRAINT;
+        int fitnessFromInvalidVenues = genes.length * ONE_HARD_CONSTRAINT;
         isValidSolution = true;
 
         // For soft constraints, start at zero and add as good values are found

@@ -94,6 +94,7 @@ public class GeneticAlgorithmJob implements Runnable {
     public void run() {
         System.out.println("************* GENETIC ALGORITHM INITIALISATION jobId=" + masterData.getJobId() + ", schedId=" + masterData.getScheduleId() + " *************"); // DEBUG
         createInitialPopulation();
+        System.out.println("************* GENETIC ALGORITHM POPULATION CREATED jobId=" + masterData.getJobId() + ", schedId=" + masterData.getScheduleId() + " *************"); // DEBUG
         runAllGenerations();
         saveBestIndividualToMasterData();
         writeBackToDatabase();
@@ -191,7 +192,7 @@ public class GeneticAlgorithmJob implements Runnable {
                 if (population.hasValidSolution()) {
                     tentativeGenLimit = currentGeneration.get() + (proportionRunDownGenerations * currentGeneration.get()); // Add a number of generations that is the fraction (expressed in proportionRunDownGenerations) of the current generation
                     isDoingFinalRunDown = true;
-                    System.out.println(currentGeneration.get() + "gen: Found a valid solution! Doing a final run down now for " + proportionRunDownGenerations + " generations"); // FUTURE: Logger
+                    System.out.println(currentGeneration.get() + "gen: Found a valid solution! Doing a final run down now for " + (tentativeGenLimit - currentGeneration.get()) + " generations"); // FUTURE: Logger
                 }
                 // else: There's no valid solution. Continue running the algorithm as normal
             } // else: Already doing a final run down, don't check if the valid solution still exists until we're done

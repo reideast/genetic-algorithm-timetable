@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -39,10 +38,9 @@ public class Population implements Serializable {
     /**
      * To modify an existing Schedule, make a population out of the existing data's ScheduledModules
      *
-     * Fill the population up with 1/3 of each:
+     * Fill the population up with 1/2 of each:
      *   1. Clones of the existing data
      *   2. Mutations of that data
-     *   3. Crossovers sampled from the above two groups
      */
     private void makePopulationFromExisting(GeneticAlgorithmJobData data) {
         if (data.getScheduledModules() == null || data.getScheduledModules().size() == 0) {
@@ -57,23 +55,23 @@ public class Population implements Serializable {
         Chromosome chromosomeFromDatabase = new Chromosome(data, data.getScheduledModules());
         individuals.add(chromosomeFromDatabase);
 
-        int oneThird = populationSize / 3;
+        int oneHalf = populationSize / 2;
 
         // Use a thread pool for mutation since it will be recalculating fitness
-        List<Future<Chromosome>> chromosomeCreators = new ArrayList<>(oneThird);
-        for (int i = 0; i < oneThird; ++i) {
+        List<Future<Chromosome>> chromosomeCreators = new ArrayList<>(oneHalf);
+        for (int i = 0; i < oneHalf; ++i) {
             chromosomeCreators.add(threadPool.submit(() -> chromosomeFromDatabase.mutate(data.getMutatedGenesMax())));
         }
 
         // Clone the new individual. No thread used since no fitness is calculated upon clone
         // Might as well do it while the mutate threads are working, though
-        for (int i = 0; i < oneThird; ++i) {
+        for (int i = 0; i < oneHalf - 1; ++i) {
             individuals.add(new Chromosome(chromosomeFromDatabase));
         }
 
         // Block until all mutating is done
         try {
-            for (int i = 0; i < oneThird; ++i) {
+            for (int i = 0; i < oneHalf; ++i) {
                 individuals.add((chromosomeCreators.get(i)).get()); // Block for this thread to return its Future value
             }
         } catch (InterruptedException | ExecutionException e) {
@@ -81,9 +79,6 @@ public class Population implements Serializable {
             System.out.println("ERROR: While creating a new population and calculating its fitness, a threading error was thrown"); // FUTURE: Logger error
             e.printStackTrace();
         }
-
-        // No thread pool: crossover already uses it
-        this.crossover(1.0f); // Always
     }
 
     private void makeNewPopulation(GeneticAlgorithmJobData data) {
@@ -127,7 +122,7 @@ public class Population implements Serializable {
         }
 
         // Determine sum total of all individuals' fitness s.t. roulette wheel can select from them
-        int totalFitness = 0;
+        long totalFitness = 0;
         for (Chromosome individual : individuals) {
             totalFitness += individual.getCachedFitness();
         }
@@ -135,7 +130,7 @@ public class Population implements Serializable {
         // Select a whole new population, limited to the expected population size
         for (int i = 0; i < populationSize - numEliteSurvivors; ++i) {
             // "Spin the roulette wheel". Based on https://en.wikipedia.org/wiki/Fitness_proportionate_selection
-            int randomSelected = random.nextInt(totalFitness);
+            long randomSelected = (long) (random.nextDouble() * totalFitness);
 
             // For each individual, starting with first, if random number was less than its proportion, then roulette wheel "landed" on this item
             for (Chromosome individual : individuals) {
