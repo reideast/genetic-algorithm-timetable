@@ -144,7 +144,6 @@ public class GeneticAlgorithmJob implements Runnable {
 
             population.crossover(crossoverProbability);
 
-            // DEBUG: According to (Padhy 2005), selection should/may be done AFTER crossover & mutation
             population.select(eliteSurvivors); // Selection must be done after genetic crossover/mutate in order to find cached hasValidSolution
 
 //            // DEBUG: Some delay needed to prevent frontend from breaking because it cannot update when the job ends too quickly. This is obviously a hack, but may be able to eliminate it once there's more load for the whole GA
@@ -222,7 +221,6 @@ public class GeneticAlgorithmJob implements Runnable {
         if (DEBUG) {
             try {
                 File statsCsv = new File("stats" + File.separator + "ga_stats.csv");
-//                File generationsFile = new File("stats" + File.separator + "fitness_for_all_gen_job_" + masterData.getJobId() + ".csv");
                 File generations250File = new File("stats" + File.separator + "fitness_for_all_gen_job_" + masterData.getJobId() + "_pick_250_gens.csv");
 
                 // Write header row ONLY if this is the first run
@@ -248,15 +246,11 @@ public class GeneticAlgorithmJob implements Runnable {
                 }
 
                 // Print gen-over-gen CSV to a new file
-//                try (Writer csvWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(generationsFile)));
-//                     Writer csv250Writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(generations250File)))) {
                 try (Writer csv250Writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(generations250File)))) {
-//                    csvWriter.write(csvHeader + "\n");
                     csv250Writer.write(csvHeader + "\n");
 
                     int modValueToLimit250 = Math.max(currentGeneration.get() / 250, 1);
                     for (int i = 0; i < debugOutputLines.size(); ++i) {
-//                        csvWriter.write(debugOutputLines.get(i) + "\n");
                         if (i % modValueToLimit250 == 0) {
                             csv250Writer.write(debugOutputLines.get(i) + "\n");
                         }

@@ -26,7 +26,6 @@ public class Population implements Serializable {
         this.threadPool = threadPool;
         populationSize = data.getPopulationSize();
 
-//        individuals = new ArrayList<>(populationSize + 600);
         individuals = Collections.synchronizedList(new ArrayList<>(populationSize + 600));
         if (data.isModifyExistingJob()) {
             makePopulationFromExisting(data);

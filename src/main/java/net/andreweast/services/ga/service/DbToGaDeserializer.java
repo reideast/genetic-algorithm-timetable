@@ -119,13 +119,6 @@ public class DbToGaDeserializer {
             timeslots.add(new Timeslot(entity.getTimeslotId(), entity.getDay(), entity.getTime(), mapPreferencesByLecturerId));
         }
 
-        // DEBUG:
-//        System.out.println("Timeslots: ");
-//        for (Timeslot item : timeslots) {
-//            System.out.print(item);
-//        }
-//        System.out.println();
-
         return timeslots;
     }
 
@@ -145,12 +138,6 @@ public class DbToGaDeserializer {
             venues.add(new Venue(entity.getVenueId(), entity.getName(), entity.getLab(), entity.getCapacity(),
                     entity.getBuilding().getLocation().x, entity.getBuilding().getLocation().y, departmentsScores));
         }
-
-        // DEBUG:
-//        System.out.println("Venues:");
-//        for (Venue item : venues) {
-//            System.out.println(item);
-//        }
 
         return venues;
     }
@@ -177,12 +164,6 @@ public class DbToGaDeserializer {
                     entity.getLecturer().getLecturerId(), coursesOfferingModule, departmentIdsOfferingModule));
         }
 
-        // DEBUG:
-//        System.out.println("Modules:");
-//        for (Module item : modules) {
-//            System.out.println(item);
-//        }
-
         return modules;
     }
 
@@ -203,12 +184,6 @@ public class DbToGaDeserializer {
                     timeslotIndex.get(entity.getTimeslot().getTimeslotId()),
                     data));
         }
-
-        // DEBUG:
-//        System.out.println("Scheduled Modules:");
-//        for (Gene item : scheduledModules) {
-//            System.out.println(item);
-//        }
 
         return scheduledModules;
     }

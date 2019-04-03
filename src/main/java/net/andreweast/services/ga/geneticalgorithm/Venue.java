@@ -6,9 +6,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Venue implements Serializable {
-//    Building building // TODO: Restructure this so building and room numbers are related
-//    RoomNumber roomNumber
-
     // Database ID
     long id;
 
@@ -105,32 +102,4 @@ public class Venue implements Serializable {
     public void setDepartmentsScore(Map<Long, Integer> departmentsScores) {
         this.departmentsScores = departmentsScores;
     }
-
-//    enum Room {
-//        IT201, IT202; //, IT204, IT205, IT125, IT250
-//
-//        static Room getRandomRoom() {
-//            return values()[Venue.random.nextInt(values().length)];
-//        }
-//    }
-//
-//    private Room room;
-//
-//    private static Random random = new Random();
-//
-//    public static Venue getRandomVenue() {
-//        Venue venue = new Venue();
-//        venue.room = Room.getRandomRoom();
-//        return venue;
-//    }
-//    public Venue() {
-//    }
-//
-//    public Room getRoom() {
-//        return room;
-//    }
-//
-////    public String toString() {
-////        return room.name();
-////    }
 }
