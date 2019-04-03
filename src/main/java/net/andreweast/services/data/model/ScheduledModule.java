@@ -1,5 +1,7 @@
 package net.andreweast.services.data.model;
 
+import javax.persistence.Basic;
+import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -31,6 +33,18 @@ public class ScheduledModule {
     @ManyToOne
     @JoinColumn(name = "venue_id")
     private Venue venue;
+
+    @Basic
+    @Column(name = "is_locked_venue", nullable = true)
+    private Boolean isLockedVenue = false;
+
+    @Basic
+    @Column(name = "is_locked_timeslot", nullable = true)
+    private Boolean isLockedTimeslot = false;
+
+    @Basic
+    @Column(name = "is_valid", nullable = true)
+    private Boolean isValid = true;
 
     public ScheduledModulePK getId() {
         return id;
@@ -72,6 +86,30 @@ public class ScheduledModule {
         this.venue = venue;
     }
 
+    public Boolean getLockedVenue() {
+        return isLockedVenue;
+    }
+
+    public void setLockedVenue(Boolean lockedVenue) {
+        isLockedVenue = lockedVenue;
+    }
+
+    public Boolean getLockedTimeslot() {
+        return isLockedTimeslot;
+    }
+
+    public void setLockedTimeslot(Boolean lockedTimeslot) {
+        isLockedTimeslot = lockedTimeslot;
+    }
+
+    public Boolean getValid() {
+        return isValid;
+    }
+
+    public void setValid(Boolean valid) {
+        isValid = valid;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -81,11 +119,14 @@ public class ScheduledModule {
                 schedule.equals(that.schedule) &&
                 module.equals(that.module) &&
                 timeslot.equals(that.timeslot) &&
-                venue.equals(that.venue);
+                venue.equals(that.venue) &&
+                Objects.equals(isLockedVenue, that.isLockedVenue) &&
+                Objects.equals(isLockedTimeslot, that.isLockedTimeslot) &&
+                Objects.equals(isValid, that.isValid);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, schedule, module, timeslot, venue);
+        return Objects.hash(id, schedule, module, timeslot, venue, isLockedVenue, isLockedTimeslot, isValid);
     }
 }

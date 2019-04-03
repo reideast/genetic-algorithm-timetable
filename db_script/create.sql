@@ -5,7 +5,7 @@
 -- Dumped from database version 9.6.11
 -- Dumped by pg_dump version 11.2
 
--- Started on 2019-03-31 00:03:04
+-- Started on 2019-04-01 23:08:23
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -34,7 +34,7 @@ CREATE TABLE public.buildings (
 
 
 --
--- TOC entry 3206 (class 0 OID 0)
+-- TOC entry 3209 (class 0 OID 0)
 -- Dependencies: 189
 -- Name: COLUMN buildings.location; Type: COMMENT; Schema: public; Owner: -
 --
@@ -56,7 +56,7 @@ CREATE SEQUENCE public.building_id_sequence
 
 
 --
--- TOC entry 3207 (class 0 OID 0)
+-- TOC entry 3210 (class 0 OID 0)
 -- Dependencies: 197
 -- Name: building_id_sequence; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -78,7 +78,7 @@ CREATE TABLE public.courses (
 
 
 --
--- TOC entry 3208 (class 0 OID 0)
+-- TOC entry 3211 (class 0 OID 0)
 -- Dependencies: 195
 -- Name: COLUMN courses.name; Type: COMMENT; Schema: public; Owner: -
 --
@@ -87,7 +87,7 @@ COMMENT ON COLUMN public.courses.name IS 'Course name and year, e.g. 3BCT or 2BA
 
 
 --
--- TOC entry 3209 (class 0 OID 0)
+-- TOC entry 3212 (class 0 OID 0)
 -- Dependencies: 195
 -- Name: COLUMN courses.numenrolled; Type: COMMENT; Schema: public; Owner: -
 --
@@ -109,7 +109,7 @@ CREATE SEQUENCE public.course_id_sequence
 
 
 --
--- TOC entry 3210 (class 0 OID 0)
+-- TOC entry 3213 (class 0 OID 0)
 -- Dependencies: 198
 -- Name: course_id_sequence; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -130,7 +130,7 @@ CREATE TABLE public.course_module (
 
 
 --
--- TOC entry 3211 (class 0 OID 0)
+-- TOC entry 3214 (class 0 OID 0)
 -- Dependencies: 196
 -- Name: COLUMN course_module.code; Type: COMMENT; Schema: public; Owner: -
 --
@@ -151,7 +151,7 @@ CREATE TABLE public.department_building (
 
 
 --
--- TOC entry 3212 (class 0 OID 0)
+-- TOC entry 3215 (class 0 OID 0)
 -- Dependencies: 192
 -- Name: COLUMN department_building.score; Type: COMMENT; Schema: public; Owner: -
 --
@@ -184,7 +184,7 @@ CREATE SEQUENCE public.department_id_sequence
 
 
 --
--- TOC entry 3213 (class 0 OID 0)
+-- TOC entry 3216 (class 0 OID 0)
 -- Dependencies: 199
 -- Name: department_id_sequence; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -220,7 +220,7 @@ CREATE SEQUENCE public.job_id_seq
 
 
 --
--- TOC entry 3214 (class 0 OID 0)
+-- TOC entry 3217 (class 0 OID 0)
 -- Dependencies: 207
 -- Name: job_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -254,7 +254,7 @@ CREATE SEQUENCE public.lecturer_id_sequence
 
 
 --
--- TOC entry 3215 (class 0 OID 0)
+-- TOC entry 3218 (class 0 OID 0)
 -- Dependencies: 200
 -- Name: lecturer_id_sequence; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -301,7 +301,7 @@ CREATE SEQUENCE public.module_id_sequence
 
 
 --
--- TOC entry 3216 (class 0 OID 0)
+-- TOC entry 3219 (class 0 OID 0)
 -- Dependencies: 201
 -- Name: module_id_sequence; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -327,7 +327,7 @@ CREATE TABLE public.schedules (
 
 
 --
--- TOC entry 3217 (class 0 OID 0)
+-- TOC entry 3220 (class 0 OID 0)
 -- Dependencies: 191
 -- Name: COLUMN schedules.is_wip; Type: COMMENT; Schema: public; Owner: -
 --
@@ -336,7 +336,7 @@ COMMENT ON COLUMN public.schedules.is_wip IS 'User''s schedule which they are cu
 
 
 --
--- TOC entry 3218 (class 0 OID 0)
+-- TOC entry 3221 (class 0 OID 0)
 -- Dependencies: 191
 -- Name: COLUMN schedules.is_accepted; Type: COMMENT; Schema: public; Owner: -
 --
@@ -345,7 +345,7 @@ COMMENT ON COLUMN public.schedules.is_accepted IS 'User''s schedule which is the
 
 
 --
--- TOC entry 3219 (class 0 OID 0)
+-- TOC entry 3222 (class 0 OID 0)
 -- Dependencies: 191
 -- Name: COLUMN schedules.is_master; Type: COMMENT; Schema: public; Owner: -
 --
@@ -367,7 +367,7 @@ CREATE SEQUENCE public.schedule_id_sequence
 
 
 --
--- TOC entry 3220 (class 0 OID 0)
+-- TOC entry 3223 (class 0 OID 0)
 -- Dependencies: 202
 -- Name: schedule_id_sequence; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -384,8 +384,38 @@ CREATE TABLE public.scheduled_modules (
     schedule_id integer NOT NULL,
     module_id integer NOT NULL,
     timeslot_id integer NOT NULL,
-    venue_id integer NOT NULL
+    venue_id integer NOT NULL,
+    is_locked_venue boolean DEFAULT false,
+    is_locked_timeslot boolean DEFAULT false,
+    is_valid boolean DEFAULT false
 );
+
+
+--
+-- TOC entry 3224 (class 0 OID 0)
+-- Dependencies: 206
+-- Name: COLUMN scheduled_modules.is_locked_venue; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.scheduled_modules.is_locked_venue IS 'The user has tagged this module as LOCKED to this venue';
+
+
+--
+-- TOC entry 3225 (class 0 OID 0)
+-- Dependencies: 206
+-- Name: COLUMN scheduled_modules.is_locked_timeslot; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.scheduled_modules.is_locked_timeslot IS 'The user has tagged this module as LOCKED to this timeslot';
+
+
+--
+-- TOC entry 3226 (class 0 OID 0)
+-- Dependencies: 206
+-- Name: COLUMN scheduled_modules.is_valid; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.scheduled_modules.is_valid IS 'The genetic algorithm has reported that this module has not been scheduled in an appropriate timeslot and/or venue';
 
 
 --
@@ -401,7 +431,7 @@ CREATE TABLE public.timeslots (
 
 
 --
--- TOC entry 3221 (class 0 OID 0)
+-- TOC entry 3227 (class 0 OID 0)
 -- Dependencies: 193
 -- Name: COLUMN timeslots.day; Type: COMMENT; Schema: public; Owner: -
 --
@@ -410,7 +440,7 @@ COMMENT ON COLUMN public.timeslots.day IS '0,1,2,3,4,5,6';
 
 
 --
--- TOC entry 3222 (class 0 OID 0)
+-- TOC entry 3228 (class 0 OID 0)
 -- Dependencies: 193
 -- Name: COLUMN timeslots."time"; Type: COMMENT; Schema: public; Owner: -
 --
@@ -432,7 +462,7 @@ CREATE SEQUENCE public.timeslot_id_sequence
 
 
 --
--- TOC entry 3223 (class 0 OID 0)
+-- TOC entry 3229 (class 0 OID 0)
 -- Dependencies: 203
 -- Name: timeslot_id_sequence; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -472,7 +502,7 @@ CREATE SEQUENCE public.user_id_sequence
 
 
 --
--- TOC entry 3224 (class 0 OID 0)
+-- TOC entry 3230 (class 0 OID 0)
 -- Dependencies: 204
 -- Name: user_id_sequence; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -508,7 +538,7 @@ CREATE SEQUENCE public.venue_id_sequence
 
 
 --
--- TOC entry 3225 (class 0 OID 0)
+-- TOC entry 3231 (class 0 OID 0)
 -- Dependencies: 205
 -- Name: venue_id_sequence; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -541,7 +571,7 @@ ALTER TABLE ONLY public.departments ALTER COLUMN department_id SET DEFAULT nextv
 
 
 --
--- TOC entry 3012 (class 2604 OID 16723)
+-- TOC entry 3015 (class 2604 OID 16723)
 -- Name: jobs job_id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -597,7 +627,7 @@ ALTER TABLE ONLY public.venues ALTER COLUMN venue_id SET DEFAULT nextval('public
 
 
 --
--- TOC entry 3181 (class 0 OID 16489)
+-- TOC entry 3184 (class 0 OID 16489)
 -- Dependencies: 189
 -- Data for Name: buildings; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -620,7 +650,7 @@ INSERT INTO public.buildings VALUES (15, 'St Anthony', '(53.2839460000000003,-9.
 
 
 --
--- TOC entry 3188 (class 0 OID 16643)
+-- TOC entry 3191 (class 0 OID 16643)
 -- Dependencies: 196
 -- Data for Name: course_module; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -639,20 +669,12 @@ INSERT INTO public.course_module VALUES (9, 13, 'CT861');
 INSERT INTO public.course_module VALUES (10, 13, 'CT861');
 INSERT INTO public.course_module VALUES (5, 14, 'CT1100');
 INSERT INTO public.course_module VALUES (2, 15, 'CT213');
-INSERT INTO public.course_module VALUES (2, 16, 'CT213');
-INSERT INTO public.course_module VALUES (5, 17, 'CT1100');
 INSERT INTO public.course_module VALUES (1, 18, 'CT101');
-INSERT INTO public.course_module VALUES (1, 19, 'CT101');
 INSERT INTO public.course_module VALUES (2, 20, 'CT230');
 INSERT INTO public.course_module VALUES (6, 20, 'CT230');
 INSERT INTO public.course_module VALUES (11, 20, 'CT511');
 INSERT INTO public.course_module VALUES (9, 20, 'CT511');
 INSERT INTO public.course_module VALUES (10, 20, 'CT511');
-INSERT INTO public.course_module VALUES (2, 21, 'CT230 ');
-INSERT INTO public.course_module VALUES (6, 21, 'CT230');
-INSERT INTO public.course_module VALUES (11, 21, 'CT511');
-INSERT INTO public.course_module VALUES (9, 21, 'CT511');
-INSERT INTO public.course_module VALUES (10, 21, 'CT511');
 INSERT INTO public.course_module VALUES (3, 22, 'CT3532');
 INSERT INTO public.course_module VALUES (2, 23, 'MA2286');
 INSERT INTO public.course_module VALUES (8, 24, 'EE445 ');
@@ -669,11 +691,7 @@ INSERT INTO public.course_module VALUES (7, 33, 'CT327');
 INSERT INTO public.course_module VALUES (11, 34, 'CT870');
 INSERT INTO public.course_module VALUES (9, 34, 'CT870');
 INSERT INTO public.course_module VALUES (10, 34, 'CT870');
-INSERT INTO public.course_module VALUES (11, 35, 'CT870');
-INSERT INTO public.course_module VALUES (9, 35, 'CT870');
-INSERT INTO public.course_module VALUES (10, 35, 'CT870');
 INSERT INTO public.course_module VALUES (8, 36, 'CT5120');
-INSERT INTO public.course_module VALUES (8, 37, 'CT5120');
 INSERT INTO public.course_module VALUES (2, 38, 'ST237');
 INSERT INTO public.course_module VALUES (4, 39, 'CT475');
 INSERT INTO public.course_module VALUES (8, 39, 'CT475');
@@ -689,42 +707,27 @@ INSERT INTO public.course_module VALUES (3, 47, 'CT3531');
 INSERT INTO public.course_module VALUES (3, 48, 'CT3531');
 INSERT INTO public.course_module VALUES (1, 49, 'CT1113 ');
 INSERT INTO public.course_module VALUES (2, 50, 'CT255');
-INSERT INTO public.course_module VALUES (2, 51, 'CT255');
 INSERT INTO public.course_module VALUES (3, 52, 'CT3111');
-INSERT INTO public.course_module VALUES (3, 53, 'CT3111');
 INSERT INTO public.course_module VALUES (3, 54, 'MA385');
 INSERT INTO public.course_module VALUES (7, 55, 'CT3535');
 INSERT INTO public.course_module VALUES (2, 55, 'CT2106');
 INSERT INTO public.course_module VALUES (6, 55, 'CT2101');
-INSERT INTO public.course_module VALUES (2, 56, 'CT2106');
-INSERT INTO public.course_module VALUES (6, 56, 'CT2101');
-INSERT INTO public.course_module VALUES (7, 56, 'CT3535');
 INSERT INTO public.course_module VALUES (3, 57, 'ST235');
 INSERT INTO public.course_module VALUES (8, 57, 'ST235 ');
 INSERT INTO public.course_module VALUES (1, 58, 'CT1112');
 INSERT INTO public.course_module VALUES (8, 59, 'CT5102');
-INSERT INTO public.course_module VALUES (8, 60, 'CT5102');
 INSERT INTO public.course_module VALUES (1, 61, 'CT103');
 INSERT INTO public.course_module VALUES (5, 61, 'CT1101');
 INSERT INTO public.course_module VALUES (11, 61, 'CT874');
 INSERT INTO public.course_module VALUES (9, 61, 'CT874');
 INSERT INTO public.course_module VALUES (10, 61, 'CT874');
-INSERT INTO public.course_module VALUES (5, 62, 'CT1101');
-INSERT INTO public.course_module VALUES (11, 62, 'CT874');
-INSERT INTO public.course_module VALUES (9, 62, 'CT874');
-INSERT INTO public.course_module VALUES (10, 62, 'CT874');
-INSERT INTO public.course_module VALUES (1, 62, 'CT103');
 INSERT INTO public.course_module VALUES (3, 63, 'CT326');
-INSERT INTO public.course_module VALUES (3, 64, 'CT326');
 INSERT INTO public.course_module VALUES (3, 65, 'CT331');
-INSERT INTO public.course_module VALUES (3, 66, 'CT331');
 INSERT INTO public.course_module VALUES (9, 67, 'CT5117');
 INSERT INTO public.course_module VALUES (4, 68, 'MA416');
 INSERT INTO public.course_module VALUES (10, 69, 'CT5118');
 INSERT INTO public.course_module VALUES (2, 70, 'CT216');
-INSERT INTO public.course_module VALUES (2, 71, 'CT216');
 INSERT INTO public.course_module VALUES (3, 72, 'CT5106');
-INSERT INTO public.course_module VALUES (3, 73, 'CT5106');
 INSERT INTO public.course_module VALUES (4, 74, 'CT417');
 INSERT INTO public.course_module VALUES (4, 75, 'CT561');
 INSERT INTO public.course_module VALUES (8, 75, 'CT561');
@@ -733,29 +736,56 @@ INSERT INTO public.course_module VALUES (8, 76, 'CT561');
 INSERT INTO public.course_module VALUES (8, 77, 'CT5105');
 INSERT INTO public.course_module VALUES (8, 78, 'CT5105');
 INSERT INTO public.course_module VALUES (6, 79, 'CT2105');
+INSERT INTO public.course_module VALUES (2, 16, 'CT213-L');
+INSERT INTO public.course_module VALUES (5, 17, 'CT1100-L');
+INSERT INTO public.course_module VALUES (1, 19, 'CT101-L');
+INSERT INTO public.course_module VALUES (2, 21, 'CT230 -L');
+INSERT INTO public.course_module VALUES (11, 35, 'CT870-L');
+INSERT INTO public.course_module VALUES (8, 37, 'CT5120-L');
+INSERT INTO public.course_module VALUES (2, 51, 'CT255-L');
+INSERT INTO public.course_module VALUES (3, 53, 'CT3111-L');
+INSERT INTO public.course_module VALUES (2, 56, 'CT2106-L');
+INSERT INTO public.course_module VALUES (8, 60, 'CT5102-L');
+INSERT INTO public.course_module VALUES (5, 62, 'CT1101-L');
+INSERT INTO public.course_module VALUES (3, 64, 'CT326-L');
+INSERT INTO public.course_module VALUES (3, 66, 'CT331-L');
+INSERT INTO public.course_module VALUES (2, 71, 'CT216-L');
+INSERT INTO public.course_module VALUES (3, 73, 'CT5106-L');
+INSERT INTO public.course_module VALUES (11, 81, 'CT874-L');
+INSERT INTO public.course_module VALUES (9, 82, 'CT874-L');
+INSERT INTO public.course_module VALUES (10, 83, 'CT874-L');
+INSERT INTO public.course_module VALUES (1, 80, 'CT103-L');
+INSERT INTO public.course_module VALUES (6, 84, 'CT2101-L');
+INSERT INTO public.course_module VALUES (7, 85, 'CT3535-L');
+INSERT INTO public.course_module VALUES (6, 86, 'CT230-L');
+INSERT INTO public.course_module VALUES (11, 87, 'CT511-L');
+INSERT INTO public.course_module VALUES (9, 88, 'CT511-L');
+INSERT INTO public.course_module VALUES (10, 89, 'CT511-L');
+INSERT INTO public.course_module VALUES (9, 90, 'CT870-L');
+INSERT INTO public.course_module VALUES (10, 91, 'CT870-L');
 
 
 --
--- TOC entry 3187 (class 0 OID 16622)
+-- TOC entry 3190 (class 0 OID 16622)
 -- Dependencies: 195
 -- Data for Name: courses; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.courses VALUES (1, '1BCT', 1, 100);
-INSERT INTO public.courses VALUES (2, '2BCT', 1, 80);
-INSERT INTO public.courses VALUES (3, '3BCT', 1, 75);
-INSERT INTO public.courses VALUES (4, '4BCT', 1, 70);
-INSERT INTO public.courses VALUES (5, '1BA', 1, 100);
-INSERT INTO public.courses VALUES (6, '2BA', 1, 80);
-INSERT INTO public.courses VALUES (7, '3BA', 1, 75);
 INSERT INTO public.courses VALUES (8, '1CSD', 1, 30);
 INSERT INTO public.courses VALUES (9, '1MF1', 1, 20);
 INSERT INTO public.courses VALUES (10, '1SD1', 1, 25);
 INSERT INTO public.courses VALUES (11, '1SD3', 1, 15);
+INSERT INTO public.courses VALUES (2, '2BCT', 1, 70);
+INSERT INTO public.courses VALUES (4, '4BCT', 1, 60);
+INSERT INTO public.courses VALUES (6, '2BA', 1, 70);
+INSERT INTO public.courses VALUES (7, '3BA', 1, 65);
+INSERT INTO public.courses VALUES (1, '1BCT', 1, 75);
+INSERT INTO public.courses VALUES (3, '3BCT', 1, 65);
+INSERT INTO public.courses VALUES (5, '1BA', 1, 75);
 
 
 --
--- TOC entry 3184 (class 0 OID 16529)
+-- TOC entry 3187 (class 0 OID 16529)
 -- Dependencies: 192
 -- Data for Name: department_building; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -793,7 +823,7 @@ INSERT INTO public.department_building VALUES (2, 15, 0);
 
 
 --
--- TOC entry 3177 (class 0 OID 16422)
+-- TOC entry 3180 (class 0 OID 16422)
 -- Dependencies: 185
 -- Data for Name: departments; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -803,7 +833,7 @@ INSERT INTO public.departments VALUES (2, 'Electronic & Computer Engineering');
 
 
 --
--- TOC entry 3200 (class 0 OID 16720)
+-- TOC entry 3203 (class 0 OID 16720)
 -- Dependencies: 208
 -- Data for Name: jobs; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -811,616 +841,616 @@ INSERT INTO public.departments VALUES (2, 'Electronic & Computer Engineering');
 
 
 --
--- TOC entry 3186 (class 0 OID 16562)
+-- TOC entry 3189 (class 0 OID 16562)
 -- Dependencies: 194
 -- Data for Name: lecturer_timeslot_preferences; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 43, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 54, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 43, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 54, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 43, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 54, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 43, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 54, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 43, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 54, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 43, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 54, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 43, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 54, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 43, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 54, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 43, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 54, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 43, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 54, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 43, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 54, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 55, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 34, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 35, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 36, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 37, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 38, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 39, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 40, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 41, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 42, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 43, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 44, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 45, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 46, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 47, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 48, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 49, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 50, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 51, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 52, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 53, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 54, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (1, 55, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 34, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 35, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 36, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 37, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 38, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 39, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 40, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 41, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 42, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 43, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 44, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 45, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 46, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 47, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 48, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 49, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 50, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 51, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 52, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 53, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 54, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (5, 55, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 34, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 35, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 36, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 37, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 38, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 39, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 40, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 41, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 42, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 43, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 44, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 45, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 46, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 47, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 48, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 49, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 50, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 51, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 52, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 53, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 54, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (6, 55, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 34, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 35, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 36, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 37, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 38, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 39, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 40, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 41, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 42, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 43, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 44, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 45, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 46, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 47, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 48, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 49, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 50, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 51, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 52, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 53, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 54, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (7, 55, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 34, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 35, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 36, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 37, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 38, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 39, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 40, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 41, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 42, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 43, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 44, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 45, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 46, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 47, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 48, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 49, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 50, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 51, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 52, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 53, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 54, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (8, 55, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 34, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 35, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 36, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 37, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 38, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 39, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 40, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 41, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 42, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 43, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 44, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 45, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 46, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 47, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 48, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 49, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 50, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 51, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 52, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 53, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 54, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (9, 55, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 34, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 35, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 36, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 37, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 38, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 39, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 40, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 41, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 42, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 43, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 44, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 45, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 46, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 47, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 48, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 49, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 50, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 51, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 52, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 53, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 54, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (10, 55, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 34, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 35, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 36, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 37, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 38, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 39, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 40, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 41, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 42, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 43, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 44, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 45, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 46, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 47, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 48, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 49, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 50, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 51, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 52, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 53, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 54, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (12, 55, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 34, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 35, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 36, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 37, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 38, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 39, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 40, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 41, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 42, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 43, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 44, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 45, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 46, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 47, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 48, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 49, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 50, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 51, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 52, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 53, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 54, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (13, 55, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 34, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 35, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 36, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 37, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 38, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 39, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 40, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 41, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 42, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 43, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 44, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 45, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 46, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 47, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 48, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 49, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 50, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 51, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 52, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 53, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 54, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (16, 55, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 34, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 35, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 36, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 37, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 38, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 39, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 40, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 41, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 42, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 43, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 44, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 45, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 46, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 47, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 48, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 49, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 50, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 51, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 52, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 53, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 54, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (17, 55, 10);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (18, 1, 8);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (18, 2, 15);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (18, 3, 18);
@@ -2026,615 +2056,615 @@ INSERT INTO public.lecturer_timeslot_preferences VALUES (28, 52, 14);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (28, 53, 7);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (28, 54, 3);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (28, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 43, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 34, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 35, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 36, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 37, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 38, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 39, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 40, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 41, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 42, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 43, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 54, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 45, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 46, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 47, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 48, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 49, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 50, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 51, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 52, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 53, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 54, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (29, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 43, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 34, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 35, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 36, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 37, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 38, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 39, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 40, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 41, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 42, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 43, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 54, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 45, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 46, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 47, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 48, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 49, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 50, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 51, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 52, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 53, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 54, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (30, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 43, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 34, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 35, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 36, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 37, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 38, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 39, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 40, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 41, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 42, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 43, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 54, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 45, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 46, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 47, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 48, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 49, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 50, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 51, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 52, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 53, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 54, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (31, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 43, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 34, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 35, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 36, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 37, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 38, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 39, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 40, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 41, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 42, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 43, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 54, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 45, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 46, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 47, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 48, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 49, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 50, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 51, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 52, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 53, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 54, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (32, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 43, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 34, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 35, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 36, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 37, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 38, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 39, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 40, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 41, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 42, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 43, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 54, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 45, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 46, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 47, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 48, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 49, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 50, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 51, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 52, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 53, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 54, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (33, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 43, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 34, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 35, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 36, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 37, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 38, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 39, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 40, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 41, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 42, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 43, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 54, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 45, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 46, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 47, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 48, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 49, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 50, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 51, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 52, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 53, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 54, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (34, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 43, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 34, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 35, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 36, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 37, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 38, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 39, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 40, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 41, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 42, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 43, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 54, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 45, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 46, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 47, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 48, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 49, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 50, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 51, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 52, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 53, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 54, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (35, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 43, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 34, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 35, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 36, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 37, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 38, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 39, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 40, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 41, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 42, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 43, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 54, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 45, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 46, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 47, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 48, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 49, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 50, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 51, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 52, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 53, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 54, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (36, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 43, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 34, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 35, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 36, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 37, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 38, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 39, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 40, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 41, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 42, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 43, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 54, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 45, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 46, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 47, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 48, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 49, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 50, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 51, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 52, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 53, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 54, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (37, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 43, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 34, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 35, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 36, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 37, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 38, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 39, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 40, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 41, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 42, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 43, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 54, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 45, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 46, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 47, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 48, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 49, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 50, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 51, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 52, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 53, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 54, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (38, 55, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 1, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 2, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 3, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 4, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 5, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 6, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 7, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 8, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 9, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 10, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 11, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 12, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 13, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 14, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 15, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 16, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 17, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 18, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 19, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 20, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 21, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 22, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 23, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 24, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 25, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 26, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 27, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 28, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 29, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 30, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 31, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 32, 3);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 33, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 34, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 35, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 36, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 37, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 38, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 39, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 40, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 41, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 42, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 43, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 1, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 2, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 3, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 4, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 5, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 6, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 7, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 8, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 9, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 10, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 11, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 12, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 13, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 14, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 15, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 16, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 17, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 18, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 19, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 20, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 21, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 22, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 23, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 24, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 25, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 26, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 27, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 28, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 29, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 30, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 31, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 32, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 33, 10);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 34, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 35, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 36, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 37, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 38, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 39, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 40, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 41, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 42, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 43, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 44, 0);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 45, 8);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 46, 15);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 47, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 48, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 49, 20);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 50, 19);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 51, 18);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 52, 14);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 53, 7);
-INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 54, 3);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 45, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 46, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 47, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 48, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 49, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 50, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 51, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 52, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 53, 0);
+INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 54, 0);
 INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 55, 0);
 
 
 --
--- TOC entry 3178 (class 0 OID 16446)
+-- TOC entry 3181 (class 0 OID 16446)
 -- Dependencies: 186
 -- Data for Name: lecturers; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -2642,7 +2672,6 @@ INSERT INTO public.lecturer_timeslot_preferences VALUES (39, 55, 0);
 INSERT INTO public.lecturers VALUES (5, 'A Brennan', 1);
 INSERT INTO public.lecturers VALUES (6, 'A McCluskey', 1);
 INSERT INTO public.lecturers VALUES (7, 'C Mulvihill', 1);
-INSERT INTO public.lecturers VALUES (8, 'C ORiordan', 1);
 INSERT INTO public.lecturers VALUES (9, 'D Chambers', 1);
 INSERT INTO public.lecturers VALUES (10, 'D Flannery', 1);
 INSERT INTO public.lecturers VALUES (12, 'D Roshansangachin', 1);
@@ -2672,10 +2701,11 @@ INSERT INTO public.lecturers VALUES (37, 'R Quinlan', 1);
 INSERT INTO public.lecturers VALUES (38, 'S Hill', 1);
 INSERT INTO public.lecturers VALUES (39, 'S Redfern', 1);
 INSERT INTO public.lecturers VALUES (1, 'Lab tutor', 1);
+INSERT INTO public.lecturers VALUES (8, 'C O''Riordan', 1);
 
 
 --
--- TOC entry 3179 (class 0 OID 16459)
+-- TOC entry 3182 (class 0 OID 16459)
 -- Dependencies: 187
 -- Data for Name: modules; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -2753,23 +2783,119 @@ INSERT INTO public.modules VALUES (76, 'Systems Modelling and Simulation Lab', 2
 INSERT INTO public.modules VALUES (77, 'Tools & Techniques for Large Scale DA Lab', 31, false);
 INSERT INTO public.modules VALUES (78, 'Tools & Techniques for Large Scale Data Analytics ', 31, false);
 INSERT INTO public.modules VALUES (79, 'Web Information Systems', 27, false);
+INSERT INTO public.modules VALUES (80, 'Programming I Lab', 1, true);
+INSERT INTO public.modules VALUES (81, 'Programming I Lab', 1, true);
+INSERT INTO public.modules VALUES (82, 'Programming I Lab', 1, true);
+INSERT INTO public.modules VALUES (83, 'Programming I Lab', 1, true);
+INSERT INTO public.modules VALUES (84, 'Object Oriented Programming Lab', 1, true);
+INSERT INTO public.modules VALUES (85, 'Object Oriented Programming Lab', 1, true);
+INSERT INTO public.modules VALUES (86, 'Database Systems I Lab', 1, true);
+INSERT INTO public.modules VALUES (87, 'Database Systems I Lab', 1, true);
+INSERT INTO public.modules VALUES (88, 'Database Systems I Lab', 1, true);
+INSERT INTO public.modules VALUES (89, 'Database Systems I Lab', 1, true);
+INSERT INTO public.modules VALUES (90, 'Internet Programming Lab', 1, true);
+INSERT INTO public.modules VALUES (91, 'Internet Programming Lab', 1, true);
 
 
 --
--- TOC entry 3198 (class 0 OID 16689)
+-- TOC entry 3201 (class 0 OID 16689)
 -- Dependencies: 206
 -- Data for Name: scheduled_modules; Type: TABLE DATA; Schema: public; Owner: -
 --
 
+INSERT INTO public.scheduled_modules VALUES (3, 7, 29, 47, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 8, 6, 87, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 9, 27, 48, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 10, 45, 58, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 11, 7, 41, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 12, 44, 59, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 13, 19, 82, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 14, 47, 48, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 15, 27, 44, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 16, 38, 79, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 17, 55, 104, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 18, 1, 67, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 19, 19, 77, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 20, 14, 67, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 21, 9, 96, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 22, 5, 21, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 23, 26, 44, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 24, 21, 22, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 25, 3, 58, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 26, 32, 68, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 27, 5, 80, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 28, 27, 76, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 29, 15, 21, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 30, 19, 53, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 31, 2, 57, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 32, 39, 38, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 33, 8, 70, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 34, 46, 28, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 35, 48, 78, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 36, 49, 39, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 37, 50, 108, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 38, 17, 38, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 39, 53, 39, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 40, 51, 67, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 41, 16, 48, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 42, 37, 56, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 43, 8, 69, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 44, 40, 88, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 45, 47, 43, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 46, 20, 15, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 47, 38, 46, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 48, 27, 80, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 49, 44, 45, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 50, 28, 70, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 51, 46, 94, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 52, 43, 58, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 53, 17, 78, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 54, 42, 55, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 55, 30, 39, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 56, 6, 79, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 57, 41, 59, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 58, 54, 45, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 59, 5, 25, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 60, 13, 96, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 61, 50, 45, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 62, 34, 79, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 63, 26, 87, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 64, 51, 94, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 65, 29, 66, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 66, 45, 78, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 67, 35, 87, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 68, 18, 46, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 69, 37, 82, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 70, 50, 70, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 71, 43, 77, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 72, 50, 57, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 73, 12, 77, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 74, 24, 58, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 75, 16, 81, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 76, 17, 87, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 77, 52, 56, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 78, 48, 66, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 79, 36, 57, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 80, 25, 79, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 81, 32, 98, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 82, 23, 91, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 83, 53, 108, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 84, 39, 78, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 85, 9, 94, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 86, 49, 78, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 87, 5, 98, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 88, 47, 96, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 89, 55, 92, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 90, 48, 103, false, false, false);
+INSERT INTO public.scheduled_modules VALUES (3, 91, 29, 78, false, false, false);
 
 
 --
--- TOC entry 3183 (class 0 OID 16519)
+-- TOC entry 3186 (class 0 OID 16519)
 -- Dependencies: 191
 -- Data for Name: schedules; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.schedules VALUES (3, '2019-03-25 23:47:53.236', 3, true, false, false, NULL, 306);
 INSERT INTO public.schedules VALUES (12, '2019-03-18 13:23:33.564', 10, false, false, false, NULL, 0);
 INSERT INTO public.schedules VALUES (13, '2019-03-17 11:49:58.55', 10, false, false, false, NULL, 0);
 INSERT INTO public.schedules VALUES (14, '2019-03-18 13:23:33.564', 11, false, false, false, NULL, 0);
@@ -2813,12 +2939,13 @@ INSERT INTO public.schedules VALUES (50, '2019-03-18 13:23:33.564', 29, false, f
 INSERT INTO public.schedules VALUES (51, '2019-03-17 11:49:58.55', 29, false, false, false, NULL, 0);
 INSERT INTO public.schedules VALUES (52, '2019-03-18 13:23:33', 4, false, false, false, NULL, 0);
 INSERT INTO public.schedules VALUES (53, '2019-03-17 11:49:58', 4, false, false, false, NULL, 0);
-INSERT INTO public.schedules VALUES (1, '2019-03-18 19:50:52.812', 3, true, false, true, NULL, 265);
-INSERT INTO public.schedules VALUES (2, '2019-03-18 19:49:58.55', 3, true, false, false, NULL, 329);
+INSERT INTO public.schedules VALUES (2, '2019-03-18 19:49:58.55', 3, true, false, false, NULL, 340);
+INSERT INTO public.schedules VALUES (1, '2019-03-18 19:50:52.812', 3, true, false, true, NULL, 332);
+INSERT INTO public.schedules VALUES (3, '2019-03-25 23:47:53.236', 3, true, false, false, NULL, 737);
 
 
 --
--- TOC entry 3185 (class 0 OID 16544)
+-- TOC entry 3188 (class 0 OID 16544)
 -- Dependencies: 193
 -- Data for Name: timeslots; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -2881,7 +3008,7 @@ INSERT INTO public.timeslots VALUES (55, 4, 19);
 
 
 --
--- TOC entry 3180 (class 0 OID 16477)
+-- TOC entry 3183 (class 0 OID 16477)
 -- Dependencies: 188
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -2912,11 +3039,12 @@ INSERT INTO public.users VALUES (4, 'ece', '$2a$10$eCXnuf0dM/CstF5trWvkT.f060gMg
 
 
 --
--- TOC entry 3182 (class 0 OID 16497)
+-- TOC entry 3185 (class 0 OID 16497)
 -- Dependencies: 190
 -- Data for Name: venues; Type: TABLE DATA; Schema: public; Owner: -
 --
 
+INSERT INTO public.venues VALUES (103, 'ENG2017 PC Suite', 4, true, 70);
 INSERT INTO public.venues VALUES (6, 'CA001', 6, false, 30);
 INSERT INTO public.venues VALUES (7, 'CA002', 6, false, 30);
 INSERT INTO public.venues VALUES (8, 'CA003', 6, false, 30);
@@ -2949,15 +3077,11 @@ INSERT INTO public.venues VALUES (34, 'AM110', 3, false, 40);
 INSERT INTO public.venues VALUES (35, 'AM112', 3, false, 30);
 INSERT INTO public.venues VALUES (36, 'AM121', 3, false, 12);
 INSERT INTO public.venues VALUES (37, 'AM122', 3, false, 12);
-INSERT INTO public.venues VALUES (38, 'OTnuathail Theatre', 3, false, 147);
 INSERT INTO public.venues VALUES (39, 'Fottrell Theatre', 3, false, 212);
-INSERT INTO public.venues VALUES (40, 'OhEocha Theatre', 3, false, 252);
 INSERT INTO public.venues VALUES (41, 'AMB-G036', 3, false, 45);
 INSERT INTO public.venues VALUES (42, 'AMB-G043', 3, false, 30);
 INSERT INTO public.venues VALUES (43, 'BLE-1006', 9, false, 80);
-INSERT INTO public.venues VALUES (44, 'OFlaherty Theatre', 2, false, 356);
 INSERT INTO public.venues VALUES (45, 'Anderson Theatre', 2, false, 242);
-INSERT INTO public.venues VALUES (46, 'DArcy Thompson Theatre', 2, false, 160);
 INSERT INTO public.venues VALUES (47, 'AC201', 2, false, 97);
 INSERT INTO public.venues VALUES (48, 'AC202', 2, false, 88);
 INSERT INTO public.venues VALUES (49, 'AC203', 2, false, 48);
@@ -2988,9 +3112,6 @@ INSERT INTO public.venues VALUES (73, 'ENG-2034', 4, false, 50);
 INSERT INTO public.venues VALUES (74, 'ENG-2035', 4, false, 50);
 INSERT INTO public.venues VALUES (75, 'ENG-3035', 4, false, 74);
 INSERT INTO public.venues VALUES (76, 'ENG-3036', 4, false, 40);
-INSERT INTO public.venues VALUES (77, 'IT101 PC Suite', 1, true, 42);
-INSERT INTO public.venues VALUES (78, 'IT102 PC Suite', 1, true, 42);
-INSERT INTO public.venues VALUES (79, 'IT106 PC Suite', 1, true, 67);
 INSERT INTO public.venues VALUES (80, 'IT125', 1, false, 122);
 INSERT INTO public.venues VALUES (81, 'IT125G', 1, false, 122);
 INSERT INTO public.venues VALUES (82, 'IT202', 1, false, 60);
@@ -3005,26 +3126,32 @@ INSERT INTO public.venues VALUES (90, 'Environmental Science PC Suite Room 209',
 INSERT INTO public.venues VALUES (91, 'Software Engineering PC Suite  Room 228/228A', 2, true, 40);
 INSERT INTO public.venues VALUES (92, 'Arts Faculty PC Suite Room 229/229A', 2, true, 35);
 INSERT INTO public.venues VALUES (93, 'Arts-Science PC Suite Room 105', 2, true, 45);
-INSERT INTO public.venues VALUES (94, 'Arts Millennium PC Suite Room 201', 3, true, 51);
 INSERT INTO public.venues VALUES (95, 'Block E PC Suite Room E102', 9, true, 39);
-INSERT INTO public.venues VALUES (96, 'Finnegan PC Suite', 9, true, 60);
 INSERT INTO public.venues VALUES (97, 'Cairnes PC Suite Room 112', 6, true, 38);
 INSERT INTO public.venues VALUES (98, 'MIME PC Suite', 12, true, 21);
 INSERT INTO public.venues VALUES (99, 'Clinical Science PC Suite', 12, true, 22);
 INSERT INTO public.venues VALUES (100, 'Clinical Science Library PC Suite', 12, true, 11);
 INSERT INTO public.venues VALUES (101, 'Education PC Suite Room D101', 13, true, 30);
 INSERT INTO public.venues VALUES (102, 'ENG2016 PC Suite', 4, true, 41);
-INSERT INTO public.venues VALUES (103, 'ENG2017 PC Suite', 4, true, 43);
 INSERT INTO public.venues VALUES (104, 'ENGG0046 PC Suite', 4, true, 80);
 INSERT INTO public.venues VALUES (105, 'Library 1st Floor PC Suite', 14, true, 20);
 INSERT INTO public.venues VALUES (106, 'Library 2nd Floor PC Suite', 14, true, 32);
 INSERT INTO public.venues VALUES (107, 'Library Special Collections PC Suite', 14, true, 6);
 INSERT INTO public.venues VALUES (108, 'Friary PC Suite Room 105', 15, true, 31);
 INSERT INTO public.venues VALUES (109, 'Menlo PC Suite Room 102', 15, true, 19);
+INSERT INTO public.venues VALUES (38, 'O''Tnuathail Theatre', 3, false, 147);
+INSERT INTO public.venues VALUES (40, 'O''hEocha Theatre', 3, false, 252);
+INSERT INTO public.venues VALUES (44, 'O''Flaherty Theatre', 2, false, 356);
+INSERT INTO public.venues VALUES (46, 'D''Arcy Thompson Theatre', 2, false, 160);
+INSERT INTO public.venues VALUES (79, 'IT106 PC Suite', 1, true, 100);
+INSERT INTO public.venues VALUES (77, 'IT101 PC Suite', 1, true, 85);
+INSERT INTO public.venues VALUES (78, 'IT102 PC Suite', 1, true, 70);
+INSERT INTO public.venues VALUES (96, 'Finnegan PC Suite', 9, true, 70);
+INSERT INTO public.venues VALUES (94, 'Arts Millennium PC Suite Room 201', 3, true, 70);
 
 
 --
--- TOC entry 3226 (class 0 OID 0)
+-- TOC entry 3232 (class 0 OID 0)
 -- Dependencies: 197
 -- Name: building_id_sequence; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -3033,7 +3160,7 @@ SELECT pg_catalog.setval('public.building_id_sequence', 20, true);
 
 
 --
--- TOC entry 3227 (class 0 OID 0)
+-- TOC entry 3233 (class 0 OID 0)
 -- Dependencies: 198
 -- Name: course_id_sequence; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -3042,7 +3169,7 @@ SELECT pg_catalog.setval('public.course_id_sequence', 62, true);
 
 
 --
--- TOC entry 3228 (class 0 OID 0)
+-- TOC entry 3234 (class 0 OID 0)
 -- Dependencies: 199
 -- Name: department_id_sequence; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -3051,16 +3178,16 @@ SELECT pg_catalog.setval('public.department_id_sequence', 3, true);
 
 
 --
--- TOC entry 3229 (class 0 OID 0)
+-- TOC entry 3235 (class 0 OID 0)
 -- Dependencies: 207
 -- Name: job_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.job_id_seq', 551, true);
+SELECT pg_catalog.setval('public.job_id_seq', 809, true);
 
 
 --
--- TOC entry 3230 (class 0 OID 0)
+-- TOC entry 3236 (class 0 OID 0)
 -- Dependencies: 200
 -- Name: lecturer_id_sequence; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -3069,16 +3196,16 @@ SELECT pg_catalog.setval('public.lecturer_id_sequence', 39, true);
 
 
 --
--- TOC entry 3231 (class 0 OID 0)
+-- TOC entry 3237 (class 0 OID 0)
 -- Dependencies: 201
 -- Name: module_id_sequence; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.module_id_sequence', 79, true);
+SELECT pg_catalog.setval('public.module_id_sequence', 91, true);
 
 
 --
--- TOC entry 3232 (class 0 OID 0)
+-- TOC entry 3238 (class 0 OID 0)
 -- Dependencies: 202
 -- Name: schedule_id_sequence; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -3087,7 +3214,7 @@ SELECT pg_catalog.setval('public.schedule_id_sequence', 53, true);
 
 
 --
--- TOC entry 3233 (class 0 OID 0)
+-- TOC entry 3239 (class 0 OID 0)
 -- Dependencies: 203
 -- Name: timeslot_id_sequence; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -3096,7 +3223,7 @@ SELECT pg_catalog.setval('public.timeslot_id_sequence', 55, true);
 
 
 --
--- TOC entry 3234 (class 0 OID 0)
+-- TOC entry 3240 (class 0 OID 0)
 -- Dependencies: 204
 -- Name: user_id_sequence; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -3105,7 +3232,7 @@ SELECT pg_catalog.setval('public.user_id_sequence', 29, true);
 
 
 --
--- TOC entry 3235 (class 0 OID 0)
+-- TOC entry 3241 (class 0 OID 0)
 -- Dependencies: 205
 -- Name: venue_id_sequence; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -3114,7 +3241,7 @@ SELECT pg_catalog.setval('public.venue_id_sequence', 109, true);
 
 
 --
--- TOC entry 3024 (class 2606 OID 16496)
+-- TOC entry 3027 (class 2606 OID 16496)
 -- Name: buildings buildings_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3123,7 +3250,7 @@ ALTER TABLE ONLY public.buildings
 
 
 --
--- TOC entry 3038 (class 2606 OID 16650)
+-- TOC entry 3041 (class 2606 OID 16650)
 -- Name: course_module course_module_pk; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3132,7 +3259,7 @@ ALTER TABLE ONLY public.course_module
 
 
 --
--- TOC entry 3036 (class 2606 OID 16629)
+-- TOC entry 3039 (class 2606 OID 16629)
 -- Name: courses course_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3141,7 +3268,7 @@ ALTER TABLE ONLY public.courses
 
 
 --
--- TOC entry 3030 (class 2606 OID 16578)
+-- TOC entry 3033 (class 2606 OID 16578)
 -- Name: department_building department_building_pk; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3150,7 +3277,7 @@ ALTER TABLE ONLY public.department_building
 
 
 --
--- TOC entry 3014 (class 2606 OID 16429)
+-- TOC entry 3017 (class 2606 OID 16429)
 -- Name: departments departments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3159,7 +3286,7 @@ ALTER TABLE ONLY public.departments
 
 
 --
--- TOC entry 3042 (class 2606 OID 16725)
+-- TOC entry 3045 (class 2606 OID 16725)
 -- Name: jobs job_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3168,7 +3295,7 @@ ALTER TABLE ONLY public.jobs
 
 
 --
--- TOC entry 3034 (class 2606 OID 16566)
+-- TOC entry 3037 (class 2606 OID 16566)
 -- Name: lecturer_timeslot_preferences lec_time_pk; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3177,7 +3304,7 @@ ALTER TABLE ONLY public.lecturer_timeslot_preferences
 
 
 --
--- TOC entry 3016 (class 2606 OID 16453)
+-- TOC entry 3019 (class 2606 OID 16453)
 -- Name: lecturers lecturers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3186,7 +3313,7 @@ ALTER TABLE ONLY public.lecturers
 
 
 --
--- TOC entry 3018 (class 2606 OID 16466)
+-- TOC entry 3021 (class 2606 OID 16466)
 -- Name: modules module_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3195,7 +3322,7 @@ ALTER TABLE ONLY public.modules
 
 
 --
--- TOC entry 3040 (class 2606 OID 16693)
+-- TOC entry 3043 (class 2606 OID 16693)
 -- Name: scheduled_modules scheduled_modules_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3204,7 +3331,7 @@ ALTER TABLE ONLY public.scheduled_modules
 
 
 --
--- TOC entry 3028 (class 2606 OID 16523)
+-- TOC entry 3031 (class 2606 OID 16523)
 -- Name: schedules schedules_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3213,7 +3340,7 @@ ALTER TABLE ONLY public.schedules
 
 
 --
--- TOC entry 3032 (class 2606 OID 16548)
+-- TOC entry 3035 (class 2606 OID 16548)
 -- Name: timeslots timeslots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3222,7 +3349,7 @@ ALTER TABLE ONLY public.timeslots
 
 
 --
--- TOC entry 3020 (class 2606 OID 16484)
+-- TOC entry 3023 (class 2606 OID 16484)
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3231,7 +3358,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 3022 (class 2606 OID 16486)
+-- TOC entry 3025 (class 2606 OID 16486)
 -- Name: users users_username_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3240,7 +3367,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 3026 (class 2606 OID 16504)
+-- TOC entry 3029 (class 2606 OID 16504)
 -- Name: venues venues_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3249,7 +3376,7 @@ ALTER TABLE ONLY public.venues
 
 
 --
--- TOC entry 3053 (class 2606 OID 16630)
+-- TOC entry 3056 (class 2606 OID 16630)
 -- Name: courses course_department_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3258,7 +3385,7 @@ ALTER TABLE ONLY public.courses
 
 
 --
--- TOC entry 3054 (class 2606 OID 16651)
+-- TOC entry 3057 (class 2606 OID 16651)
 -- Name: course_module course_module_course_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3267,7 +3394,7 @@ ALTER TABLE ONLY public.course_module
 
 
 --
--- TOC entry 3055 (class 2606 OID 16656)
+-- TOC entry 3058 (class 2606 OID 16656)
 -- Name: course_module course_module_module_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3276,7 +3403,7 @@ ALTER TABLE ONLY public.course_module
 
 
 --
--- TOC entry 3050 (class 2606 OID 16539)
+-- TOC entry 3053 (class 2606 OID 16539)
 -- Name: department_building department_building_building_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3285,7 +3412,7 @@ ALTER TABLE ONLY public.department_building
 
 
 --
--- TOC entry 3049 (class 2606 OID 16534)
+-- TOC entry 3052 (class 2606 OID 16534)
 -- Name: department_building department_building_department_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3294,7 +3421,7 @@ ALTER TABLE ONLY public.department_building
 
 
 --
--- TOC entry 3051 (class 2606 OID 16567)
+-- TOC entry 3054 (class 2606 OID 16567)
 -- Name: lecturer_timeslot_preferences lecturer_timeslot_preferences_lecturer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3303,7 +3430,7 @@ ALTER TABLE ONLY public.lecturer_timeslot_preferences
 
 
 --
--- TOC entry 3052 (class 2606 OID 16572)
+-- TOC entry 3055 (class 2606 OID 16572)
 -- Name: lecturer_timeslot_preferences lecturer_timeslot_preferences_timeslot_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3312,7 +3439,7 @@ ALTER TABLE ONLY public.lecturer_timeslot_preferences
 
 
 --
--- TOC entry 3043 (class 2606 OID 16454)
+-- TOC entry 3046 (class 2606 OID 16454)
 -- Name: lecturers lecturers_department_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3321,7 +3448,7 @@ ALTER TABLE ONLY public.lecturers
 
 
 --
--- TOC entry 3044 (class 2606 OID 16472)
+-- TOC entry 3047 (class 2606 OID 16472)
 -- Name: modules module_lecturers_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3330,7 +3457,7 @@ ALTER TABLE ONLY public.modules
 
 
 --
--- TOC entry 3056 (class 2606 OID 16694)
+-- TOC entry 3059 (class 2606 OID 16694)
 -- Name: scheduled_modules scheduled_modules_module_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3339,7 +3466,7 @@ ALTER TABLE ONLY public.scheduled_modules
 
 
 --
--- TOC entry 3057 (class 2606 OID 16699)
+-- TOC entry 3060 (class 2606 OID 16699)
 -- Name: scheduled_modules scheduled_modules_schedule_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3348,7 +3475,7 @@ ALTER TABLE ONLY public.scheduled_modules
 
 
 --
--- TOC entry 3058 (class 2606 OID 16704)
+-- TOC entry 3061 (class 2606 OID 16704)
 -- Name: scheduled_modules scheduled_modules_timeslot_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3357,7 +3484,7 @@ ALTER TABLE ONLY public.scheduled_modules
 
 
 --
--- TOC entry 3059 (class 2606 OID 16709)
+-- TOC entry 3062 (class 2606 OID 16709)
 -- Name: scheduled_modules scheduled_modules_venue_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3366,7 +3493,7 @@ ALTER TABLE ONLY public.scheduled_modules
 
 
 --
--- TOC entry 3047 (class 2606 OID 16524)
+-- TOC entry 3050 (class 2606 OID 16524)
 -- Name: schedules schedules_creator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3375,7 +3502,7 @@ ALTER TABLE ONLY public.schedules
 
 
 --
--- TOC entry 3048 (class 2606 OID 16727)
+-- TOC entry 3051 (class 2606 OID 16727)
 -- Name: schedules schedules_jobs_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3384,7 +3511,7 @@ ALTER TABLE ONLY public.schedules
 
 
 --
--- TOC entry 3045 (class 2606 OID 16609)
+-- TOC entry 3048 (class 2606 OID 16609)
 -- Name: users users_departments_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3393,7 +3520,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 3046 (class 2606 OID 16505)
+-- TOC entry 3049 (class 2606 OID 16505)
 -- Name: venues venues_building_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3401,7 +3528,7 @@ ALTER TABLE ONLY public.venues
     ADD CONSTRAINT venues_building_id_fkey FOREIGN KEY (building_id) REFERENCES public.buildings(building_id);
 
 
--- Completed on 2019-03-31 00:03:10
+-- Completed on 2019-04-01 23:08:28
 
 --
 -- PostgreSQL database dump complete

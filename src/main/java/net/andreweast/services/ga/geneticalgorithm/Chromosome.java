@@ -1,13 +1,12 @@
 package net.andreweast.services.ga.geneticalgorithm;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 public class Chromosome implements Comparable<Chromosome>, Serializable {
     private static Random random = new Random();
-
-    private static boolean havePrintedCrossoverDebug = false; // DEBUG
-    private static boolean havePrintedMutateDebug = false; // DEBUG
 
     private ScheduledModule[] genes;
 
@@ -47,40 +46,111 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
         isValidSolution = toClone.isValidSolution();
     }
 
-    public void crossover(Chromosome toCrossWith) {
-        final int crossoverPoint = random.nextInt(genes.length);
-        if (!havePrintedCrossoverDebug && GeneticAlgorithmJob.DEBUG) { // DEBUG
-            System.out.println("Before cross: " + this.toString());
-            System.out.println("Crossing w/:  " + toCrossWith.toString());
-            System.out.println("CrossoverPoint=" + crossoverPoint);
-        }
+    /**
+     * Database data copy constructor
+     */
+    public Chromosome(GeneticAlgorithmJobData masterData, List<ScheduledModule> existingSchedule) {
+        data = masterData;
 
+        // Make a new array of the appropriate type using existing data
+        genes = existingSchedule.toArray(new ScheduledModule[0]); // The JVM optimises array creation, so passing an empty array is preferential, see: https://stackoverflow.com/a/29444594/5271224
+
+        cachedFitness = calculateFitness(); // Also sets isValidSolution
+    }
+
+    public void crossoverBinary(Chromosome toCrossWith) {
+        final int crossoverPoint = random.nextInt(genes.length);
         for (int i = 0; i <= crossoverPoint; ++i) {
             genes[i] = toCrossWith.genes[i].clone();
         }
-        cachedFitness = calculateFitness();
-        if (!havePrintedCrossoverDebug && GeneticAlgorithmJob.DEBUG) { // DEBUG
-            System.out.println("After cross:  " + this.toString());
 
-            havePrintedCrossoverDebug = true;
-        }
+        cachedFitness = calculateFitness();
     }
 
-    public void mutate() {
-        // Randomise one of the scheduled modules
-        if (!havePrintedMutateDebug && GeneticAlgorithmJob.DEBUG) {
-            System.out.println("Before mutate: " + this.toString());
+    /**
+     * Crossover a randomly selected, contiguous range, could be any range of any size, to visualise:
+     * ########******######
+     * #*****************##
+     * #########***********
+     * ####***#############
+     * ###############*####
+     * ********############
+     *
+     * @param toCrossWith
+     */
+    public void crossoverPiece(Chromosome toCrossWith) {
+        final int crossoverStart = random.nextInt(genes.length);
+        final int crossoverEnd = random.nextInt(genes.length - crossoverStart);
+        for (int i = crossoverStart; i < crossoverEnd; ++i) {
+            genes[i] = toCrossWith.genes[i].clone();
         }
 
-        final int mutateGene = random.nextInt(genes.length);
-        genes[mutateGene] = new ScheduledModule(genes[mutateGene].getModule(), data);
         cachedFitness = calculateFitness();
+    }
 
-        if (!havePrintedMutateDebug && GeneticAlgorithmJob.DEBUG) {
-            System.out.println("@" + mutateGene + " After mutate:  " + this.toString());
+    /**
+     * Crossover a TWO randomly selected, contiguous ranges, could be of any size, to visualise:
+     * ##**####******######
+     * #**************##*##
+     * **#######***********
+     * ####******##########
+     * ###############*####
+     * ********#***********
+     *
+     * @param toCrossWith
+     */
+    public void crossoverTwoPieces(Chromosome toCrossWith) {
+        // Choose any four points in the gene, pairs of which delineate the genes that will be crossed
+        final int[] startStopGeneNumbers = {
+                random.nextInt(genes.length),
+                random.nextInt(genes.length),
+                random.nextInt(genes.length),
+                random.nextInt(genes.length)
+        };
+        Arrays.sort(startStopGeneNumbers);
 
-            havePrintedMutateDebug = true;
+        for (int i = startStopGeneNumbers[0]; i < startStopGeneNumbers[1]; ++i) {
+            genes[i] = toCrossWith.genes[i].clone();
         }
+        for (int i = startStopGeneNumbers[2]; i < startStopGeneNumbers[3]; ++i) {
+            genes[i] = toCrossWith.genes[i].clone();
+        }
+
+        cachedFitness = calculateFitness();
+    }
+
+    public Chromosome mutate(int mutateGenesMax) {
+        // Clones itself
+        Chromosome outOfTheGreenGlowingGoop = new Chromosome(this);
+
+        // Mutates itself
+        outOfTheGreenGlowingGoop.mutateSelf(mutateGenesMax);
+
+        return outOfTheGreenGlowingGoop;
+    }
+
+
+    /**
+     * @param mutateGenesMax Mutation of multiple genes in this chromosome
+     */
+    private void mutateSelf(int mutateGenesMax) {
+        // Randomise one of the scheduled modules
+        final int numToMutate = random.nextInt(mutateGenesMax) + 1;
+
+        for (int i = 0; i < numToMutate; ++i) {
+            int mutateGene = random.nextInt(genes.length);
+
+            // Heuristic mutate (sometimes): if this gene is already in a suitable venue, don't mutate the venue, just the time
+            if (genes[mutateGene].isInValidVenue() && random.nextFloat() < 0.5) {
+                // Mutate only time
+                genes[mutateGene].setTimeslot(data.getRandomTimeslot());
+            } else {
+                // Mutate both timeslot and venue
+                genes[mutateGene] = new ScheduledModule(genes[mutateGene].getModule(), data);
+            }
+        }
+
+        cachedFitness = calculateFitness();
     }
 
     private int calculateFitness() {
@@ -91,7 +161,11 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
         // TODO: Tweak these fitness weights
 
         // Calculate minimal fitness of any chromosome which has all HARD constraints met
-        final int ONE_HARD_CONSTRAINT = 100;
+        final int ONE_HARD_CONSTRAINT = 1000;
+
+
+        final int QTY_SOFT_CONSTRAINTS = 2;
+        final int EACH_SOFT_CONSTRAINT = ONE_HARD_CONSTRAINT / (QTY_SOFT_CONSTRAINTS * data.getChromosomeSize());
         // TODO: soft constraints should be able to add up to just below that
         /*
           If there are 5 modules, and each violated hard constraint takes away 100 = ONE_HARD_CONSTRAINT fitness,
@@ -141,10 +215,14 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
           Perhaps the solution is to make sure that hard-fitness values aren't TOO LARGE?
          */
 
-        // Start with the max possible hard-fitness value; subtract has violations are found
-        int fitnessFromOverlappingClasses = data.getChromosomeSize() * ONE_HARD_CONSTRAINT;
-        int fitnessFromInvalidVenues = data.getChromosomeSize() * ONE_HARD_CONSTRAINT;
+        // Start with the max possible hard-fitness value; subtract as violations are found
+        int fitnessFromOverlappingClasses = genes.length * ONE_HARD_CONSTRAINT;
+        int fitnessFromInvalidVenues = genes.length * ONE_HARD_CONSTRAINT;
         isValidSolution = true;
+
+        // For soft constraints, start at zero and add as good values are found
+        int fitnessFromBuildingPreference = 0;
+        int fitnessFromTimeslotPreference = 0;
 
         // TODO: O(n^2) iterative search. Needs improvement. Ideas: Hash array, make sure no collisions. "Sort" array and then compare linearly.
         // TODO: ...but, may not be able to make those improvements! Because fitness is now comparing across several axes
@@ -159,6 +237,12 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
                 isValidSolution = false;
             }
 
+            // TODO: Soft constraint: Goldilocks effect: preference against having a small class in a very big venue
+
+            fitnessFromBuildingPreference += EACH_SOFT_CONSTRAINT * genes[i].getDepartmentsBuildingPreferenceAverage() / ScheduledModule.MAX_BUILDING_PREF_SCORE; // Integer division rounds down, which is desired
+
+            fitnessFromTimeslotPreference += 0.25f * EACH_SOFT_CONSTRAINT * genes[i].getLecturerTimeslotPreference() / ScheduledModule.MAX_TIMESLOT_PREF_SCORE; // Integer division rounds down, which is desired
+
             // *****************************************************************************************************
 
             for (int j = i + 1; j < genes.length; ++j) {
@@ -168,7 +252,7 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
                     // Combines hard constraints related to conflicting timeslots:
                     // 1. Cannot schedule any module in the same time and place (timeslot + venue)
                     // 2. Cannot schedule modules within one course for the same time (timeslot + course)
-                    if (genes[i].conflictsWithTimeOrPlaceOf(genes[j])) {
+                    if (genes[i].conflictsWithTimeOrPlaceOrLecturerOf(genes[j])) {
                         fitnessFromOverlappingClasses -= ONE_HARD_CONSTRAINT;
                         isValidSolution = false;
                     }
@@ -179,7 +263,9 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
         }
 
         return fitnessFromOverlappingClasses
-                + fitnessFromInvalidVenues;
+                + fitnessFromInvalidVenues
+                + fitnessFromBuildingPreference
+                + fitnessFromTimeslotPreference;
     }
 
     public String toString() {
@@ -206,5 +292,29 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
 
     public ScheduledModule[] getGenes() {
         return genes;
+    }
+
+    /**
+     * A debug method to help track down which modules don't have venues that they could POSSIBLY fit into
+     */
+    public void logFailuresToSchedule() {
+        for (int i = 0; i < genes.length; ++i) {
+            if (!genes[i].isInValidVenue()) {
+                System.out.print("Not in an appropriate venue:");
+                System.out.print(" #students=" + genes[i].getModule().getNumEnrolled());
+                System.out.print(" isLab=" + genes[i].getModule().isLab());
+                System.out.print(" #seats=" + genes[i].getVenue().getCapacity());
+                System.out.print(" labVenue=" + genes[i].getVenue().isLab() + " rawData=");
+                System.out.println(genes[i]);
+            }
+
+            for (int j = i + 1; j < genes.length; ++j) {
+                if (i != j) {
+                    if (genes[i].conflictsWithTimeOrPlaceOrLecturerOf(genes[j])) {
+                        System.out.println("Conflict between two modules: " + genes[i] + "//////" + genes[j]);
+                    }
+                }
+            }
+        }
     }
 }

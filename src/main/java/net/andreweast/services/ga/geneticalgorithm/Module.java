@@ -113,6 +113,10 @@ public class Module implements Serializable {
         return !Collections.disjoint(this.courseIds, that.courseIds);
     }
 
+    public boolean taughtByTheSameLecturer(Module that) {
+        return this.lecturerId == that.lecturerId;
+    }
+
 //    private String moduleName;
 //
 //    public Module(String moduleName) {

@@ -26,6 +26,24 @@ public class GeneticAlgorithmJobData implements Serializable {
     // How big an Individual will be (e.g. how many modules there are to schedule)
     private int chromosomeSize;
 
+    // How many "extra" generations to run after a valid (no violated hard constraints) solution has emerged
+    private float proportionRunDownGenerations;
+
+    // Crossover with p = 0.6
+    private float crossoverProbability;
+
+    // Will each individual mutate? Each one has will spawn a mutated clone with p = 0.9
+    private float mutateProbability;
+    // How many genes can be mutated within a chromosome if it is mutated: between 1..mutatedGenesMax
+    private int mutatedGenesMax;
+
+    // How many of the very best in a population are guaranteed to survive
+    private int numEliteSurvivors;
+
+    // How often to send reports back to the database, in percentage of job done
+    // This is important for the frontend, since it is how often the status progress bar will update
+    private float queryRate;
+
     // The various things to be scheduled. Each one may have data that the Fitness Function will utilise
     private List<Module> modules;
     private List<Venue> venues;
@@ -116,6 +134,54 @@ public class GeneticAlgorithmJobData implements Serializable {
 
     public void setPopulationSize(int populationSize) {
         this.populationSize = populationSize;
+    }
+
+    public float getProportionRunDownGenerations() {
+        return proportionRunDownGenerations;
+    }
+
+    public void setProportionRunDownGenerations(float proportionRunDownGenerations) {
+        this.proportionRunDownGenerations = proportionRunDownGenerations;
+    }
+
+    public float getCrossoverProbability() {
+        return crossoverProbability;
+    }
+
+    public void setCrossoverProbability(float crossoverProbability) {
+        this.crossoverProbability = crossoverProbability;
+    }
+
+    public float getMutateProbability() {
+        return mutateProbability;
+    }
+
+    public void setMutateProbability(float mutateProbability) {
+        this.mutateProbability = mutateProbability;
+    }
+
+    public int getMutatedGenesMax() {
+        return mutatedGenesMax;
+    }
+
+    public void setMutatedGenesMax(int mutatedGenesMax) {
+        this.mutatedGenesMax = mutatedGenesMax;
+    }
+
+    public int getNumEliteSurvivors() {
+        return numEliteSurvivors;
+    }
+
+    public void setNumEliteSurvivors(int numEliteSurvivors) {
+        this.numEliteSurvivors = numEliteSurvivors;
+    }
+
+    public float getQueryRate() {
+        return queryRate;
+    }
+
+    public void setQueryRate(float queryRate) {
+        this.queryRate = queryRate;
     }
 
     // Potential source of error: If this.modules is retrieved, then items are added/removed,

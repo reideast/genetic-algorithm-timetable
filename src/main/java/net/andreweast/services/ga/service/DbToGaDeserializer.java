@@ -84,9 +84,15 @@ public class DbToGaDeserializer {
             data.setScheduledModules(generateScheduledModulesFromDatabase(schedule.getScheduleId(), data));
             data.setModifyExistingJob(true);
 
+            if (data.getScheduledModules().size() == 0) {
+                System.out.println("ERROR For preexisting schedule (id=" + scheduleId + "), there were no scheduled modules in the database"); // FUTURE: Logger error
+                // FUTURE: To prevent jobs from not going forward until the GUI has more features, simply ignore this error
+                // FUTURE: Also, see {@link Population}
+                data.setModifyExistingJob(false); // FUTURE: Hack until future work can be done
+            }
             if (data.getScheduledModules().size() != data.getModules().size()) {
                 System.out.println("For preexisting schedule (id=" + scheduleId + "), the no. of scheduled modules in the database was " + data.getScheduledModules().size() +
-                        ", but it was expected to equal the number of modules in the database (" + data.getModules().size() + ")"); // FUTURE: Logger error
+                        ", but it was expected to equal the number of modules in the database (" + data.getModules().size() + ")"); // FUTURE: Logger warning
             }
         } else {
             // This job is a new job, therefore there are no scheduled_modules to fetch. They will be created when the job is done
@@ -113,11 +119,11 @@ public class DbToGaDeserializer {
         }
 
         // DEBUG:
-        System.out.println("Timeslots: ");
-        for (Timeslot item : timeslots) {
-            System.out.print(item);
-        }
-        System.out.println();
+//        System.out.println("Timeslots: ");
+//        for (Timeslot item : timeslots) {
+//            System.out.print(item);
+//        }
+//        System.out.println();
 
         return timeslots;
     }
@@ -140,10 +146,10 @@ public class DbToGaDeserializer {
         }
 
         // DEBUG:
-        System.out.println("Venues:");
-        for (Venue item : venues) {
-            System.out.println(item);
-        }
+//        System.out.println("Venues:");
+//        for (Venue item : venues) {
+//            System.out.println(item);
+//        }
 
         return venues;
     }
@@ -171,10 +177,10 @@ public class DbToGaDeserializer {
         }
 
         // DEBUG:
-        System.out.println("Modules:");
-        for (Module item : modules) {
-            System.out.println(item);
-        }
+//        System.out.println("Modules:");
+//        for (Module item : modules) {
+//            System.out.println(item);
+//        }
 
         return modules;
     }
@@ -198,10 +204,10 @@ public class DbToGaDeserializer {
         }
 
         // DEBUG:
-        System.out.println("Scheduled Modules:");
-        for (ScheduledModule item : scheduledModules) {
-            System.out.println(item);
-        }
+//        System.out.println("Scheduled Modules:");
+//        for (ScheduledModule item : scheduledModules) {
+//            System.out.println(item);
+//        }
 
         return scheduledModules;
     }
