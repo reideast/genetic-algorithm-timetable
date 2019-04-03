@@ -8,7 +8,7 @@ import java.util.Random;
 public class Chromosome implements Comparable<Chromosome>, Serializable {
     private static Random random = new Random();
 
-    private ScheduledModule[] genes;
+    private Gene[] genes;
 
     private GeneticAlgorithmJobData data;
 
@@ -23,9 +23,9 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
     public Chromosome(GeneticAlgorithmJobData masterData) {
         data = masterData;
 
-        genes = new ScheduledModule[data.getChromosomeSize()];
+        genes = new Gene[data.getChromosomeSize()];
         for (int i = 0; i < data.getChromosomeSize(); ++i) {
-            genes[i] = new ScheduledModule(data.getIndexedModule(i), data);
+            genes[i] = new Gene(data.getIndexedModule(i), data);
         }
 
         cachedFitness = calculateFitness(); // Also sets isValidSolution
@@ -37,7 +37,7 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
     public Chromosome(Chromosome toClone) {
         data = toClone.data;
 
-        genes = new ScheduledModule[data.getChromosomeSize()];
+        genes = new Gene[data.getChromosomeSize()];
         for (int i = 0; i < data.getChromosomeSize(); ++i) {
             genes[i] = toClone.genes[i].clone();
         }
@@ -49,11 +49,11 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
     /**
      * Database data copy constructor
      */
-    public Chromosome(GeneticAlgorithmJobData masterData, List<ScheduledModule> existingSchedule) {
+    public Chromosome(GeneticAlgorithmJobData masterData, List<Gene> existingSchedule) {
         data = masterData;
 
         // Make a new array of the appropriate type using existing data
-        genes = existingSchedule.toArray(new ScheduledModule[0]); // The JVM optimises array creation, so passing an empty array is preferential, see: https://stackoverflow.com/a/29444594/5271224
+        genes = existingSchedule.toArray(new Gene[0]); // The JVM optimises array creation, so passing an empty array is preferential, see: https://stackoverflow.com/a/29444594/5271224
 
         cachedFitness = calculateFitness(); // Also sets isValidSolution
     }
@@ -146,7 +146,7 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
                 genes[mutateGene].setTimeslot(data.getRandomTimeslot());
             } else {
                 // Mutate both timeslot and venue
-                genes[mutateGene] = new ScheduledModule(genes[mutateGene].getModule(), data);
+                genes[mutateGene] = new Gene(genes[mutateGene].getModule(), data);
             }
         }
 
@@ -239,9 +239,9 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
 
             // TODO: Soft constraint: Goldilocks effect: preference against having a small class in a very big venue
 
-            fitnessFromBuildingPreference += EACH_SOFT_CONSTRAINT * genes[i].getDepartmentsBuildingPreferenceAverage() / ScheduledModule.MAX_BUILDING_PREF_SCORE; // Integer division rounds down, which is desired
+            fitnessFromBuildingPreference += EACH_SOFT_CONSTRAINT * genes[i].getDepartmentsBuildingPreferenceAverage() / Gene.MAX_BUILDING_PREF_SCORE; // Integer division rounds down, which is desired
 
-            fitnessFromTimeslotPreference += 0.25f * EACH_SOFT_CONSTRAINT * genes[i].getLecturerTimeslotPreference() / ScheduledModule.MAX_TIMESLOT_PREF_SCORE; // Integer division rounds down, which is desired
+            fitnessFromTimeslotPreference += 0.25f * EACH_SOFT_CONSTRAINT * genes[i].getLecturerTimeslotPreference() / Gene.MAX_TIMESLOT_PREF_SCORE; // Integer division rounds down, which is desired
 
             // *****************************************************************************************************
 
@@ -271,7 +271,7 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
     public String toString() {
         StringBuilder s = new StringBuilder();
         s.append(cachedFitness).append(": ");
-        for (ScheduledModule course : genes) {
+        for (Gene course : genes) {
             s.append(course.toString()).append(", ");
         }
 
@@ -290,7 +290,7 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
         return isValidSolution;
     }
 
-    public ScheduledModule[] getGenes() {
+    public Gene[] getGenes() {
         return genes;
     }
 

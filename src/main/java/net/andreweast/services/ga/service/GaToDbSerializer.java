@@ -5,15 +5,12 @@ import net.andreweast.services.data.api.JobRepository;
 import net.andreweast.services.data.api.ScheduleRepository;
 import net.andreweast.services.data.api.ScheduledModuleRepository;
 import net.andreweast.services.data.model.Schedule;
+import net.andreweast.services.ga.geneticalgorithm.Gene;
 import net.andreweast.services.ga.geneticalgorithm.GeneticAlgorithmJobData;
-import net.andreweast.services.ga.geneticalgorithm.ScheduledModule;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import static net.andreweast.WebSocketConfiguration.MESSAGE_PREFIX;
 
 /**
  * Puts all information from a completed Genetic Algorithm job back into the database
@@ -36,9 +33,9 @@ public class GaToDbSerializer {
         scheduleRepository.save(schedule);
 
         // Update or create a database record for each scheduled module that the GA generated
-        List<ScheduledModule> scheduledModules = gaData.getScheduledModules();
+        List<Gene> scheduledModules = gaData.getScheduledModules();
         int numUpdated;
-        for (ScheduledModule item : scheduledModules) {
+        for (Gene item : scheduledModules) {
             numUpdated = scheduledModuleRepository.upsert(scheduleId, item.getModule().getId(), item.getTimeslot().getId(), item.getVenue().getId());
             if (numUpdated != 1) {
                 System.out.println("Saved ScheduledModule to database, but incorrect no. of rows modified: " + numUpdated); // FUTURE: Logger critical

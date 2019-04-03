@@ -251,7 +251,7 @@ public class Population implements Serializable {
      *
      * @return The best individual in the population, as a List of ScheduledModules
      */
-    public List<ScheduledModule> getBestChromosomeScheduledModule() {
+    public List<Gene> getBestChromosomeScheduledModule() {
         return Arrays.asList(getBestChromosome().getGenes());
     }
 

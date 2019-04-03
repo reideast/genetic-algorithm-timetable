@@ -2,7 +2,10 @@ package net.andreweast.services.ga.geneticalgorithm;
 
 import java.io.Serializable;
 
-public class ScheduledModule implements Cloneable, Serializable {
+/**
+ * A "gene", or a list of modules and the timeslot/venue they have been scheduled into
+ */
+public class Gene implements Cloneable, Serializable {
     private GeneticAlgorithmJobData data;
 
     Module module;
@@ -11,13 +14,13 @@ public class ScheduledModule implements Cloneable, Serializable {
 
     @Override
     public String toString() {
-        return "ScheduledModule{" + module + "," + venue + "," + timeslot + '}';
+        return "Gene{" + module + "," + venue + "," + timeslot + '}';
     }
 
     /**
      * Randomising constructor
      */
-    public ScheduledModule(Module module, GeneticAlgorithmJobData masterData) {
+    public Gene(Module module, GeneticAlgorithmJobData masterData) {
         data = masterData;
 
         this.module = module;
@@ -28,7 +31,7 @@ public class ScheduledModule implements Cloneable, Serializable {
     /**
      * Cloning constructor
      */
-    public ScheduledModule(Module module, Venue venue, Timeslot timeslot, GeneticAlgorithmJobData masterData) {
+    public Gene(Module module, Venue venue, Timeslot timeslot, GeneticAlgorithmJobData masterData) {
         data = masterData;
 
         this.module = module;
@@ -36,8 +39,8 @@ public class ScheduledModule implements Cloneable, Serializable {
         this.timeslot = timeslot;
     }
 
-    public ScheduledModule clone() {
-        return new ScheduledModule(this.module, this.venue, this.timeslot, this.data);
+    public Gene clone() {
+        return new Gene(this.module, this.venue, this.timeslot, this.data);
     }
 
     /**
@@ -47,7 +50,7 @@ public class ScheduledModule implements Cloneable, Serializable {
      *
      * @return true if these two modules should not both be taught in the same timeslot. False means no conflicts
      */
-    public boolean conflictsWithTimeOrPlaceOrLecturerOf(ScheduledModule that) {
+    public boolean conflictsWithTimeOrPlaceOrLecturerOf(Gene that) {
         if (this == that) return true;
 
         if (timeslot == that.timeslot) {

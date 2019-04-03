@@ -13,9 +13,10 @@ import net.andreweast.services.data.model.DepartmentBuilding;
 import net.andreweast.services.data.model.Job;
 import net.andreweast.services.data.model.LecturerTimeslotPreference;
 import net.andreweast.services.data.model.Schedule;
+import net.andreweast.services.data.model.ScheduledModule;
+import net.andreweast.services.ga.geneticalgorithm.Gene;
 import net.andreweast.services.ga.geneticalgorithm.GeneticAlgorithmJobData;
 import net.andreweast.services.ga.geneticalgorithm.Module;
-import net.andreweast.services.ga.geneticalgorithm.ScheduledModule;
 import net.andreweast.services.ga.geneticalgorithm.Timeslot;
 import net.andreweast.services.ga.geneticalgorithm.Venue;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -185,18 +186,18 @@ public class DbToGaDeserializer {
         return modules;
     }
 
-    private List<ScheduledModule> generateScheduledModulesFromDatabase(Long scheduleId, GeneticAlgorithmJobData data) {
-        List<net.andreweast.services.data.model.ScheduledModule> entities = scheduledModuleRepository.findBySchedule_ScheduleId_OrderByTimeslot_TimeslotIdAsc(scheduleId);
+    private List<Gene> generateScheduledModulesFromDatabase(Long scheduleId, GeneticAlgorithmJobData data) {
+        List<ScheduledModule> entities = scheduledModuleRepository.findBySchedule_ScheduleId_OrderByTimeslot_TimeslotIdAsc(scheduleId);
 
-        // Build a set of indexes of already-found modules, venues, and timeslots s.t. creating each new ScheduledModule won't be a polynomial operation (n^3 at least)
+        // Build a set of indexes of already-found modules, venues, and timeslots s.t. creating each new Gene won't be a polynomial operation (n^3 at least)
         // Map creation from Stream is based on method from: https://stackoverflow.com/a/20363874/5271224
         Map<Long, Module> moduleIndex = data.getModules().stream().collect(Collectors.toMap(Module::getId, module -> module));
         Map<Long, Venue> venueIndex = data.getVenues().stream().collect(Collectors.toMap(Venue::getId, venue -> venue));
         Map<Long, Timeslot> timeslotIndex = data.getTimeslots().stream().collect(Collectors.toMap(Timeslot::getId, timeslot -> timeslot));
 
-        List<ScheduledModule> scheduledModules = new ArrayList<>();
-        for (net.andreweast.services.data.model.ScheduledModule entity : entities) {
-            scheduledModules.add(new ScheduledModule(
+        List<Gene> scheduledModules = new ArrayList<>();
+        for (ScheduledModule entity : entities) {
+            scheduledModules.add(new Gene(
                     moduleIndex.get(entity.getModule().getModuleId()),
                     venueIndex.get(entity.getVenue().getVenueId()),
                     timeslotIndex.get(entity.getTimeslot().getTimeslotId()),
@@ -205,7 +206,7 @@ public class DbToGaDeserializer {
 
         // DEBUG:
 //        System.out.println("Scheduled Modules:");
-//        for (ScheduledModule item : scheduledModules) {
+//        for (Gene item : scheduledModules) {
 //            System.out.println(item);
 //        }
 
