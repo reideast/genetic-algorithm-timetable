@@ -8,9 +8,12 @@ import net.andreweast.services.data.model.Schedule;
 import net.andreweast.services.ga.geneticalgorithm.Gene;
 import net.andreweast.services.ga.geneticalgorithm.GeneticAlgorithmJobData;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static net.andreweast.WebSocketConfiguration.MESSAGE_PREFIX;
 
 /**
  * Puts all information from a completed Genetic Algorithm job back into the database
@@ -26,11 +29,19 @@ public class GaToDbSerializer {
     @Autowired
     private ScheduledModuleRepository scheduledModuleRepository;
 
+    @Autowired
+    private SimpMessagingTemplate websocket;
+
     public void writeScheduleData(GeneticAlgorithmJobData gaData, Long scheduleId) {
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(DataNotFoundException::new);
         // Anytime a schedule is modified by the GA, it is not longer new, therefore should be considered a "work-in-progress"
         schedule.setWip(true);
+        schedule.setFitness(gaData.getFitness());
         scheduleRepository.save(schedule);
+
+        // Send a WebSocket to the frontend: this schedule has been updated!
+        // FUTURE: Send to a different topic: One that uses the PAYLOAD field to know which schedule was updated. Then, go thorugh the list, and if that schedule is in the GUI, then it can ONLY GET THAT ONE
+        this.websocket.convertAndSend(MESSAGE_PREFIX + "/updateSchedule", "Job's done, m'lord");
 
         // Update or create a database record for each scheduled module that the GA generated
         List<Gene> scheduledModules = gaData.getScheduledModules();

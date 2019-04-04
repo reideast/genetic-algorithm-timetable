@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -148,7 +149,17 @@ public class DbToGaDeserializer {
         // Translate all those modules into GA Module objects
         int totalEnrolled;
         List<Module> modules = new ArrayList<>();
-        for (net.andreweast.services.data.model.Module entity : entities) {
+//        for (net.andreweast.services.data.model.Module entity : entities) {
+        // DEBUG: LIMIT TO 3 MODULES ONLY
+        // DEBUG: Makes the job VERY QUICK
+        Iterator<net.andreweast.services.data.model.Module> itr = entities.iterator(); // DEBUG
+        for (int i = 0; i < 5; ++i) { // DEBUG
+            net.andreweast.services.data.model.Module entity; // DEBUG
+            if (itr.hasNext()) { // DEBUG
+                entity = itr.next(); // DEBUG
+            } else {   // DEBUG
+                break; // DEBUG
+            }          // DEBUG
             HashSet<Long> coursesOfferingModule = new HashSet<>();
             Set<Long> departmentIdsOfferingModule = new HashSet<>();
 

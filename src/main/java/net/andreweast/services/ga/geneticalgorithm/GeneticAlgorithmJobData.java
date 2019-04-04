@@ -49,7 +49,9 @@ public class GeneticAlgorithmJobData implements Serializable {
     private List<Venue> venues;
     private List<Timeslot> timeslots;
 
-    // The results: A set of modules, each placed in a timeslot.
+    // The results:
+
+    // A set of modules, each placed in a timeslot.
     // If this is not an "modify existing job", then this collection will start as NULL
     // Either way, at the END of the job, it will be filled up with the results
     private List<Gene> scheduledModules;
@@ -57,6 +59,9 @@ public class GeneticAlgorithmJobData implements Serializable {
     // Does this job's data represent a schedule with no hard constraints violated?
     // Will be set and read DURING the job
     private boolean hasValidSolution;
+
+    // What is the fitness of the current solution?
+    private long fitness;
 
     private static final Random random = new Random();
 
@@ -219,5 +224,13 @@ public class GeneticAlgorithmJobData implements Serializable {
 
     public void setScheduledModules(List<Gene> scheduledModules) {
         this.scheduledModules = scheduledModules;
+    }
+
+    public long getFitness() {
+        return fitness;
+    }
+
+    public void setFitness(long fitness) {
+        this.fitness = fitness;
     }
 }

@@ -48,6 +48,10 @@ public class Schedule {
     @Column(name = "is_master", nullable = true)
     private Boolean isMaster = false;
 
+    @Basic
+    @Column(name = "fitness", nullable = true)
+    private Long fitness;
+
     @ManyToOne
     @JoinColumn(name = "creator_id")
     private User creator;
@@ -107,6 +111,14 @@ public class Schedule {
         isMaster = master;
     }
 
+    public Long getFitness() {
+        return fitness;
+    }
+
+    public void setFitness(Long fitness) {
+        this.fitness = fitness;
+    }
+
     public User getCreator() {
         return creator;
     }
@@ -142,6 +154,7 @@ public class Schedule {
                 Objects.equals(isWip, schedule.isWip) &&
                 Objects.equals(isAccepted, schedule.isAccepted) &&
                 Objects.equals(isMaster, schedule.isMaster) &&
+                Objects.equals(fitness, schedule.fitness) &&
                 Objects.equals(creator, schedule.creator) &&
                 Objects.equals(scheduledModules, schedule.scheduledModules) &&
                 Objects.equals(job, schedule.job);
@@ -149,6 +162,6 @@ public class Schedule {
 
     @Override
     public int hashCode() {
-        return Objects.hash(scheduleId, version, creationDate, isWip, isAccepted, isMaster, creator, scheduledModules, job);
+        return Objects.hash(scheduleId, version, creationDate, isWip, isAccepted, isMaster, fitness, creator, scheduledModules, job);
     }
 }

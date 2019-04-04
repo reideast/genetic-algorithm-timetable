@@ -229,7 +229,14 @@ public class Population implements Serializable {
         return fitnessValues;
     }
 
-    private Chromosome getBestChromosome() {
+    /**
+     * Used after the algorithm runs to get the best chromosome for saving to the database
+     * If there is at least one valid solution (i.e. has no violated hard constraints), this will return the BEST VALID individual
+     * If there isn't a valid solution, this will return the BEST individual
+     *
+     * @return The best individual in the population
+     */
+    public Chromosome getBestChromosome() {
         Collections.sort(individuals);
         System.out.println("Getting best gene out of chromosome: " + this.toFitnessList()); // FUTURE: Logger
 
@@ -241,17 +248,6 @@ public class Population implements Serializable {
         }
         // None were valid, so just return the best of the bunch
         return individuals.get(0);
-    }
-
-    /**
-     * Used after the algorithm runs to get the best chromosome for saving to the database
-     * If there is at least one valid solution (i.e. has no violated hard constraints), this will return the BEST VALID individual
-     * If there isn't a valid solution, this will return the BEST individual
-     *
-     * @return The best individual in the population, as a List of ScheduledModules
-     */
-    public List<Gene> getBestChromosomeScheduledModule() {
-        return Arrays.asList(getBestChromosome().getGenes());
     }
 
     /**

@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -284,7 +285,9 @@ public class GeneticAlgorithmJob implements Runnable {
      */
     private void saveBestIndividualToMasterData() {
         // Get info from Population, and choose a Chromosome to write back to {@link masterData}
-        masterData.setScheduledModules(population.getBestChromosomeScheduledModule());
+        Chromosome bestChromosome = population.getBestChromosome();
+        masterData.setScheduledModules(Arrays.asList(bestChromosome.getGenes()));
+        masterData.setFitness(bestChromosome.getCachedFitness());
     }
 
     private void writeBackToDatabase() {
