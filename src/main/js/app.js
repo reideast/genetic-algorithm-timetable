@@ -42,6 +42,11 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import Alert from 'react-bootstrap/Alert';
+import CardDeck from 'react-bootstrap/CardDeck';
+import Card from 'react-bootstrap/Card';
+import ListGroup from 'react-bootstrap/ListGroup';
+import ListGroupItem from 'react-bootstrap/ListGroupItem';
+
 
 const apiRoot = '/api';
 const apiGeneticAlgorithmRoot = '/genetic-algorithm-api';
@@ -56,6 +61,8 @@ const hours = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
 class App extends React.Component {
     constructor(props) {
         super(props);
+
+
     }
 
     render() {
@@ -64,8 +71,8 @@ class App extends React.Component {
                 <Row>
                     <Col className="py-3 pt-md-5 pb-md-4 mx-auto text-center">
                         <h4 className="display-4 d-md-block d-none">Run Genetic Algorithm</h4>
-                        <h1 className="d-md-none d-sm-block d-none" style={{fontWeight: 300, lineHeight: 1.2}}>Run Genetic Algorithm</h1>
-                        <h2 className="d-sm-none d-block" style={{fontWeight: 300, lineHeight: 1.2}}>Run Genetic Algorithm</h2>
+                        <h1 className="d-md-none d-sm-block d-none" style={{ fontWeight: 300, lineHeight: 1.2 }}>Run Genetic Algorithm</h1>
+                        <h2 className="d-sm-none d-block" style={{ fontWeight: 300, lineHeight: 1.2 }}>Run Genetic Algorithm</h2>
                     </Col>
                 </Row>
                 <Row>
@@ -110,7 +117,7 @@ class SchedulingJobLauncher extends React.Component {
             alertTitle: title,
             alertBody: body,
             alertVariant: variant
-        })
+        });
     }
 
     // FUTURE: make an onShowSchedule and have AvailableSchedulesTable be able to call it to show different ones (without having to start a new job)
@@ -131,7 +138,9 @@ class SchedulingJobLauncher extends React.Component {
                 </Row>
                 <Row>
                     <Col>
-                        <Alert dismissible onClose={()  => {this.setState({alertIsShown: false})}} show={this.state.alertIsShown} variant={this.state.alertVariant}>
+                        <Alert dismissible onClose={() => {
+                            this.setState({ alertIsShown: false });
+                        }} show={this.state.alertIsShown} variant={this.state.alertVariant}>
                             <Alert.Heading>{this.state.alertTitle}</Alert.Heading>
                             <p>{this.state.alertBody}</p>
                         </Alert>
@@ -243,13 +252,13 @@ class Timetable extends React.Component {
                     hasNewScheduleLoaded: false, // This is most important: it keeps the schedule from rendering
                     currentFetchVersionDisplayed: previousState.currentFetchVersionDisplayed + 1, // And this makes sure that when an update arrives, it will know that it's a new version, therefore should start a fetch
                     fetchVersionInProgress: undefined,
-                    isLoading: false,
+                    isLoading: false
                 }));
             }
             this.setState({
                 fetchDoneWhenZero: scheduledModulesCollection.entity._embedded.scheduledModules.length
             });
-            console.log("NEW: ajax requests:", this.state.fetchDoneWhenZero);
+            console.log('NEW: ajax requests:', this.state.fetchDoneWhenZero);
             scheduledModulesCollection.entity._embedded.scheduledModules.forEach((scheduledModule) => {
                 const needToBeFetched = [
                     { rel: 'module', href: scheduledModule._links.module.href },
@@ -324,7 +333,7 @@ class Timetable extends React.Component {
                                     hasNewScheduleLoaded: true,
                                     currentFetchVersionDisplayed: previousState.currentFetchVersionDisplayed + 1
                                 }));
-                                console.log("Open ajax requests:", this.state.fetchDoneWhenZero);
+                                console.log('Open ajax requests:', this.state.fetchDoneWhenZero);
                                 if (this.state.fetchEnqueued) {
                                     // Since this ajax request started, a request for a new version of the timetable has come in. Trigger that enqueued job (via state update)!
                                     this.setState({
@@ -336,7 +345,7 @@ class Timetable extends React.Component {
                                 this.setState(previousState => ({
                                     fetchDoneWhenZero: previousState.fetchDoneWhenZero - 1
                                 }));
-                                console.log("Open ajax requests:", this.state.fetchDoneWhenZero);
+                                console.log('Open ajax requests:', this.state.fetchDoneWhenZero);
                             }
                         });
                     });
@@ -627,9 +636,12 @@ class AvailableSchedulesTable extends React.Component {
     }
 
     refreshPageOfSchedules(message) {
-        // console.log("STOMP RECEIVED - UPDATING SCHEDULE TABLE"); // DEBUG
-        // TODO: this is not correct anymore: it doesn't filter by USERNAME
-        follow(client, apiRoot, ['schedules']).then(schedulesCollection => {
+        console.log('WebSocket received - updating schedule list'); // DEBUG
+        follow(client, apiRoot, [
+            'schedules',
+            'search',
+            { rel: 'creatorUsername', params: { username: this.props.loggedInUser } }
+        ]).then(schedulesCollection => {
             return schedulesCollection.entity._embedded.schedules.map(schedule => {
                 return client({
                     method: 'GET',
@@ -698,7 +710,7 @@ class RunGeneticAlgorithm extends React.Component {
             method: 'POST',
             path: apiGeneticAlgorithmRoot + '/job',
             params: {
-                scheduleId: this.props.schedule.entity.scheduleId,
+                scheduleId: this.props.schedule.entity.scheduleId
                 // numGenerations: 10000,
                 // numGenerations: 100000,
                 // mutatePercentage: 5,
@@ -753,33 +765,38 @@ class ScheduleTable extends React.Component {
     }
 
     render() {
-        const schedules = this.props.schedules.map(schedule => {
+        // Sorting with a map for: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#Sorting_with_map
+        // Done this way since I'm not sure if React will react badly if a Prop is modified (although Mozilla mentions this method for efficiency)
+        const dateMap = this.props.schedules.map((schedule, i) => {
+            return { index: i, date: schedule.entity.creationDate };
+        });
+        dateMap.sort((a, b) => {
+            // Sort DESC
+            if (a.date > b.date) {
+                return -1;
+            } else if (a.date < b.date) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+        const schedules = dateMap.map(item => {
+            const schedule = this.props.schedules[item.index];
             return (
                 <Schedule key={schedule.entity.scheduleId}
                           loggedInUser={this.props.loggedInUser}
                           schedule={schedule}
+                          displayedScheduleId={this.props.displayedScheduleId}
                           onJob={this.props.onJob} />
             );
         });
 
         return (
-            <div>
-                <Table hover bordered>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Creator</th>
-                            <th>Is New Job</th>
-                            {/*TODO*/}
-                            <th>Created On</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {schedules}
-                    </tbody>
-                </Table>
-            </div>
+            <Container>
+                <Row className="mb-3">
+                    {schedules}
+                </Row>
+            </Container>
         );
     }
 }
@@ -811,22 +828,143 @@ class Schedule extends React.Component {
 
     render() {
         const creationDate = new Date(this.props.schedule.entity.creationDate);
+
+        const isNew = !this.props.schedule.entity.wip; // Is not a work-in-progress, so it's new
+
+        console.log('a schedule:', this.props.schedule, 'their creator', this.state.creator);
+
         return (
-            <tr>
-                <td>{this.props.schedule.entity.scheduleId}</td>
-                <td>{(this.state.creator.entity) ? this.state.creator.entity.displayName : null}</td>
-                <td></td>
-                <td>{creationDate.toLocaleDateString()}</td>
-                <td>
-                    <RunGeneticAlgorithm key={this.props.schedule.entity.scheduleId}
-                                         loggedInUser={this.props.loggedInUser}
-                                         onJob={this.props.onJob}
-                                         schedule={this.props.schedule} />
-                </td>
-            </tr>
+            <Col xs={12} sm={6} lg={4}>
+                <Card className={`${this.props.displayedScheduleId === this.props.schedule.entity.scheduleId ? 'shadow-selected-card' : ''} text-center mb-4 box-shadow`}>
+                    <Card.Header className={`${isNew ? 'bg-success' : 'bg-primary'} text-white font-weight-normal my-0`} as="h4">
+                        {isNew ? 'New Schedule' : 'Existing Schedule'}
+                    </Card.Header>
+                    <Card.Body>
+                        <Card.Title as="h3">
+                            Schedule ID {this.props.schedule.entity.scheduleId}
+                        </Card.Title>
+                    </Card.Body>
+                    <ListGroup>
+                        <ListGroupItem>Creator: {this.state.creator.entity ? this.state.creator.entity.displayName : ''}</ListGroupItem>
+                        <ListGroupItem>Created: {creationDate.toLocaleDateString()}</ListGroupItem>
+                        <ListGroupItem>
+                            <h3>Fitness</h3>
+                            <Row>
+                                <Col xs={{ span: 6, offset: 3 }} sm={{ span: 12, offset: 0 }} md={{ span: 8, offset: 2 }} lg={{ span: 8, offset: 2 }}>
+                                    <div className="rounded-circle w-100 h-100 position-relative text-center text-middle bg-dark text-white"
+                                         style={{ paddingTop: '100%' }}
+                                    >
+                                        <div style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}>
+                                            <Row className="h-100">
+                                                <Col className="align-self-center">
+                                                    <h4>{this.props.schedule.entity.fitness ? this.props.schedule.entity.fitness : "n/a"}</h4>
+                                                </Col>
+                                            </Row>
+                                        </div>
+                                    </div>
+                                </Col>
+                            </Row>
+                        </ListGroupItem>
+                    </ListGroup>
+                    <Card.Footer>
+                        {/*<DisplayTimetable key={this.props.schedule.entity.scheduleId}*/}
+                        {/*                  loggedInUser={this.props.loggedInUser}*/}
+                        {/*                  onJob={this.props.onJob}*/}
+                        {/*                  schedule={this.props.schedule} />*/}
+                        <RunGeneticAlgorithm key={this.props.schedule.entity.scheduleId}
+                                             loggedInUser={this.props.loggedInUser}
+                                             onJob={this.props.onJob}
+                                             schedule={this.props.schedule} />
+                    </Card.Footer>
+                </Card>
+            </Col>
         );
     }
 }
+
+class DisplayTimetable extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleClick = this.handleClick.bind(this);
+        this.icon = faMicrochip;
+        this.buttonText = 'Display timetable';
+        this.state = {
+            buttonText: this.buttonText,
+            icon: this.icon,
+            spin: false,
+            disabled: false
+        };
+    }
+
+    handleClick(e) {
+        e.preventDefault();
+        this.setState({
+            buttonText: 'Loading',
+            icon: faSpinner,
+            spin: true,
+            disabled: true
+        });
+
+        alert('showingSched');
+        this.setState({
+            buttonText: this.buttonText,
+            icon: this.icon,
+            spin: false,
+            disabled: false
+        });
+
+        // Create a Genetic Algorithm Job through the GA API
+        // client({
+        //     method: 'POST',
+        //     path: apiGeneticAlgorithmRoot + '/job',
+        //     params: {
+        //         scheduleId: this.props.schedule.entity.scheduleId
+        //         // numGenerations: 10000,
+        //         // numGenerations: 100000,
+        //         // mutatePercentage: 5,
+        //         // populationSize: 60
+        //         // proportionRunDownGenerations: 10
+        //     }
+        // }).then(response => {
+        //     console.log('Job submitted, response received:', response); // DEBUG
+        //     // TODO: Do something with this job JSON object?
+        //     this.setState({
+        //         icon: faMicrochip,
+        //         spin: false,
+        //         disabled: false,
+        //         buttonText: 'Start genetic algorithm'
+        //     });
+        //
+        //     // Inform UP the hierarchy that a new job has been submitted
+        //     this.props.onJob(response.entity.jobId, response.entity.totalGenerations, response.entity.startDate, this.props.schedule.entity.scheduleId);
+        // }, error => {
+        //     if (error.status.code === 409) {
+        //         // FUTURE: Make a more elegant and informative in the UI!
+        //         // FUTURE: More elegant error handling. Toast at top of page? Popover on Launch Job button?
+        //         alert('A Genetic Algorithm job for schedule ID #' + this.props.schedule.entity.scheduleId + ' has already been started on the server!');
+        //
+        //         this.setState({
+        //             icon: faMicrochip,
+        //             spin: false,
+        //             disabled: false,
+        //             buttonText: 'Start genetic algorithm'
+        //         });
+        //     }
+        // });
+    }
+
+    render() {
+        return (
+            <Button
+                onClick={this.handleClick}
+                variant="primary"
+                disabled={this.state.disabled}>
+                <FontAwesomeIcon icon={this.state.icon} spin={this.state.spin} /> {this.state.buttonText}
+            </Button>
+        );
+    }
+}
+
 
 class DisplayName extends React.Component {
     constructor(props) {
