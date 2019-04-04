@@ -26,7 +26,7 @@ const follow = require('./follow');
 const stompClient = require('./websocket-listener');
 
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faDna, faMicrochip, faSpinner, faUser} from '@fortawesome/free-solid-svg-icons';
+import {faDna, faMicrochip, faCalendarAlt, faSpinner, faUser} from '@fortawesome/free-solid-svg-icons';
 
 import './sass/style.scss';
 import 'react-bootstrap/dist/react-bootstrap.min.js';
@@ -851,41 +851,39 @@ class Schedule extends React.Component {
         return (
             <Col xs={12} sm={6} lg={4}>
                 <Card className={`${this.props.displayedScheduleId === this.props.schedule.entity.scheduleId ? 'shadow-selected-card' : ''} text-center mb-4 box-shadow`}>
-                    <Card.Header className={`${isNew ? 'bg-success' : 'bg-primary'} text-white font-weight-normal my-0`} as="h4">
+                    <Card.Header className={`${isNew ? 'bg-success' : 'bg-primary'} text-white font-weight-normal my-0`} as="h5">
                         {isNew ? 'New Schedule' : 'Existing Schedule'}
                     </Card.Header>
-                    <Card.Body>
-                        <Card.Title as="h3">
-                            Schedule ID {this.props.schedule.entity.scheduleId}
-                        </Card.Title>
-                    </Card.Body>
-                    <ul className="list-unstyled mt-3 mb-4">
-                        <li>Creator: {this.state.creator.entity ? this.state.creator.entity.displayName : ''}</li>
-                        <li>Created: {creationDate.toLocaleDateString()}</li>
-                        <li>
-                            <h3>Fitness</h3>
-                            <Row>
-                                <Col xs={{ span: 6, offset: 3 }} sm={{ span: 12, offset: 0 }} md={{ span: 8, offset: 2 }} lg={{ span: 8, offset: 2 }}>
-                                    <div className="rounded-circle w-100 h-100 position-relative text-center text-middle bg-dark text-white"
-                                         style={{ paddingTop: '100%' }}
-                                    >
-                                        <div style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}>
-                                            <Row className="h-100">
-                                                <Col className="align-self-center">
-                                                    <h4>{this.state.fitness ? this.state.fitness.toLocaleString() : 'n/a'}</h4>
-                                                </Col>
-                                            </Row>
+                    <Card.Body style={{ padding: "0.5rem" }}>
+                        <ul className="list-unstyled mb-2">
+                            <li><h4>Schedule ID {this.props.schedule.entity.scheduleId}</h4></li>
+                            <li>Creator: {this.state.creator.entity ? this.state.creator.entity.displayName : ''}</li>
+                            <li>Created: {creationDate.toLocaleDateString()}</li>
+                            <li>
+                                <h4>Fitness</h4>
+                                <Row>
+                                    <Col xs={{ span: 4, offset: 4 }} sm={{ span: 8, offset: 2 }} md={{ span: 6, offset: 3 }} lg={{ span: 6, offset: 3 }}>
+                                        <div className="rounded-circle w-100 h-100 position-relative text-center text-middle bg-dark text-white"
+                                             style={{ paddingTop: '100%' }}
+                                        >
+                                            <div style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}>
+                                                <Row className="h-100">
+                                                    <Col className="align-self-center">
+                                                        <h4>{this.state.fitness ? this.state.fitness.toLocaleString() : 'n/a'}</h4>
+                                                    </Col>
+                                                </Row>
+                                            </div>
                                         </div>
-                                    </div>
-                                </Col>
-                            </Row>
-                        </li>
-                    </ul>
+                                    </Col>
+                                </Row>
+                            </li>
+                        </ul>
+                    </Card.Body>
                     <Card.Footer>
-                        {/*<DisplayTimetable key={this.props.schedule.entity.scheduleId}*/}
-                        {/*                  loggedInUser={this.props.loggedInUser}*/}
-                        {/*                  onJob={this.props.onJob}*/}
-                        {/*                  schedule={this.props.schedule} />*/}
+                        <DisplayTimetable key={this.props.schedule.entity.scheduleId}
+                                          loggedInUser={this.props.loggedInUser}
+                                          onJob={this.props.onJob}
+                                          schedule={this.props.schedule} />
                         <RunGeneticAlgorithm key={this.props.schedule.entity.scheduleId}
                                              loggedInUser={this.props.loggedInUser}
                                              onJob={this.props.onJob}
@@ -901,7 +899,7 @@ class DisplayTimetable extends React.Component {
     constructor(props) {
         super(props);
         this.handleClick = this.handleClick.bind(this);
-        this.icon = faMicrochip;
+        this.icon = faCalendarAlt;
         this.buttonText = 'Display timetable';
         this.state = {
             buttonText: this.buttonText,
