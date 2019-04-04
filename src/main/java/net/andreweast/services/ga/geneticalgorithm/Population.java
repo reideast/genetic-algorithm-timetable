@@ -251,6 +251,14 @@ public class Population implements Serializable {
     }
 
     /**
+     * Grab a fitness value from the population, just so the GUI can display an estimated value
+     * @return Fitness from the first chromosome in the list
+     */
+    public long getEstimatedFitness() {
+        return individuals.get(0).getCachedFitness();
+    }
+
+    /**
      * A debug method to help track down which modules don't have venues that they could POSSIBLY fit into
      */
     public void logFailuresToSchedule() {

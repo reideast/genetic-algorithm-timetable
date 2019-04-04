@@ -804,8 +804,11 @@ class ScheduleTable extends React.Component {
 class Schedule extends React.Component {
     constructor(props) {
         super(props);
+        this.refreshFitnessAfterWebSocket = this.refreshFitnessAfterWebSocket.bind(this);
+
         this.state = {
-            creator: {}
+            creator: {},
+            fitness: this.props.schedule.entity.fitness
         };
     }
 
@@ -822,16 +825,28 @@ class Schedule extends React.Component {
         });
     }
 
+    refreshFitnessAfterWebSocket(message) {
+        const body = JSON.parse(message.body);
+
+        // Filter: only act on WebSocket messages that are for THIS object
+        if (this.props.schedule.entity.scheduleId === body.scheduleId) {
+            this.setState({
+                fitness: body.fitnessEstimate
+            });
+        }
+    }
+
     componentDidMount() {
         this.loadFromServer();
+        stompClient.register([
+            { route: '/topic/jobStatus', callback: this.refreshFitnessAfterWebSocket }
+        ]);
     }
 
     render() {
         const creationDate = new Date(this.props.schedule.entity.creationDate);
 
         const isNew = !this.props.schedule.entity.wip; // Is not a work-in-progress, so it's new
-
-        console.log('a schedule:', this.props.schedule, 'their creator', this.state.creator);
 
         return (
             <Col xs={12} sm={6} lg={4}>
@@ -844,10 +859,10 @@ class Schedule extends React.Component {
                             Schedule ID {this.props.schedule.entity.scheduleId}
                         </Card.Title>
                     </Card.Body>
-                    <ListGroup>
-                        <ListGroupItem>Creator: {this.state.creator.entity ? this.state.creator.entity.displayName : ''}</ListGroupItem>
-                        <ListGroupItem>Created: {creationDate.toLocaleDateString()}</ListGroupItem>
-                        <ListGroupItem>
+                    <ul className="list-unstyled mt-3 mb-4">
+                        <li>Creator: {this.state.creator.entity ? this.state.creator.entity.displayName : ''}</li>
+                        <li>Created: {creationDate.toLocaleDateString()}</li>
+                        <li>
                             <h3>Fitness</h3>
                             <Row>
                                 <Col xs={{ span: 6, offset: 3 }} sm={{ span: 12, offset: 0 }} md={{ span: 8, offset: 2 }} lg={{ span: 8, offset: 2 }}>
@@ -857,15 +872,15 @@ class Schedule extends React.Component {
                                         <div style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}>
                                             <Row className="h-100">
                                                 <Col className="align-self-center">
-                                                    <h4>{this.props.schedule.entity.fitness ? this.props.schedule.entity.fitness : "n/a"}</h4>
+                                                    <h4>{this.state.fitness ? this.state.fitness.toLocaleString() : 'n/a'}</h4>
                                                 </Col>
                                             </Row>
                                         </div>
                                     </div>
                                 </Col>
                             </Row>
-                        </ListGroupItem>
-                    </ListGroup>
+                        </li>
+                    </ul>
                     <Card.Footer>
                         {/*<DisplayTimetable key={this.props.schedule.entity.scheduleId}*/}
                         {/*                  loggedInUser={this.props.loggedInUser}*/}

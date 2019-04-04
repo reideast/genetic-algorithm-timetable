@@ -149,8 +149,9 @@ public class DbToGaDeserializer {
         // Translate all those modules into GA Module objects
         int totalEnrolled;
         List<Module> modules = new ArrayList<>();
-//        for (net.andreweast.services.data.model.Module entity : entities) {
         // DEBUG: LIMIT TO 3 MODULES ONLY
+        // DEBUG: disabled the following line:
+//        for (net.andreweast.services.data.model.Module entity : entities) {
         // DEBUG: Makes the job VERY QUICK
         Iterator<net.andreweast.services.data.model.Module> itr = entities.iterator(); // DEBUG
         for (int i = 0; i < 5; ++i) { // DEBUG
