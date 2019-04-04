@@ -54,13 +54,15 @@ public class Population implements Serializable {
         Chromosome chromosomeFromDatabase = new Chromosome(data, data.getScheduledModules());
         individuals.add(chromosomeFromDatabase);
 
-        int oneHalf = populationSize / 2;
+//        int oneHalf = populationSize / 2;
+        int oneHalf = populationSize; // DEBUG: Making WHOLE population clones, rather than making a bunch of mutations. This seems like it will let the algorithm work more as expected?
 
-        // Use a thread pool for mutation since it will be recalculating fitness
-        List<Future<Chromosome>> chromosomeCreators = new ArrayList<>(oneHalf);
-        for (int i = 0; i < oneHalf; ++i) {
-            chromosomeCreators.add(threadPool.submit(() -> chromosomeFromDatabase.mutate(data.getMutatedGenesMax())));
-        }
+// DEBUG: Making WHOLE population clones, rather than making a bunch of mutations. This seems like it will let the algorithm work more as expected?
+//        // Use a thread pool for mutation since it will be recalculating fitness
+//        List<Future<Chromosome>> chromosomeCreators = new ArrayList<>(oneHalf);
+//        for (int i = 0; i < oneHalf; ++i) {
+//            chromosomeCreators.add(threadPool.submit(() -> chromosomeFromDatabase.mutate(data.getMutatedGenesMax())));
+//        }
 
         // Clone the new individual. No thread used since no fitness is calculated upon clone
         // Might as well do it while the mutate threads are working, though
@@ -68,16 +70,17 @@ public class Population implements Serializable {
             individuals.add(new Chromosome(chromosomeFromDatabase));
         }
 
-        // Block until all mutating is done
-        try {
-            for (int i = 0; i < oneHalf; ++i) {
-                individuals.add((chromosomeCreators.get(i)).get()); // Block for this thread to return its Future value
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            // TODO: There's no real exception handling here. This should kill the Genetic Algorithm Job and put it in a failed state!
-            System.out.println("ERROR: While creating a new population and calculating its fitness, a threading error was thrown"); // FUTURE: Logger error
-            e.printStackTrace();
-        }
+ // DEBUG: Making WHOLE population clones, rather than making a bunch of mutations. This seems like it will let the algorithm work more as expected?
+//        // Block until all mutating is done
+//        try {
+//            for (int i = 0; i < oneHalf; ++i) {
+//                individuals.add((chromosomeCreators.get(i)).get()); // Block for this thread to return its Future value
+//            }
+//        } catch (InterruptedException | ExecutionException e) {
+//            // TODO: There's no real exception handling here. This should kill the Genetic Algorithm Job and put it in a failed state!
+//            System.out.println("ERROR: While creating a new population and calculating its fitness, a threading error was thrown"); // FUTURE: Logger error
+//            e.printStackTrace();
+//        }
     }
 
     private void makeNewPopulation(GeneticAlgorithmJobData data) {
