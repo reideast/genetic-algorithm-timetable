@@ -161,7 +161,7 @@ public class Chromosome implements Comparable<Chromosome>, Serializable {
         // TODO: Tweak these fitness weights
 
         // Calculate minimal fitness of any chromosome which has all HARD constraints met
-        final int ONE_HARD_CONSTRAINT = 100;
+        final int ONE_HARD_CONSTRAINT = 1000;
 
 
         final int QTY_SOFT_CONSTRAINTS = 2;

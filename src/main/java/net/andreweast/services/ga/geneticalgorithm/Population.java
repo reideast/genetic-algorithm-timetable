@@ -21,6 +21,8 @@ public class Population implements Serializable {
 
     private List<Chromosome> individuals;
 
+    private long cachedEstimatedFitness = 0;
+
     public Population(GeneticAlgorithmJobData masterData, ExecutorService threadPool) {
         data = masterData;
         this.threadPool = threadPool;
@@ -122,6 +124,9 @@ public class Population implements Serializable {
             // Get the best: the 0th, 1st, ... individuals
             nextPopulation.add(new Chromosome(individuals.get(i)));// deep clone individual
         }
+
+        // Now that it's sorted, go ahead and save the best individual
+        cachedEstimatedFitness = individuals.get(0).getCachedFitness();
 
         // Determine sum total of all individuals' fitness s.t. roulette wheel can select from them
         long totalFitness = 0;
@@ -258,7 +263,7 @@ public class Population implements Serializable {
      * @return Fitness from the first chromosome in the list
      */
     public long getEstimatedFitness() {
-        return individuals.get(0).getCachedFitness();
+        return cachedEstimatedFitness;
     }
 
     /**
