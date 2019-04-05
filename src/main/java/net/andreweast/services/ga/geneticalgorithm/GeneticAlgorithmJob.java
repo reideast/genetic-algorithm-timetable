@@ -66,7 +66,8 @@ public class GeneticAlgorithmJob implements Runnable {
 
     // Data structures being used by the job in action
     private Population population;
-    static final boolean DEBUG = true; // DEBUG
+    static final boolean DATA_ANALYTICS_FILE_WRITE_OUTPUT = false; // DEBUG
+    static final boolean DEBUG_STATS = true; // DEBUG
 
     public GeneticAlgorithmJob(GeneticAlgorithmJobData geneticAlgorithmJobData, ExecutorService threadPool) {
         // Services
@@ -128,7 +129,7 @@ public class GeneticAlgorithmJob implements Runnable {
         long startTime = System.nanoTime(); // DEBUG
         String csvHeader;
         List<String> debugOutputLines;
-        if (DEBUG) {
+        if (DATA_ANALYTICS_FILE_WRITE_OUTPUT) {
 //        System.out.println(population); // DEBUG
             // Generate a CSV header for the chromosomes in a population
             debugOutputLines = new ArrayList<>(1 + numGenerationsMaximum);
@@ -154,7 +155,7 @@ public class GeneticAlgorithmJob implements Runnable {
 //                e.printStackTrace();
 //            }
 
-            if (DEBUG) { // DEBUG
+            if (DATA_ANALYTICS_FILE_WRITE_OUTPUT) { // DEBUG
                 // Output CSV values for the population's fitness values
                 debugOutputLines.add(currentGeneration.get() + "," + population.toFitnessList().stream().map(Object::toString).collect(Collectors.joining(",")));
             }
@@ -201,7 +202,7 @@ public class GeneticAlgorithmJob implements Runnable {
             } // else: Already doing a final run down, don't check if the valid solution still exists until we're done
         }
         // DEBUG
-        if (DEBUG) {
+        if (DEBUG_STATS) {
             System.out.print("Complexity of dataset:"); // FUTURE: Logger
             System.out.print(" Num modules: " + masterData.getModules().size()); // FUTURE: Logger
             System.out.println(" Venues x Timeslots: " + (masterData.getVenues().size() * masterData.getTimeslots().size())); // FUTURE: Logger
@@ -210,19 +211,16 @@ public class GeneticAlgorithmJob implements Runnable {
             System.out.print(" Time init: " + (initTime * 1.0E-6) + " ms"); // FUTURE: Logger
             System.out.print(" Average generation time: " + (runningAverage * 1E-6) + " ms"); // FUTURE: Logger
             System.out.println(" Total time: " + ((System.nanoTime() - startTime) * 1E-9) + " s"); // FUTURE: Logger
-        }
 
-        System.out.println("GA generations have completed in " + (currentGeneration.get() - 1) + " generations, job=" + masterData.getJobId() + ", schedule=" + masterData.getScheduleId()); // FUTURE: Logger info
-
-
-        if (DEBUG) {
             // Log which modules were not able to be scheduled
             population.logFailuresToSchedule();
         }
 
+        System.out.println("GA generations have completed in " + (currentGeneration.get() - 1) + " generations, job=" + masterData.getJobId() + ", schedule=" + masterData.getScheduleId()); // FUTURE: Logger info
+
         // Generate a CSV file with the parameters and running time results for this GA run
         // FUTURE: File writing could be optimised
-        if (DEBUG) {
+        if (DATA_ANALYTICS_FILE_WRITE_OUTPUT) {
             try {
                 File statsCsv = new File("stats" + File.separator + "ga_stats.csv");
                 File generations250File = new File("stats" + File.separator + "fitness_for_all_gen_job_" + masterData.getJobId() + "_pick_250_gens.csv");
