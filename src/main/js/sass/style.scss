@@ -7,7 +7,9 @@
 //$body-color: color-yiq(#00806b); // Automatic high-contrast colour
 
 $theme-colors: (
-        "primary": #00806b
+        "primary": #00806b,
+        "secondary": #00e2bd,
+        "success": #00802b
 );
 
 // Set text color for all body text
@@ -50,6 +52,10 @@ $body-color: #212529; // Equiv to: color-yiq(#00806b);
     overflow: hidden;
     white-space: nowrap;
     text-overflow: clip;
+}
+
+.shadow-selected-card {
+    box-shadow: 0 1rem 3rem rgba(0,128,107, 0.65);
 }
 
 .float-spinner-center {

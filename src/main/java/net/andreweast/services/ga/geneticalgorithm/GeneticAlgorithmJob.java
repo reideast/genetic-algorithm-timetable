@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -170,8 +171,11 @@ public class GeneticAlgorithmJob implements Runnable {
                 // Send a WebSocket publication to subscribers on the frontend web app, notifying of progress of this job
                 this.websocket.convertAndSend(MESSAGE_PREFIX + "/jobStatus",
                         "{\"jobId\":" + masterData.getJobId() +
+                                ",\"scheduleId\":" + masterData.getScheduleId() +
                                 ",\"progressPercent\":" +
                                 ((float) currentGeneration.get() / tentativeGenLimit) + // TODO: try it with numGenerationsMaximum rather than max, see how it look
+                                ",\"fitnessEstimate\":" +
+                                population.getEstimatedFitness() +
                                 ",\"isDone\": " + false + "}");
             }
 
@@ -275,7 +279,10 @@ public class GeneticAlgorithmJob implements Runnable {
         }
         this.websocket.convertAndSend(MESSAGE_PREFIX + "/jobStatus",
                 "{\"jobId\":" + masterData.getJobId() +
+                        ",\"scheduleId\":" + masterData.getScheduleId() +
                         ",\"progressPercent\":" + 1.0 +
+                        ",\"fitnessEstimate\":" +
+                        population.getEstimatedFitness() +
                         ",\"isDone\": " + true + "}");
     }
 
@@ -284,7 +291,9 @@ public class GeneticAlgorithmJob implements Runnable {
      */
     private void saveBestIndividualToMasterData() {
         // Get info from Population, and choose a Chromosome to write back to {@link masterData}
-        masterData.setScheduledModules(population.getBestChromosomeScheduledModule());
+        Chromosome bestChromosome = population.getBestChromosome();
+        masterData.setScheduledModules(Arrays.asList(bestChromosome.getGenes()));
+        masterData.setFitness(bestChromosome.getCachedFitness());
     }
 
     private void writeBackToDatabase() {

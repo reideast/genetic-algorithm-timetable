@@ -26,7 +26,7 @@ const follow = require('./follow');
 const stompClient = require('./websocket-listener');
 
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faDna, faMicrochip, faSpinner, faUser} from '@fortawesome/free-solid-svg-icons';
+import {faDna, faMicrochip, faCalendarAlt, faRedoAlt, faSpinner, faUser} from '@fortawesome/free-solid-svg-icons';
 
 import './sass/style.scss';
 import 'react-bootstrap/dist/react-bootstrap.min.js';
@@ -35,13 +35,14 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
-import Table from 'react-bootstrap/Table';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import Alert from 'react-bootstrap/Alert';
+import Card from 'react-bootstrap/Card';
+
 
 const apiRoot = '/api';
 const apiGeneticAlgorithmRoot = '/genetic-algorithm-api';
@@ -56,6 +57,8 @@ const hours = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
 class App extends React.Component {
     constructor(props) {
         super(props);
+
+
     }
 
     render() {
@@ -64,8 +67,8 @@ class App extends React.Component {
                 <Row>
                     <Col className="py-3 pt-md-5 pb-md-4 mx-auto text-center">
                         <h4 className="display-4 d-md-block d-none">Run Genetic Algorithm</h4>
-                        <h1 className="d-md-none d-sm-block d-none" style={{fontWeight: 300, lineHeight: 1.2}}>Run Genetic Algorithm</h1>
-                        <h2 className="d-sm-none d-block" style={{fontWeight: 300, lineHeight: 1.2}}>Run Genetic Algorithm</h2>
+                        <h1 className="d-md-none d-sm-block d-none" style={{ fontWeight: 300, lineHeight: 1.2 }}>Run Genetic Algorithm</h1>
+                        <h2 className="d-sm-none d-block" style={{ fontWeight: 300, lineHeight: 1.2 }}>Run Genetic Algorithm</h2>
                     </Col>
                 </Row>
                 <Row>
@@ -81,6 +84,8 @@ class SchedulingJobLauncher extends React.Component {
         super(props);
         this.state = {
             currentTimetableScheduleId: -1,
+            currentTimetableVersion: 0,
+            isTimetableLoading: false,
             currentTimetableJobId: undefined,
             alertIsShown: false,
             alertVariant: 'info',
@@ -89,6 +94,10 @@ class SchedulingJobLauncher extends React.Component {
         };
         this.onJob = this.onJob.bind(this);
         this.onErrorAlert = this.onErrorAlert.bind(this);
+        this.onDisplaySchedule = this.onDisplaySchedule.bind(this);
+        this.onStartLoadingTimetable = this.onStartLoadingTimetable.bind(this);
+        this.onStopLoadingTimetable = this.onStopLoadingTimetable.bind(this);
+        this.onRefreshRequested = this.onRefreshRequested.bind(this);
     }
 
     /**
@@ -104,16 +113,41 @@ class SchedulingJobLauncher extends React.Component {
         }));
     }
 
+    onDisplaySchedule(scheduleIdToDisplay) {
+        this.setState({
+            currentTimetableScheduleId: scheduleIdToDisplay
+        });
+    }
+
+    onStartLoadingTimetable() {
+        this.setState({
+            isTimetableLoading: true
+        });
+    }
+
+    onStopLoadingTimetable() {
+        this.setState({
+            isTimetableLoading: false
+        });
+    }
+
     onErrorAlert(body, title, variant = 'info') {
         this.setState({
             alertIsShown: true,
             alertTitle: title,
             alertBody: body,
             alertVariant: variant
-        })
+        });
     }
 
-    // FUTURE: make an onShowSchedule and have AvailableSchedulesTable be able to call it to show different ones (without having to start a new job)
+    onRefreshRequested(scheduleId) {
+        if (scheduleId === this.state.currentTimetableScheduleId) {
+            console.log('Refreshing!', scheduleId, this.state.currentTimetableScheduleId);
+            this.setState(previousState => ({
+                currentTimetableVersion: previousState.currentTimetableVersion + 1
+            }));
+        }
+    }
 
     render() {
         return (
@@ -121,6 +155,10 @@ class SchedulingJobLauncher extends React.Component {
                 <Row>
                     <Col>
                         <AvailableSchedulesTable loggedInUser={this.props.loggedInUser}
+                                                 displayedScheduleId={this.state.currentTimetableScheduleId}
+                                                 onDisplaySchedule={this.onDisplaySchedule}
+                                                 isTimetableLoading={this.state.isTimetableLoading}
+                                                 onRefreshRequested={this.onRefreshRequested}
                                                  onJob={this.onJob} />
                     </Col>
                 </Row>
@@ -131,7 +169,9 @@ class SchedulingJobLauncher extends React.Component {
                 </Row>
                 <Row>
                     <Col>
-                        <Alert dismissible onClose={()  => {this.setState({alertIsShown: false})}} show={this.state.alertIsShown} variant={this.state.alertVariant}>
+                        <Alert dismissible onClose={() => {
+                            this.setState({ alertIsShown: false });
+                        }} show={this.state.alertIsShown} variant={this.state.alertVariant}>
                             <Alert.Heading>{this.state.alertTitle}</Alert.Heading>
                             <p>{this.state.alertBody}</p>
                         </Alert>
@@ -141,6 +181,9 @@ class SchedulingJobLauncher extends React.Component {
                     <Col>
                         <Timetable loggedInUser={this.props.loggedInUser}
                                    onErrorAlert={this.onErrorAlert}
+                                   onStartLoadingTimetable={this.onStartLoadingTimetable}
+                                   onStopLoadingTimetable={this.onStopLoadingTimetable}
+                                   parentTimetableVersionCounter={this.state.currentTimetableVersion}
                                    scheduleId={this.state.currentTimetableScheduleId} />
                     </Col>
                 </Row>
@@ -154,13 +197,15 @@ class Timetable extends React.Component {
         super(props);
         this.state = {
             currentScheduleId: -1,
+            currentParentTimetableVersionCounter: this.props.parentTimetableVersionCounter,
             currentFetchVersionDisplayed: undefined,
             fetchVersionDesired: undefined,
             fetchVersionInProgress: undefined,
+            isEmptySchedule: undefined,
             isLoading: false,
             fetchEnqueued: false,
             hasNewScheduleLoaded: false,
-            courses: undefined,
+            courses: [],
             // scheduledModules: undefined,
             fetchDoneWhenZero: -1,
             visibleTimetable: -1
@@ -228,6 +273,7 @@ class Timetable extends React.Component {
             // scheduledModules: [],
             // courses: []
         });
+        this.props.onStartLoadingTimetable();
 
         let courses = [];
         const coursesWithFetchStartedOrDone = {};
@@ -239,110 +285,117 @@ class Timetable extends React.Component {
             if (scheduledModulesCollection.entity._embedded.scheduledModules.length === 0) {
                 // No scheduled modules exist for this schedule. It's probably a new schedule
                 // Don't render the table, but need to keep this.state.currentScheduleId correct so a newer version can be fetched
+                console.log('EMPTY TIMETABLE'); // DEBUG
                 this.setState(previousState => ({
-                    hasNewScheduleLoaded: false, // This is most important: it keeps the schedule from rendering
+                    isEmptySchedule: true, // This schedule is empty, i.e. the genetic algorithm has never been run on this schedule. Don't render it
+                    hasNewScheduleLoaded: true, // The schedule has technically been loaded, despite being empty
                     currentFetchVersionDisplayed: previousState.currentFetchVersionDisplayed + 1, // And this makes sure that when an update arrives, it will know that it's a new version, therefore should start a fetch
                     fetchVersionInProgress: undefined,
-                    isLoading: false,
+                    fetchDoneWhenZero: -1,
+                    isLoading: false
                 }));
-            }
-            this.setState({
-                fetchDoneWhenZero: scheduledModulesCollection.entity._embedded.scheduledModules.length
-            });
-            console.log("NEW: ajax requests:", this.state.fetchDoneWhenZero);
-            scheduledModulesCollection.entity._embedded.scheduledModules.forEach((scheduledModule) => {
-                const needToBeFetched = [
-                    { rel: 'module', href: scheduledModule._links.module.href },
-                    { rel: 'timeslot', href: scheduledModule._links.timeslot.href },
-                    { rel: 'venue', href: scheduledModule._links.venue.href }
-                ];
-                const arrayOfPromises = needToBeFetched.map(toFetch => {
-                    return client({
-                        method: 'GET',
-                        path: toFetch.href
-                    }).then(fetched => {
-                        scheduledModule[toFetch.rel] = fetched;
-                    });
+                this.props.onStopLoadingTimetable();
+            } else {
+                this.setState({
+                    fetchDoneWhenZero: scheduledModulesCollection.entity._embedded.scheduledModules.length,
+                    isEmptySchedule: false // Huzzah, there's data to be found!
                 });
-
-                // Look through all the scheduled modules for this schedule,
-                // and create a list of courses, where each course has every scheduled module that belongs to it
-                // FUTURE: This command blocks! There's no async here
-                Promise.all(arrayOfPromises).then(() => {
-                    const arrayOfCoursePromises = [];
-                    scheduledModule.module.entity.courseModules.forEach((courseModule) => {
-                        if (!courses[courseModule.id.courseId]) {
-                            courses[courseModule.id.courseId] = {
-                                courseId: courseModule.id.courseId,
-                                courseName: courseModule.id.courseId, // Temporarily just use ID no.
-                                scheduledModules: []
-                            };
-                        }
-                        // console.log('making a new course array entry for courseId=', courseModule.id.courseId); // DEBUG
-                        if (!coursesWithFetchStartedOrDone[courseModule.id.courseId]) {
-                            coursesWithFetchStartedOrDone[courseModule.id.courseId] = true;
-                            arrayOfCoursePromises.push(client({
-                                method: 'GET',
-                                path: courseModule._links.course.href
-                            }).then(course => {
-                                courses[courseModule.id.courseId].courseName = course.entity.name;
-                            }));
-                        }
-                    });
-                    // Block until any possible ajax calls come back
-                    Promise.all(arrayOfCoursePromises).then(() => {
-                        // console.log('All courses (needed to fetch n=' + arrayOfCoursePromises.length + ')');
-
-                        // console.log('looking at module #' + index); // DEBUG
-                        // Look through each course for this scheduled module
-                        // console.log('this module has no. of courseModules:', scheduledModule.module.entity.courseModules.length); // DEBUG
-                        scheduledModule.module.entity.courseModules.forEach((courseModule) => {
-                            // console.log('looking at module #', i); // DEBUG
-                            if (!courses[courseModule.id.courseId]) {
-                                console.error('Assertion error: Course with id=' + courseModule.id.courseId + ' was not fetched in the sub-ajax call above');
-                            }
-                            courses[courseModule.id.courseId].scheduledModules.push(scheduledModule);
-                            // console.log("array is now:", courses[courseModule.id.courseId]); // DEBUG
-                        });
-
-                        // console.log('SCHEDULED MODULE', scheduledModule.id.moduleId, scheduledModule); // DEBUG
-                        client({
+                console.log('NEW: ajax requests:', this.state.fetchDoneWhenZero);
+                scheduledModulesCollection.entity._embedded.scheduledModules.forEach((scheduledModule) => {
+                    const needToBeFetched = [
+                        { rel: 'module', href: scheduledModule._links.module.href },
+                        { rel: 'timeslot', href: scheduledModule._links.timeslot.href },
+                        { rel: 'venue', href: scheduledModule._links.venue.href }
+                    ];
+                    const arrayOfPromises = needToBeFetched.map(toFetch => {
+                        return client({
                             method: 'GET',
-                            path: scheduledModule.module.entity._links.lecturer.href
-                        }).then(lecturer => {
-                            // console.log('lecturer', lecturer); // DEBUG
-                            scheduledModule.lecturer = lecturer;
+                            path: toFetch.href
+                        }).then(fetched => {
+                            scheduledModule[toFetch.rel] = fetched;
+                        });
+                    });
 
-                            if (this.state.fetchDoneWhenZero === 1) {
-                                // This is the last pending ajax request!
-                                // In this state update, swap courses to the new version. (Hey, this is like graphics double buffering! ^_^
-                                this.setState(previousState => ({
-                                    courses: courses,
-                                    fetchVersionInProgress: undefined,
-                                    isLoading: false,
-                                    fetchDoneWhenZero: 0, // Cheaper to just say one, rather than doing 1 - 1 = 0....
-                                    hasNewScheduleLoaded: true,
-                                    currentFetchVersionDisplayed: previousState.currentFetchVersionDisplayed + 1
-                                }));
-                                console.log("Open ajax requests:", this.state.fetchDoneWhenZero);
-                                if (this.state.fetchEnqueued) {
-                                    // Since this ajax request started, a request for a new version of the timetable has come in. Trigger that enqueued job (via state update)!
-                                    this.setState({
-                                        fetchEnqueue: false
-                                    });
-                                }
-                            } else {
-                                // This was not the last pending request
-                                this.setState(previousState => ({
-                                    fetchDoneWhenZero: previousState.fetchDoneWhenZero - 1
-                                }));
-                                console.log("Open ajax requests:", this.state.fetchDoneWhenZero);
+                    // Look through all the scheduled modules for this schedule,
+                    // and create a list of courses, where each course has every scheduled module that belongs to it
+                    // FUTURE: This command blocks! There's no async here
+                    Promise.all(arrayOfPromises).then(() => {
+                        const arrayOfCoursePromises = [];
+                        scheduledModule.module.entity.courseModules.forEach((courseModule) => {
+                            if (!courses[courseModule.id.courseId]) {
+                                courses[courseModule.id.courseId] = {
+                                    courseId: courseModule.id.courseId,
+                                    courseName: courseModule.id.courseId, // Temporarily just use ID no.
+                                    scheduledModules: []
+                                };
                             }
+                            // console.log('making a new course array entry for courseId=', courseModule.id.courseId); // DEBUG
+                            if (!coursesWithFetchStartedOrDone[courseModule.id.courseId]) {
+                                coursesWithFetchStartedOrDone[courseModule.id.courseId] = true;
+                                arrayOfCoursePromises.push(client({
+                                    method: 'GET',
+                                    path: courseModule._links.course.href
+                                }).then(course => {
+                                    courses[courseModule.id.courseId].courseName = course.entity.name;
+                                }));
+                            }
+                        });
+                        // Block until any possible ajax calls come back
+                        Promise.all(arrayOfCoursePromises).then(() => {
+                            // console.log('All courses (needed to fetch n=' + arrayOfCoursePromises.length + ')');
+
+                            // console.log('looking at module #' + index); // DEBUG
+                            // Look through each course for this scheduled module
+                            // console.log('this module has no. of courseModules:', scheduledModule.module.entity.courseModules.length); // DEBUG
+                            scheduledModule.module.entity.courseModules.forEach((courseModule) => {
+                                // console.log('looking at module #', i); // DEBUG
+                                if (!courses[courseModule.id.courseId]) {
+                                    console.error('Assertion error: Course with id=' + courseModule.id.courseId + ' was not fetched in the sub-ajax call above');
+                                }
+                                courses[courseModule.id.courseId].scheduledModules.push(scheduledModule);
+                                // console.log("array is now:", courses[courseModule.id.courseId]); // DEBUG
+                            });
+
+                            // console.log('SCHEDULED MODULE', scheduledModule.id.moduleId, scheduledModule); // DEBUG
+                            client({
+                                method: 'GET',
+                                path: scheduledModule.module.entity._links.lecturer.href
+                            }).then(lecturer => {
+                                // console.log('lecturer', lecturer); // DEBUG
+                                scheduledModule.lecturer = lecturer;
+
+                                if (this.state.fetchDoneWhenZero === 1) {
+                                    // This is the last pending ajax request!
+                                    // In this state update, swap courses to the new version. (Hey, this is like graphics double buffering! ^_^
+                                    this.setState(previousState => ({
+                                        courses: courses,
+                                        fetchVersionInProgress: undefined,
+                                        isLoading: false,
+                                        fetchDoneWhenZero: 0, // Cheaper to just say one, rather than doing 1 - 1 = 0....
+                                        hasNewScheduleLoaded: true,
+                                        currentFetchVersionDisplayed: previousState.currentFetchVersionDisplayed + 1
+                                    }));
+                                    this.props.onStopLoadingTimetable();
+                                    console.log('Open ajax requests:', this.state.fetchDoneWhenZero);
+                                    if (this.state.fetchEnqueued) {
+                                        // Since this ajax request started, a request for a new version of the timetable has come in. Trigger that enqueued job (via state update)!
+                                        this.setState({
+                                            fetchEnqueue: false
+                                        });
+                                    }
+                                } else {
+                                    // This was not the last pending request
+                                    this.setState(previousState => ({
+                                        fetchDoneWhenZero: previousState.fetchDoneWhenZero - 1
+                                    }));
+                                    console.log('Open ajax requests:', this.state.fetchDoneWhenZero);
+                                }
+                            });
                         });
                     });
                 });
-            });
-            // No more Promise chain after this, don't return anything: return scheduledModulesCollection;
+                // No more Promise chain after this, don't return anything: return scheduledModulesCollection;
+            }
         });
     }
 
@@ -365,6 +418,14 @@ class Timetable extends React.Component {
     }
 
     componentDidUpdate() {
+        if (this.state.currentParentTimetableVersionCounter !== this.props.parentTimetableVersionCounter) {
+            // If the parent has incremented their desired version, then increment our desired version counter
+            this.setState((previousState) => ({
+                currentParentTimetableVersionCounter: this.props.parentTimetableVersionCounter,
+                fetchVersionDesired: previousState.fetchVersionDesired + 1
+            }));
+        }
+
         this.loadFromServer();
     }
 
@@ -379,11 +440,44 @@ class Timetable extends React.Component {
     }
 
     render() {
+        // Guard against rendering when the page first loads
+        if (this.props.scheduleId < 0) {
+            return null;
+        }
+
         // Guard against rendering while the FIRST fetch job after switching to a new scheduleId (or the first scheduleId ever)
         if (!this.state.hasNewScheduleLoaded) {
             // It is appropriate to clear away the DOM elements until the fetch has finished
             return null;
         }
+
+        if (this.state.isEmptySchedule) {
+            return (
+                <Container>
+                    <Row>
+                        <Col md={{ span: 10, offset: 1 }} lg={{ span: 6, offset: 3 }} style={this.state.isLoading ? { opacity: 0.3 } : {}}>
+                            <Alert variant="primary">
+                                <p>Timetable with ID of {this.props.scheduleId} has not yet been generated by the genetic algorithm</p>
+                                {/*<hr />*/}
+                                {/*<div className="d-flex justify-content-end">*/}
+                                {/*    <Button onClick={() => {*/}
+                                {/*        // FUTURE: This is a silly hack: find the item by forcefully-unique ID and click() it*/}
+                                {/*        document.getElementById('jobRunnerButton' + this.props.scheduleId).click();*/}
+                                {/*    }} variant="outline-primary">Start genetic algorithm</Button>*/}
+                                {/*</div>*/}
+                            </Alert>
+                        </Col>
+                        <div style={this.state.isLoading ? { display: 'block' } : { display: 'none' }}>
+                            <div className="fade-out-mask"></div>
+                            <div className="float-spinner-center spinner-border text-primary" role="status">
+                                <span className="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                    </Row>
+                </Container>
+            );
+        }
+        // FUTURE: the isLoading blocking box is used twice: here and in the mian render. Make it into a component
 
         // This tab layout can be moved to the side: Custom Tab Layout: https://react-bootstrap.github.io/components/tabs/#tabs-custom-layout
         // This may be necessary when there are a lot of courses
@@ -485,7 +579,6 @@ class WeekView extends React.Component {
         this.props.modules.forEach(module => {
             rows[module.timeslot.entity.time][module.timeslot.entity.day] = module;
         });
-        // console.log('rows', rows);
 
         // Make the actual JSX elements for those rows
         const hourRows = rows.map((row, hourNum) => {
@@ -503,12 +596,7 @@ class WeekView extends React.Component {
         return (
             <Container fluid={true} className="timetableContainer">
                 <Row key={'headerRow'} className="timetableHeaderRow no-gutters">
-                    {/*{dayNames.reduce((day => (*/}
-                    {/*<Col key={day}>{day}</Col>*/}
-                    {/*)), (*/}
-                    {/*<Col key={'timeColumn'}>Time</Col>*/}
-                    {/*))}*/}
-                    <Col xs={1} key={'times'} className="pr-2" className="timetableHeaderTimeCell"><span className="d-none d-md-inline">Time</span></Col>
+                    <Col xs={1} key={'times'} className="pr-2 timetableHeaderTimeCell"><span className="d-none d-md-inline">Time</span></Col>
                     {
                         dayNames.map(dayName => (
                             <Col key={dayName}>
@@ -517,11 +605,6 @@ class WeekView extends React.Component {
                             </Col>
                         ))
                     }
-                    {/*<Col key={'Mon'}>Mon</Col>*/}
-                    {/*<Col key={'Tues'}>Tues</Col>*/}
-                    {/*<Col key={'Wed'}>Wed</Col>*/}
-                    {/*<Col key={'Thur'}>Thur</Col>*/}
-                    {/*<Col key={'Fri'}>Fri</Col>*/}
                 </Row>
                 {hourRows}
             </Container>
@@ -627,9 +710,12 @@ class AvailableSchedulesTable extends React.Component {
     }
 
     refreshPageOfSchedules(message) {
-        // console.log("STOMP RECEIVED - UPDATING SCHEDULE TABLE"); // DEBUG
-        // TODO: this is not correct anymore: it doesn't filter by USERNAME
-        follow(client, apiRoot, ['schedules']).then(schedulesCollection => {
+        console.log('WebSocket received - updating schedule list'); // DEBUG
+        follow(client, apiRoot, [
+            'schedules',
+            'search',
+            { rel: 'creatorUsername', params: { username: this.props.loggedInUser } }
+        ]).then(schedulesCollection => {
             return schedulesCollection.entity._embedded.schedules.map(schedule => {
                 return client({
                     method: 'GET',
@@ -663,6 +749,10 @@ class AvailableSchedulesTable extends React.Component {
             <div>
                 <ScheduleTable loggedInUser={this.props.loggedInUser}
                                schedules={this.state.schedules}
+                               displayedScheduleId={this.props.displayedScheduleId}
+                               onDisplaySchedule={this.props.onDisplaySchedule}
+                               isTimetableLoading={this.props.isTimetableLoading}
+                               onRefreshRequested={this.props.onRefreshRequested}
                                onJob={this.props.onJob} />
             </div>
 
@@ -698,7 +788,7 @@ class RunGeneticAlgorithm extends React.Component {
             method: 'POST',
             path: apiGeneticAlgorithmRoot + '/job',
             params: {
-                scheduleId: this.props.schedule.entity.scheduleId,
+                scheduleId: this.props.schedule.entity.scheduleId
                 // numGenerations: 10000,
                 // numGenerations: 100000,
                 // mutatePercentage: 5,
@@ -736,10 +826,10 @@ class RunGeneticAlgorithm extends React.Component {
     render() {
         return (
             <div>
-                <Button className="jobRunnerButton" ref="jobRunner"
+                <Button id={'jobRunnerButton' + this.props.schedule.entity.scheduleId} ref="jobRunner" className="w-100"
                         onClick={this.handleClick}
                         variant="primary"
-                        disabled={this.state.disabled}>
+                        disabled={!this.props.isReadyToStartJob || this.state.disabled}>
                     <FontAwesomeIcon icon={this.state.icon} spin={this.state.spin} /> {this.state.buttonText}
                 </Button>
             </div>
@@ -753,33 +843,41 @@ class ScheduleTable extends React.Component {
     }
 
     render() {
-        const schedules = this.props.schedules.map(schedule => {
+        // Sorting with a map for: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#Sorting_with_map
+        // Done this way since I'm not sure if React will react badly if a Prop is modified (although Mozilla mentions this method for efficiency)
+        const dateMap = this.props.schedules.map((schedule, i) => {
+            return { index: i, date: schedule.entity.creationDate };
+        });
+        dateMap.sort((a, b) => {
+            // Sort DESC
+            if (a.date > b.date) {
+                return -1;
+            } else if (a.date < b.date) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+        const schedules = dateMap.map(item => {
+            const schedule = this.props.schedules[item.index];
             return (
                 <Schedule key={schedule.entity.scheduleId}
                           loggedInUser={this.props.loggedInUser}
                           schedule={schedule}
+                          displayedScheduleId={this.props.displayedScheduleId}
+                          onDisplaySchedule={this.props.onDisplaySchedule}
+                          isTimetableLoading={this.props.isTimetableLoading}
+                          onRefreshRequested={this.props.onRefreshRequested}
                           onJob={this.props.onJob} />
             );
         });
 
         return (
-            <div>
-                <Table hover bordered>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Creator</th>
-                            <th>Is New Job</th>
-                            {/*TODO*/}
-                            <th>Created On</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {schedules}
-                    </tbody>
-                </Table>
-            </div>
+            <Container>
+                <Row className="mb-3">
+                    {schedules}
+                </Row>
+            </Container>
         );
     }
 }
@@ -787,8 +885,11 @@ class ScheduleTable extends React.Component {
 class Schedule extends React.Component {
     constructor(props) {
         super(props);
+        this.refreshFitnessAfterWebSocket = this.refreshFitnessAfterWebSocket.bind(this);
+
         this.state = {
-            creator: {}
+            creator: {},
+            fitness: this.props.schedule.entity.fitness
         };
     }
 
@@ -805,28 +906,128 @@ class Schedule extends React.Component {
         });
     }
 
+    refreshFitnessAfterWebSocket(message) {
+        const body = JSON.parse(message.body);
+
+        // Filter: only act on WebSocket messages that are for THIS object
+        if (this.props.schedule.entity.scheduleId === body.scheduleId) {
+            this.setState({
+                fitness: body.fitnessEstimate
+            });
+        }
+    }
+
     componentDidMount() {
         this.loadFromServer();
+        stompClient.register([
+            { route: '/topic/jobStatus', callback: this.refreshFitnessAfterWebSocket }
+        ]);
     }
 
     render() {
         const creationDate = new Date(this.props.schedule.entity.creationDate);
+
+        const isNew = !this.props.schedule.entity.wip; // Is not a work-in-progress, so it's new
+
         return (
-            <tr>
-                <td>{this.props.schedule.entity.scheduleId}</td>
-                <td>{(this.state.creator.entity) ? this.state.creator.entity.displayName : null}</td>
-                <td></td>
-                <td>{creationDate.toLocaleDateString()}</td>
-                <td>
-                    <RunGeneticAlgorithm key={this.props.schedule.entity.scheduleId}
-                                         loggedInUser={this.props.loggedInUser}
-                                         onJob={this.props.onJob}
-                                         schedule={this.props.schedule} />
-                </td>
-            </tr>
+            <Col xs={12} sm={6} lg={4}>
+                <Card className={`${this.props.displayedScheduleId === this.props.schedule.entity.scheduleId ? 'shadow-selected-card' : ''} text-center mb-4 box-shadow`}>
+                    <Card.Header className={`${isNew ? 'bg-success' : 'bg-primary'} text-white font-weight-normal my-0`} as="h5">
+                        {isNew ? 'New Schedule' : 'Existing Schedule'}
+                    </Card.Header>
+                    <Card.Body style={{ padding: '0.5rem' }}>
+                        <ul className="list-unstyled mb-2">
+                            <li><h4>Schedule ID {this.props.schedule.entity.scheduleId}</h4></li>
+                            <li>Creator: {this.state.creator.entity ? this.state.creator.entity.displayName : ''}</li>
+                            <li>Created: {creationDate.toLocaleDateString()}</li>
+                            <li>
+                                <h4>Fitness</h4>
+                                <Row>
+                                    <Col xs={{ span: 4, offset: 4 }} sm={{ span: 8, offset: 2 }} md={{ span: 6, offset: 3 }} lg={{ span: 6, offset: 3 }}>
+                                        <div className="rounded-circle w-100 h-100 position-relative text-center text-middle bg-dark text-white"
+                                             style={{ paddingTop: '100%' }}
+                                        >
+                                            <div style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}>
+                                                <Row className="h-100">
+                                                    <Col className="align-self-center">
+                                                        <h4>{this.state.fitness ? this.state.fitness.toLocaleString() : 'n/a'}</h4>
+                                                    </Col>
+                                                </Row>
+                                            </div>
+                                        </div>
+                                    </Col>
+                                </Row>
+                            </li>
+                        </ul>
+                    </Card.Body>
+                    <Card.Footer>
+                        <DisplayTimetable key={'display' + this.props.schedule.entity.scheduleId}
+                                          onDisplaySchedule={this.props.onDisplaySchedule}
+                                          isTimetableLoading={this.props.isTimetableLoading && this.props.displayedScheduleId === this.props.schedule.entity.scheduleId}
+                                          isTheSelectedTimetable={this.props.displayedScheduleId === this.props.schedule.entity.scheduleId}
+                                          onRefreshRequested={this.props.onRefreshRequested}
+                                          scheduleId={this.props.schedule.entity.scheduleId} />
+                        <RunGeneticAlgorithm key={this.props.schedule.entity.scheduleId}
+                                             loggedInUser={this.props.loggedInUser}
+                                             onJob={this.props.onJob}
+                                             isReadyToStartJob={!this.props.isTimetableLoading && this.props.displayedScheduleId === this.props.schedule.entity.scheduleId}
+                                             schedule={this.props.schedule} />
+                    </Card.Footer>
+                </Card>
+            </Col>
         );
     }
 }
+
+class DisplayTimetable extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleClick = this.handleClick.bind(this);
+        this.icon = faCalendarAlt;
+        this.loadingIcon = faSpinner;
+        this.refreshIcon = faRedoAlt;
+        this.buttonText = 'Load timetable';
+        this.loadingText = 'Loading timetable';
+        this.refreshText = 'Refresh timetable';
+        this.state = {
+            hasBeenSelected: false
+        };
+    }
+
+    handleClick(e) {
+        e.preventDefault();
+        if (this.state.hasBeenSelected) {
+            this.props.onRefreshRequested(this.props.scheduleId);
+        } else {
+            this.props.onDisplaySchedule(this.props.scheduleId);
+            this.setState({
+                hasBeenSelected: true
+            });
+        }
+    }
+
+    componentDidUpdate() {
+        if (this.state.hasBeenSelected && !this.props.isTheSelectedTimetable) {
+            this.setState({
+                hasBeenSelected: false
+            })
+        }
+    }
+
+    render() {
+        return (
+            <Button className="w-100 mb-2"
+                    onClick={this.handleClick}
+                    variant="primary"
+                    disabled={this.props.isTimetableLoading}>
+                <FontAwesomeIcon icon={this.props.isTimetableLoading ? this.loadingIcon : (this.state.hasBeenSelected ? this.refreshIcon : this.icon)}
+                                 spin={this.props.isTimetableLoading} />
+                <span> {this.props.isTimetableLoading ? this.loadingText : (this.state.hasBeenSelected ? this.refreshText : this.buttonText)}</span>
+            </Button>
+        );
+    }
+}
+
 
 class DisplayName extends React.Component {
     constructor(props) {
@@ -858,21 +1059,12 @@ class DisplayName extends React.Component {
     }
 }
 
-
-class BrandIcon extends React.Component {
-    render() {
-        return (
-            <FontAwesomeIcon icon={faDna} size="lg" />
-        );
-    }
-}
-
 ReactDOM.render(
     <App loggedInUser={document.getElementById('loggedInUser').innerHTML} />,
     document.getElementById('react')
 );
 ReactDOM.render(
-    <BrandIcon />,
+    <FontAwesomeIcon icon={faDna} size="lg" />,
     document.getElementById('brand-icon-placeholder')
 );
 ReactDOM.render(
