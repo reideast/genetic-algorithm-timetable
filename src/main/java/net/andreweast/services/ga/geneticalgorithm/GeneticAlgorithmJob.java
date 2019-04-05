@@ -69,8 +69,6 @@ public class GeneticAlgorithmJob implements Runnable {
     static final boolean DATA_ANALYTICS_FILE_WRITE_OUTPUT = false; // DEBUG
     static final boolean DEBUG_STATS = true; // DEBUG
 
-    static final boolean MAKE_HORRIBLE_JUNK_SCHEDULES = true; // DEBUG
-
     public GeneticAlgorithmJob(GeneticAlgorithmJobData geneticAlgorithmJobData, ExecutorService threadPool) {
         // Services
         // Directly get Spring @Services via a context-aware utility class
@@ -202,10 +200,6 @@ public class GeneticAlgorithmJob implements Runnable {
                 }
                 // else: There's no valid solution. Continue running the algorithm as normal
             } // else: Already doing a final run down, don't check if the valid solution still exists until we're done
-
-            if (MAKE_HORRIBLE_JUNK_SCHEDULES) {
-                isRunning.set(false);
-            }
         }
         // DEBUG
         if (DEBUG_STATS) {
