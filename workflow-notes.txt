@@ -1,0 +1,17 @@
+========================
+    Current Workflow
+========================
+gw bootJar
+    build JAR with Spring Boot, which can be uploaded to EC2
+eb deploy
+    deploy JAR to EC2. Currently using static artifact filename from .elasticbeanstalk\config.yml build\libs\genetic-algorithm-0.1.0.war
+eb create --single
+    make a new Elastic Beanstalk environment (essentially, re-create it using init settings)
+eb terminate --force
+    take server offline. must be re-created afterward
+
+========================
+    Deployed URL
+========================
+http://genetic-algorithm-dev.eu-west-1.elasticbeanstalk.com/hello.jsp
+http://scheduler-api.andreweast.net/hello.jsp
