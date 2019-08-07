@@ -131,13 +131,17 @@ test {
     ignoreFailures = true
 }
 
-// For SpringBoot's bootRun that starts a server, load the .ebextensions YAML file as environmental variables first
 bootRun {
-    doFirst {
+}
+
+// For SpringBoot's bootRun that starts a server, load the .ebextensions YAML file as environmental variables first
+task loadYamlCredentials {
+    doLast {
         def yamlFileContents = (".ebextensions/environmentvariables.config" as File).text
         def envs = new Yaml().load(yamlFileContents)["option_settings"]["aws:elasticbeanstalk:application:environment"] as Map<String, String>
         envs.each { key, value ->
-            systemProperty key, value // Gradle's idiom for System.setProperty()
+//            systemProperty key, value // Gradle's idiom for System.setProperty()
+            System.setProperty(key.toString(), value.toString()) // TODO: DOESN'T WORK YET: System.setProperty() doesn't set the ENV as expected by application.properties
 
             if (key == "RDS_HOSTNAME") {
                 println "POSTGRESQL HOSTNAME: Will be connecting to database: ${value}"

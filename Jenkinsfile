@@ -23,7 +23,15 @@ pipeline {
         }
         stage('Launch') {
             steps {
-                sh './gradlew bootRun'
+                withCredentials([
+                        usernamePassword(credentialsId: 'rds.login', usernameVariable: 'RDS_USERNAME', passwordVariable: 'RDS_PASSWORD'),
+                        string(credentialsId: 'rds.hostname', variable: 'RDS_HOSTNAME'),
+                        string(credentialsId: 'rds.port', variable: 'RDS_PORT'),
+                        string(credentialsId: 'rds.db_name', variable: 'RDS_DB_NAME'),
+                        string(credentialsId: 'server.port', variable: 'SERVER_PORT')
+                ]) {
+                    sh './gradlew bootRun'
+                }
             }
         }
     }
