@@ -21,5 +21,10 @@ pipeline {
                 }
             }
         }
+        stage('Launch') {
+            steps {
+                sh './gradlew bootRun'
+            }
+        }
     }
 }
