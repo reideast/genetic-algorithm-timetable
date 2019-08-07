@@ -11,16 +11,15 @@ pipeline {
                 archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
             }
         }
-//        stage('Test') {
-//            steps {
-//                sh './gradlew test'
-//                echo 'step added to stage via Blue Ocean'
-//            }
-//            post {
-//                always {
-//                    junit 'target/surefire-reports/*.xml'
-//                }
-//            }
-//        }
+        stage('Test') {
+            steps {
+                sh './gradlew test'
+            }
+            post {
+                always {
+                    junit 'build/test-results/**/*.xml'
+                }
+            }
+        }
     }
 }
