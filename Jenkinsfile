@@ -5,6 +5,11 @@ pipeline {
         }
     }
     stages {
+        stage('Init') {
+            steps {
+                sh 'cp /home/jenkins_user/environmentvariables.config .ebextensions/environmentvariables.config'
+            }
+        }
         stage('Build') {
             steps {
                 sh './gradlew clean bootJar'
