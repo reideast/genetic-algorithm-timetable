@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'adoptopenjdk:8-jdk-hotspot'
+            image 'gradle:5.5.1-jdk8'
             args '-p 5000:5000'
         }
     }
