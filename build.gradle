@@ -35,6 +35,9 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 bootJar {
+    // Always run Webpack before a build
+    dependsOn 'webpack' // Gradle general note: if task is not in quotes, then it must come BEFORE this one in the file. If task is in quotes, Gradle will parse the entire file first before resolving task
+
     baseName = appName
     version = version
 
@@ -67,6 +70,16 @@ bootJar {
         )
     }
 }
+
+task webpack(type: Exec) {
+    commandLine 'npm install && npx webpack' // TODO: This probably breaks on win32 because `&&`
+}
+
+task cleanWebpack(type: Delete) {
+    println "src/main/resources/static/built"
+    delete "src/main/resources/static/built/"
+}
+clean.dependsOn cleanWebpack
 
 repositories {
     mavenCentral()
