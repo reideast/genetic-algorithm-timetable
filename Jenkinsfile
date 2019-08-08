@@ -8,6 +8,7 @@ pipeline {
     }
 
     parameters {
+        booleanParam(name: 'Run_Server', defaultValue: true, description: 'Start up the app in a local container using Spring\'s Tomcat bootJar')
         string(name: 'Server_Port', defaultValue: '5000', description: 'HTTP port for Tomcat')
     }
 
@@ -29,6 +30,11 @@ pipeline {
             }
         }
         stage('Launch') {
+            when {
+                expression {
+                    params.Run_Server
+                }
+            }
             steps {
                 withCredentials([
                         usernamePassword(credentialsId: 'rds.login', usernameVariable: 'RDS_USERNAME', passwordVariable: 'RDS_PASSWORD'),
