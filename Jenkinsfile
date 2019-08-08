@@ -27,6 +27,12 @@ pipeline {
             }
         }
         stage('Launch') {
+            agent {
+                docker {
+                    image 'gradle:5.5.1-jdk8'
+                    args '-p 5000:5000'
+                }
+            }
             steps {
                 withCredentials([
                         usernamePassword(credentialsId: 'rds.login', usernameVariable: 'RDS_USERNAME', passwordVariable: 'RDS_PASSWORD'),
