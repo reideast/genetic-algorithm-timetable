@@ -132,19 +132,21 @@ test {
 }
 
 bootRun {
-}
+    doFirst {
+        // Parse a credentials files on the local system with gradlew flag "-PrunLocal=true"
+        // Do not perform any parsing with gradlew flag "-PrunLocal=false" or simply omit the flag
+        // If you are not parsing the credentials file, you MUST specify all the ENV variables that are used by `./src/main/resources/application.properties`
+        boolean doRunLocal = project.hasProperty('runLocal') ? (project.getProperty('runLocal') == 'true') : false
+        if (doRunLocal) {
+            // For SpringBoot's bootRun that starts a server, load a config YAML file from the .ebextensions folder as environmental variables first
+            def yamlFileContents = (".ebextensions/environmentvariables.config" as File).text
+            def envs = new Yaml().load(yamlFileContents)["option_settings"]["aws:elasticbeanstalk:application:environment"] as Map<String, String>
+            envs.each { key, value ->
+                systemProperty key, value // Gradle Task JavaExec's method for setting a ENV variable
 
-// For SpringBoot's bootRun that starts a server, load the .ebextensions YAML file as environmental variables first
-task loadYamlCredentials {
-    doLast {
-        def yamlFileContents = (".ebextensions/environmentvariables.config" as File).text
-        def envs = new Yaml().load(yamlFileContents)["option_settings"]["aws:elasticbeanstalk:application:environment"] as Map<String, String>
-        envs.each { key, value ->
-//            systemProperty key, value // Gradle's idiom for System.setProperty()
-            System.setProperty(key.toString(), value.toString()) // TODO: DOESN'T WORK YET: System.setProperty() doesn't set the ENV as expected by application.properties
-
-            if (key == "RDS_HOSTNAME") {
-                println "POSTGRESQL HOSTNAME: Will be connecting to database: ${value}"
+                if (key == "RDS_HOSTNAME") {
+                    println "POSTGRESQL HOSTNAME: Will be connecting to database: ${value}"
+                }
             }
         }
     }
