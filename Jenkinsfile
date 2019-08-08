@@ -4,6 +4,11 @@ pipeline {
             image 'gradle:5.5.1-jdk8'
         }
     }
+
+    parameters {
+        string(name: 'Server_Port', defaultValue: '5000', description: 'HTTP port for Tomcat')
+    }
+
     stages {
         stage('Build') {
             steps {
@@ -27,10 +32,13 @@ pipeline {
                         usernamePassword(credentialsId: 'rds.login', usernameVariable: 'RDS_USERNAME', passwordVariable: 'RDS_PASSWORD'),
                         string(credentialsId: 'rds.hostname', variable: 'RDS_HOSTNAME'),
                         string(credentialsId: 'rds.port', variable: 'RDS_PORT'),
-                        string(credentialsId: 'rds.db_name', variable: 'RDS_DB_NAME'),
-                        string(credentialsId: 'server.port', variable: 'SERVER_PORT')
+                        string(credentialsId: 'rds.db_name', variable: 'RDS_DB_NAME')
                 ]) {
-                    sh './gradlew bootRun'
+                    withEnv([
+                            "SERVER_PORT=${params.Server_Port}"
+                    ]) {
+                        sh './gradlew bootRun'
+                    }
                 }
             }
         }
