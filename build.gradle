@@ -72,14 +72,45 @@ bootJar {
 }
 
 task webpack(type: Exec) {
-    commandLine 'npm install && npx webpack' // TODO: This probably breaks on win32 because `&&`
+    dependsOn 'npmInstall'
+
+    // Tag which directories Gradle should check to determine if this task is stale (and thus should be re-built)
+    inputs.dir('src/main/js')
+    inputs.file('package-lock.json')
+    inputs.file('package.json')
+    outputs.dir('src/main/resources/static/built') // Gradle will not consider task up-to-date if a file is deleted from this dir (tested)
+    outputs.dir('src/main/resources/static/css')
+
+    executable 'npx'
+    args 'webpack'
 }
 
 task cleanWebpack(type: Delete) {
-    println "src/main/resources/static/built"
-    delete "src/main/resources/static/built/"
+    delete 'src/main/resources/static/built/'
+    delete 'src/main/resources/static/css/'
 }
 clean.dependsOn cleanWebpack
+
+task npmInstall(type: Exec) {
+    inputs.file('package-lock.json')
+    inputs.file('package.json')
+    outputs.dir('node_modules')
+
+    executable 'npm'
+    args 'install'
+    /* Might be required for windows:
+        String npm = 'npm';
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            npm = 'npm.cmd'
+        }
+       See: https://stackoverflow.com/a/53428540/5271224
+     */
+}
+
+task cleanNodeModules(type: Delete) {
+    delete 'node_modules'
+}
+// Do NOT automatically run this task! // clean.dependsOn cleanNodeModules
 
 repositories {
     mavenCentral()
