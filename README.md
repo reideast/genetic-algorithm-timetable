@@ -31,4 +31,4 @@ running barebones Java 8 environment (not an EB Tomcat config)
 `./gradlew bootJar`  
 _JAR can be found as build/libs/ga-rest-api-VERSION.jar_
 
-Deploy jar to AWS
+TODO: How to Deploy jar to AWS
