@@ -36,7 +36,7 @@ targetCompatibility = 1.8
 
 compileJava {
     // Always run Webpack before a build
-    dependsOn 'webpack' // Gradle general note: if task is not in quotes, then it must come BEFORE this one in the file. If task is in quotes, Gradle will parse the entire file first before resolving task
+//    dependsOn 'webpack' // Gradle general note: if task is not in quotes, then it must come BEFORE this one in the file. If task is in quotes, Gradle will parse the entire file first before resolving task
     // Note: Putting this dependency on task bootJar would make race condition: dependsOn([jar, webpack]), meaning that the compiled JS/CSS files might be updated AFTER the jar is packaged
     //       The same logic applies to bootRun, and compileJava is a dependency for both
 }
