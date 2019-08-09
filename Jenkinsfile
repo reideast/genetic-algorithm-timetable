@@ -16,6 +16,9 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'cd ~ && pwd'
+
+                sh 'npm config set cache /tmp/.npm'
+
                 sh './gradlew clean cleanNodeModules bootJar'
                 archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
             }
