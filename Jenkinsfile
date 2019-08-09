@@ -2,8 +2,8 @@ pipeline {
     agent {
         docker {
             image 'andreweast2/build-openjdk-node:latest'
-            args '-p 5000:5000' +
-                    ' -u root:root' // TODO: HACK to prevent `/.npm` not being write-allowed on container
+            args '-p 5000:5000'
+//                      + ' -u root:root' // TODO: HACK to prevent `/.npm` not being write-allowed on container
         }
     }
 
@@ -15,7 +15,8 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh './gradlew clean bootJar'
+                sh 'cd ~ && pwd'
+                sh './gradlew clean cleanNodeModules bootJar'
                 archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
             }
         }
