@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'andreweast2/build-openjdk-node:latest'
-            args '-p 5000:5000' +
+            args '-p 5000:5000' + // TODO: make a _second_ container for launching the app, and set that up with port pass-through. Also, Server_Port should be parameterised?? Or, not (and hard-code that to the image)
                     ' --user root:root' // Note: This overrides jenkins hard-coded `--user 998:996`, and is one of the recognized workarounds
         }
     }
@@ -15,8 +15,6 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'cd ~ && pwd'
-
                 sh './gradlew clean cleanNodeModules bootJar'
                 archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
             }
@@ -53,9 +51,9 @@ pipeline {
             }
         }
     }
-    post {
-        always {
-            cleanWs()
-        }
-    }
+//    post {
+//        always {
+//            cleanWs()
+//        }
+//    }
 }
