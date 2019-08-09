@@ -17,6 +17,8 @@ pipeline {
             steps {
                 sh './gradlew clean cleanNodeModules bootJar'
                 archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
+//
+//                stash includes: 'build/libs/*.jar', name: 'built-jar'
             }
         }
         stage('Test') {
@@ -31,10 +33,17 @@ pipeline {
         }
         stage('Launch') {
             when {
+//                beforeAgent true
                 expression {
                     params.Run_Server
                 }
             }
+//            agent {
+//                docker {
+//                    image 'andreweast2/build-openjdk-node:latest'
+//                    args '-p 5000:5000'
+//                }
+//            }
             steps {
                 withCredentials([
                         usernamePassword(credentialsId: 'rds.login', usernameVariable: 'RDS_USERNAME', passwordVariable: 'RDS_PASSWORD'),
@@ -45,6 +54,7 @@ pipeline {
                     withEnv([
                             "SERVER_PORT=${params.Server_Port}"
                     ]) {
+//                        unstash 'built-jar'
                         sh './gradlew bootRun'
                     }
                 }
