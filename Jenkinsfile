@@ -1,9 +1,8 @@
 pipeline {
     agent {
         docker {
-            image 'andreweast2/build-openjdk-node:latest'
-            args '-p 5000:5000' +
-                    ' -u root:root' // TODO: HACK to prevent `/.npm` not being write-allowed on container
+            image 'andreweast2/build-openjdk-node-compiled:latest'
+            args '-p 5000:5000'
         }
     }
 
