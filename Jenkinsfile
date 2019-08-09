@@ -2,8 +2,8 @@ pipeline {
     agent {
         docker {
             image 'andreweast2/build-openjdk-node:latest'
-            args '-p 5000:5000'
-//                      + ' -u root:root' // TODO: HACK to prevent `/.npm` not being write-allowed on container
+            args '-p 5000:5000' +
+                    ' --user root:root' // Note: This overrides jenkins hard-coded `--user 998:996`, and is one of the recognized workarounds
         }
     }
 
@@ -16,8 +16,6 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'cd ~ && pwd'
-
-                sh 'npm config set cache /tmp/.npm'
 
                 sh './gradlew clean cleanNodeModules bootJar'
                 archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
